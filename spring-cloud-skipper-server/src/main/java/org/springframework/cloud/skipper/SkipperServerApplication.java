@@ -22,7 +22,7 @@ import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
 public class SkipperServerApplication {
-	
+
 	public static void main(String[] args) {
 		ApplicationContext ctx = SpringApplication.run(SkipperServerApplication.class, args);
 		PackageIndexSynchronizer packageIndexSynchronizer = ctx.getBean(PackageIndexSynchronizer.class);

@@ -15,17 +15,18 @@
  */
 package org.springframework.cloud.skipper.index;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.skipper.config.SkipperServerConfiguration;
-import org.springframework.cloud.skipper.repositories.PackageSummaryRepository;
-import org.springframework.stereotype.Component;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.skipper.config.SkipperServerConfiguration;
+import org.springframework.cloud.skipper.repositories.PackageSummaryRepository;
+import org.springframework.stereotype.Component;
 
 /**
  * Synchronizes the contents of local package index files with contents in the database.
@@ -43,8 +44,8 @@ public class PackageIndexSynchronizer {
 
 	@Autowired
 	public PackageIndexSynchronizer(PackageIndexDownloader packageIndexDownloader,
-									PackageSummaryRepository packageSummaryRepository,
-									SkipperServerConfiguration skipperServerConfiguration) {
+			PackageSummaryRepository packageSummaryRepository,
+			SkipperServerConfiguration skipperServerConfiguration) {
 		this.packageSummaryRepository = packageSummaryRepository;
 		this.packageIndexDownloader = packageIndexDownloader;
 		this.skipperServerConfiguration = skipperServerConfiguration;
