@@ -60,7 +60,7 @@ public class PackageIndexLoaderTests {
 			files = paths.map(i -> i.toAbsolutePath().toFile()).collect(Collectors.toList());
 		}
 		for (File file : files) {
-			if (file.getName().startsWith("file")) {
+			if (file.getName().startsWith("file") || file.getName().startsWith("localhost")) {
 				file.delete();
 			}
 		}

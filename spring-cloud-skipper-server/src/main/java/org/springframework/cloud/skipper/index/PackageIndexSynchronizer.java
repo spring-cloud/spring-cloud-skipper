@@ -24,8 +24,10 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.skipper.config.SkipperServerConfiguration;
+import org.springframework.cloud.skipper.config.SkipperServerProperties;
 import org.springframework.cloud.skipper.repositories.PackageSummaryRepository;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,24 +42,34 @@ public class PackageIndexSynchronizer {
 
 	private PackageSummaryRepository packageSummaryRepository;
 
-	private SkipperServerConfiguration skipperServerConfiguration;
+	private SkipperServerProperties skipperServerProperties;
 
 	@Autowired
 	public PackageIndexSynchronizer(PackageIndexDownloader packageIndexDownloader,
 			PackageSummaryRepository packageSummaryRepository,
-			SkipperServerConfiguration skipperServerConfiguration) {
-		this.packageSummaryRepository = packageSummaryRepository;
+			SkipperServerProperties skipperServerProperties) {
 		this.packageIndexDownloader = packageIndexDownloader;
-		this.skipperServerConfiguration = skipperServerConfiguration;
+		this.packageSummaryRepository = packageSummaryRepository;
+		this.skipperServerProperties = skipperServerProperties;
 	}
 
 	public void loadAll() {
+		packageIndexDownloader.downloadPackageIndexes();
 		List<File> indexFiles = packageIndexDownloader.getIndexFiles();
 		List<PackageSummary> packageSummaryList = deserializeFromIndexFiles(indexFiles);
 		packageSummaryRepository.save(packageSummaryList);
 	}
 
-	private List<PackageSummary> deserializeFromIndexFiles(List<File> indexFiles) {
+	@EventListener
+	public void loadAllOnApplicationStartup(ContextRefreshedEvent contextRefreshedEvent) {
+		if (this.skipperServerProperties.isSynchonizeIndexOnContextRefresh()) {
+			loadAll();
+		}
+
+	}
+
+	// Package protected for testing
+	List<PackageSummary> deserializeFromIndexFiles(List<File> indexFiles) {
 		List<PackageSummary> packageSummaryList = new ArrayList<>();
 		YAMLMapper yamlMapper = new YAMLMapper();
 		for (File indexFile : indexFiles) {

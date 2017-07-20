@@ -59,9 +59,10 @@ public class PackageIndexDownloader implements ResourceLoaderAware {
 		for (String packageRepositoryUrl : this.skipperServerProperties.getPackageRepositoryUrls()) {
 			Resource resource = resourceLoader.getResource(packageRepositoryUrl);
 			try {
+				logger.info("Downloading from " + packageRepositoryUrl);
 				File packageDir = new File(skipperServerProperties.getPackageIndexDir());
 				packageDir.mkdirs();
-				File downloadedFile = new File(packageDir, getDownloadedFilename(resource));
+				File downloadedFile = new File(packageDir, computeFilename(resource));
 				StreamUtils.copy(resource.getInputStream(), new FileOutputStream(downloadedFile));
 			}
 			catch (IOException e) {
@@ -75,25 +76,38 @@ public class PackageIndexDownloader implements ResourceLoaderAware {
 		List<File> files = new ArrayList<>();
 		Path indexPath = Paths.get(skipperServerProperties.getPackageIndexDir());
 		try (Stream<Path> paths = Files.walk(indexPath, 1)) {
-
 			files = paths.filter(i -> i.toString().endsWith(".yml"))
 					.map(i -> i.toAbsolutePath().toFile())
 					.collect(Collectors.toList());
 		}
 		catch (IOException e) {
-			logger.error("Could not read index file.", e);
+			logger.error("Could not read index files in path " + indexPath, e);
 		}
 		finally {
 			return files;
 		}
 	}
 
-	private String getDownloadedFilename(Resource resource) throws IOException {
+	public String computeFilename(Resource resource) throws IOException {
 		URI uri = resource.getURI();
 		StringBuilder stringBuilder = new StringBuilder();
-		if (uri.getScheme().equals("file")) {
+		String scheme = uri.getScheme();
+		if (scheme.equals("file")) {
 			stringBuilder.append("file");
-			stringBuilder.append(uri.getPath().replaceAll("/", "_"));
+			if (uri.getPath() != null) {
+				stringBuilder.append(uri.getPath().replaceAll("/", "_"));
+			}
+			else {
+				String relativeFilename = uri.getSchemeSpecificPart().replaceAll("^./", "/dot/");
+				stringBuilder.append(relativeFilename.replaceAll("/", "_"));
+			}
+		}
+		else if (scheme.equals("http") || scheme.equals("https")) {
+			stringBuilder.append(uri.getHost()).append(uri.getPath().replaceAll("/", "_"));
+		}
+		else {
+			logger.warn("Package repository with scheme " + scheme
+					+ " is not supported.  Skipping processing this repository.");
 		}
 		return stringBuilder.toString();
 	}

@@ -17,7 +17,6 @@ package org.springframework.cloud.skipper;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.skipper.index.PackageIndexSynchronizer;
 import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
@@ -25,8 +24,6 @@ public class SkipperServerApplication {
 
 	public static void main(String[] args) {
 		ApplicationContext ctx = SpringApplication.run(SkipperServerApplication.class, args);
-		PackageIndexSynchronizer packageIndexSynchronizer = ctx.getBean(PackageIndexSynchronizer.class);
-		packageIndexSynchronizer.loadAll();
 	}
 
 }

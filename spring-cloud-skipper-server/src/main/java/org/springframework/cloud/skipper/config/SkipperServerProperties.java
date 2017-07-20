@@ -44,12 +44,34 @@ public class SkipperServerProperties {
 
 	private String skipperHome = System.getProperty("user.home") + File.separator + ".skipper";
 
+	/**
+	 * Flag indicating to sync the local contents of the index directory with the database on
+	 * startup.
+	 */
+	private boolean synchonizeIndexOnContextRefresh = true;
+
 	public List<String> getPackageRepositoryUrls() {
 		return packageRepositoryUrls;
 	}
 
 	public void setPackageRepositoryUrls(List<String> packageRepositoryUrls) {
 		this.packageRepositoryUrls = packageRepositoryUrls;
+	}
+
+	public String getSkipperHome() {
+		return skipperHome;
+	}
+
+	public void setSkipperHome(String skipperHome) {
+		this.skipperHome = skipperHome;
+	}
+
+	public boolean isSynchonizeIndexOnContextRefresh() {
+		return synchonizeIndexOnContextRefresh;
+	}
+
+	public void setSynchonizeIndexOnContextRefresh(boolean synchonizeIndexOnContextRefresh) {
+		this.synchonizeIndexOnContextRefresh = synchonizeIndexOnContextRefresh;
 	}
 
 	public String getPackageIndexDir() {
