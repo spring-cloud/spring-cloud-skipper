@@ -19,6 +19,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +68,23 @@ public class PackageIndexDownloader implements ResourceLoaderAware {
 				logger.error("Could not process package file from " + packageRepositoryUrl, e);
 			}
 
+		}
+	}
+
+	public List<File> getIndexFiles() {
+		List<File> files = new ArrayList<>();
+		Path indexPath = Paths.get(skipperServerProperties.getPackageIndexDir());
+		try (Stream<Path> paths = Files.walk(indexPath, 1)) {
+
+			files = paths.filter(i -> i.toString().endsWith(".yml"))
+					.map(i -> i.toAbsolutePath().toFile())
+					.collect(Collectors.toList());
+		}
+		catch (IOException e) {
+			logger.error("Could not read index file.", e);
+		}
+		finally {
+			return files;
 		}
 	}
 

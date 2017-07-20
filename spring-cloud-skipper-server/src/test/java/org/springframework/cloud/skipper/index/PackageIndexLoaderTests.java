@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.skipper.config.SkipperServerProperties;
+import org.springframework.cloud.skipper.repositories.PackageSummaryRepository;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -46,8 +47,13 @@ public class PackageIndexLoaderTests {
 	@Autowired
 	private SkipperServerProperties skipperServerProperties;
 
+	@Autowired
+	private PackageSummaryRepository packageSummaryRepository;
+
 	@Before
 	public void cleanPackageIndexDir() throws IOException {
+		packageSummaryRepository.deleteAll();
+
 		List<File> files;
 		Path indexPath = Paths.get(skipperServerProperties.getPackageIndexDir());
 		try (Stream<Path> paths = Files.walk(indexPath, 1)) {

@@ -15,10 +15,20 @@
  */
 package org.springframework.cloud.skipper.index;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 /**
  * @author Mark Pollack
  */
+@Entity
 public class PackageSummary {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private long id;
 
 	/**
 	 * The Package Index spec version this file is based on. Required
