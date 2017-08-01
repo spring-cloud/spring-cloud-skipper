@@ -41,6 +41,7 @@ public class PackageIndexDownloaderTests {
 	public void calculateFilename() throws IOException {
 		UrlResource urlResource = new UrlResource("file:./spring-cloud-skipper-server/src/test/resources/packages.yml");
 		String filename = packageIndexDownloader.computeFilename(urlResource);
+		
 		assertThat(filename).isEqualTo("file_dot_spring-cloud-skipper-server_src_test_resources_packages.yml");
 		urlResource = new UrlResource(
 				"file:/home/mpollack/projects/spring-cloud-skipper/spring-cloud-skipper-server/src/test/resources/packages.yml");
