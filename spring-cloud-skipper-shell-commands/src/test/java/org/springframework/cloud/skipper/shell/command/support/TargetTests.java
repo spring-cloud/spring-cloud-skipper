@@ -26,20 +26,20 @@ public class TargetTests {
 
 	@Test
 	public void constructorTests() {
-		Target target = new Target("http://localhost:9494", "username", "password", true);
-		assertThat(target.getTargetUri()).hasPort(9494)
+		Target target = new Target("http://localhost:7577", "username", "password", true);
+		assertThat(target.getTargetUri()).hasPort(7577)
 				.hasPath("")
 				.hasHost("localhost");
 		assertThat(target.isSkipSslValidation()).isEqualTo(true);
 		assertThat(target.getTargetCredentials()).isEqualTo(new TargetCredentials("username", "password"));
-		target = new Target("http://localhost:9494");
+		target = new Target("http://localhost:7577");
 		assertThat(target.getTargetCredentials()).isNull();
 
 	}
 
 	@Test
 	public void testStatus() {
-		Target target = new Target("http://localhost:9494", "username", "password", true);
+		Target target = new Target("http://localhost:7577", "username", "password", true);
 		assertThat(target.getStatus()).isNull();
 		target.setTargetException(new IllegalArgumentException("This is bad"));
 		assertThat(target.getStatus()).isEqualTo(Target.TargetStatus.ERROR);

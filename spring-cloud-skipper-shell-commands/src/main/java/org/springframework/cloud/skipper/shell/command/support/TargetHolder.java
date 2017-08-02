@@ -15,6 +15,7 @@
  */
 package org.springframework.cloud.skipper.shell.command.support;
 
+import org.springframework.cloud.skipper.client.SkipperClientProperties;
 import org.springframework.util.Assert;
 
 /**
@@ -34,7 +35,7 @@ public class TargetHolder {
 	 * Constructor.
 	 */
 	public TargetHolder() {
-		target = new Target(Target.DEFAULT_TARGET, null, null, false);
+		target = new Target(SkipperClientProperties.DEFAULT_TARGET, null, null, false);
 	}
 
 	/**
@@ -47,7 +48,7 @@ public class TargetHolder {
 	}
 
 	/**
-	 * Set the Dataflow Server {@link Target}.
+	 * Set the Skipper Server {@link Target}.
 	 *
 	 * @param target Must not be null.
 	 */

@@ -17,6 +17,8 @@ package org.springframework.cloud.skipper.shell.command.support;
 
 import org.junit.Test;
 
+import org.springframework.cloud.skipper.client.SkipperClientProperties;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -29,16 +31,16 @@ public class TargetHolderTests {
 		TargetHolder targetHolder = new TargetHolder();
 		assertThat(targetHolder.getTarget()).isNotNull();
 		assertThat(targetHolder.getTarget().getTargetUri())
-				.hasHost(Target.DEFAULT_HOST)
-				.hasScheme(Target.DEFAULT_SCHEME)
-				.hasPort(Target.DEFAULT_PORT);
+				.hasHost(SkipperClientProperties.DEFAULT_HOST)
+				.hasScheme(SkipperClientProperties.DEFAULT_SCHEME)
+				.hasPort(SkipperClientProperties.DEFAULT_PORT);
 
-		Target target = new Target("http://localhost:9494");
+		Target target = new Target("http://localhost:7577");
 		targetHolder = new TargetHolder(target);
 		assertThat(targetHolder.getTarget().getTargetUri())
 				.hasScheme("http")
 				.hasHost("localhost")
-				.hasPort(9494);
+				.hasPort(7577);
 		target = new Target("https://localhost:8080");
 		targetHolder = new TargetHolder(target);
 		assertThat(targetHolder.getTarget().getTargetUri())

@@ -21,25 +21,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.skipper.client.DefaultSkipperClient;
 import org.springframework.cloud.skipper.client.SkipperClient;
+import org.springframework.cloud.skipper.client.SkipperClientProperties;
 import org.springframework.cloud.skipper.client.SkipperServerException;
 import org.springframework.cloud.skipper.client.util.HttpClientConfigurer;
 import org.springframework.cloud.skipper.client.util.ProcessOutputResource;
 import org.springframework.cloud.skipper.client.util.ResourceBasedAuthorizationInterceptor;
 import org.springframework.cloud.skipper.domain.AboutInfo;
-import org.springframework.cloud.skipper.shell.command.support.ConsoleUserInput;
-import org.springframework.cloud.skipper.shell.command.support.SkipperClientUpdatedEvent;
-import org.springframework.cloud.skipper.shell.command.support.Target;
-import org.springframework.cloud.skipper.shell.command.support.TargetCredentials;
-import org.springframework.cloud.skipper.shell.command.support.TargetHolder;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.ApplicationListener;
+import org.springframework.cloud.skipper.shell.command.support.*;
+import org.springframework.context.*;
 import org.springframework.core.io.Resource;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -50,9 +42,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import static org.springframework.cloud.skipper.client.SkipperClientProperties.*;
+
 /**
  * Configuration commands for the Shell. The default Skipper Server location is
- * <code>http://localhost:9494</code>
+ * <code>http://localhost:7577</code>
  *
  * @author Gunnar Hillert
  * @author Marius Bogoevici
@@ -67,28 +61,17 @@ public class ConfigCommands implements CommandMarker, InitializingBean, Applicat
 		ApplicationEventPublisherAware,
 		ApplicationContextAware {
 
+	public static final String DEFAULT_UNSPECIFIED_SKIP_SSL_VALIDATION = "false";
+
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	@Value("${skipper.uri:" + Target.DEFAULT_TARGET + "}")
-	private String serverUri;
-
-	@Value("${skipper.username:" + Target.DEFAULT_USERNAME + "}")
-	private String userName;
-
-	@Value("${skipper.password:" + Target.DEFAULT_SPECIFIED_PASSWORD + "}")
-	private String password;
-
-	@Value("${skipper.skip-ssl-validation:" + Target.DEFAULT_UNSPECIFIED_SKIP_SSL_VALIDATION + "}")
-	private boolean skipSslValidation;
-
-	@Value("${skipper.credentials-provider-command:" + Target.DEFAULT_CREDENTIALS_PROVIDER_COMMAND + "}")
-	private String credentialsProviderCommand;
 
 	private TargetHolder targetHolder;
 
 	private SkipperClient skipperClient;
 
 	private RestTemplate restTemplate;
+
+	private SkipperClientProperties config;
 
 	private ApplicationContext applicationContext;
 
@@ -99,36 +82,33 @@ public class ConfigCommands implements CommandMarker, InitializingBean, Applicat
 	private ConsoleUserInput userInput = new ConsoleUserInput();
 
 	@Autowired
-	public ConfigCommands(TargetHolder targetHolder, RestTemplate restTemplate) {
+	public ConfigCommands(TargetHolder targetHolder, RestTemplate restTemplate,
+			SkipperClientProperties config) {
 		this.targetHolder = targetHolder;
 		this.restTemplate = restTemplate;
+		this.config = config;
 	}
 
 	// @formatter:off
-	@CliCommand(value = { "skipper config server" }, help = "Configure the Spring Cloud Skipper REST server to use")
+	@CliCommand(value = {"skipper config server"}, help = "Configure the Spring Cloud Skipper REST server to use")
 	public String target(
-			@CliOption(mandatory = false, key = { "",
-					"uri" },
+			@CliOption(mandatory = false, key = {"", "uri"},
 					help = "the location of the Spring Cloud Skipper REST endpoint",
-					unspecifiedDefaultValue = Target.DEFAULT_TARGET) String targetUrlString,
-			@CliOption(mandatory = false, key = {
-					"username" },
+					unspecifiedDefaultValue = DEFAULT_TARGET) String targetUrlString,
+			@CliOption(mandatory = false, key = {"username"},
 					help = "the username for authenticated access to the Admin REST endpoint",
-					unspecifiedDefaultValue = Target.DEFAULT_USERNAME) String targetUsername,
-			@CliOption(mandatory = false, key = {
-					"password" },
+					unspecifiedDefaultValue = DEFAULT_USERNAME) String targetUsername,
+			@CliOption(mandatory = false, key = {"password"},
 					help = "the password for authenticated access to the Admin REST endpoint (valid only with a "
 							+ "username)",
-					specifiedDefaultValue = Target.DEFAULT_SPECIFIED_PASSWORD, unspecifiedDefaultValue = Target.DEFAULT_UNSPECIFIED_PASSWORD) String targetPassword,
-			@CliOption(mandatory = false, key = {
-					"credentials-provider-command" },
+					specifiedDefaultValue = DEFAULT_PASSWORD) String targetPassword,
+			@CliOption(mandatory = false, key = {"credentials-provider-command"},
 					help = "a command to run that outputs the HTTP credentials used for authentication",
-					unspecifiedDefaultValue = Target.DEFAULT_CREDENTIALS_PROVIDER_COMMAND) String credentialsProviderCommand,
-			@CliOption(mandatory = false, key = {
-					"skip-ssl-validation" },
+					unspecifiedDefaultValue = DEFAULT_CREDENTIALS_PROVIDER_COMMAND) String credentialsProviderCommand,
+			@CliOption(mandatory = false, key = {"skip-ssl-validation"},
 					help = "accept any SSL certificate (even self-signed)",
-					specifiedDefaultValue = Target.DEFAULT_SPECIFIED_SKIP_SSL_VALIDATION,
-					unspecifiedDefaultValue = Target.DEFAULT_UNSPECIFIED_SKIP_SSL_VALIDATION) boolean skipSslValidation) {
+					specifiedDefaultValue = DEFAULT_SKIP_SSL_VALIDATION,
+					unspecifiedDefaultValue = DEFAULT_UNSPECIFIED_SKIP_SSL_VALIDATION) boolean skipSslValidation) {
 		// @formatter:on
 		if (StringUtils.isEmpty(credentialsProviderCommand) &&
 				!StringUtils.isEmpty(targetPassword) && StringUtils.isEmpty(targetUsername)) {
@@ -173,7 +153,6 @@ public class ConfigCommands implements CommandMarker, InitializingBean, Applicat
 			this.targetHolder.getTarget().setTargetException(e);
 			// TODO do we really want to pass around null?
 			applicationEventPublisher.publishEvent(new SkipperClientUpdatedEvent(null));
-			// this.shell.setDataFlowOperations(null);
 			handleTargetException(this.targetHolder.getTarget());
 		}
 		return (this.targetHolder.getTarget().getTargetResultMessage());
@@ -224,8 +203,7 @@ public class ConfigCommands implements CommandMarker, InitializingBean, Applicat
 		// Only invoke if the shell is executing in the same application context as the
 		// data flow server.
 		if (!initialized) {
-			target(this.serverUri, this.userName, this.password, this.credentialsProviderCommand,
-					this.skipSslValidation);
+			callTarget();
 		}
 	}
 
@@ -235,9 +213,14 @@ public class ConfigCommands implements CommandMarker, InitializingBean, Applicat
 		// mode.
 		if (applicationContext != null && !applicationContext.containsBean("streamDefinitionRepository")) {
 			initialized = true;
-			target(this.serverUri, this.userName, this.password, this.credentialsProviderCommand,
-					this.skipSslValidation);
+			callTarget();
 		}
+	}
+
+	protected void callTarget() {
+		target(this.config.getServerUrl(), this.config.getUsername(),
+				this.config.getPassword(), this.config.getCredentialsProviderCommand(),
+				this.config.isSkipSllValidation());
 	}
 
 	@Override

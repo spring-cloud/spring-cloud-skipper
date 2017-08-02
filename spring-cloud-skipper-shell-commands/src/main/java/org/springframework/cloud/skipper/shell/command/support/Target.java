@@ -29,26 +29,6 @@ import org.springframework.util.StringUtils;
  */
 public class Target {
 
-	public static final String DEFAULT_SCHEME = "http";
-
-	public static final String DEFAULT_HOST = "localhost";
-
-	public static final int DEFAULT_PORT = 9494;
-
-	public static final String DEFAULT_USERNAME = "";
-
-	public static final String DEFAULT_SPECIFIED_PASSWORD = "";
-
-	public static final String DEFAULT_UNSPECIFIED_PASSWORD = "__NULL__";
-
-	public static final String DEFAULT_SPECIFIED_SKIP_SSL_VALIDATION = "true";
-
-	public static final String DEFAULT_UNSPECIFIED_SKIP_SSL_VALIDATION = "false";
-
-	public static final String DEFAULT_CREDENTIALS_PROVIDER_COMMAND = "";
-
-	public static final String DEFAULT_TARGET = DEFAULT_SCHEME + "://" + DEFAULT_HOST + ":" + DEFAULT_PORT + "/";
-
 	private final URI targetUri;
 
 	private final boolean skipSslValidation;

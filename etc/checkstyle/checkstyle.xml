@@ -14,7 +14,6 @@
     </module>
     <module name="TreeWalker">
         <property name="tabWidth" value="4"/>
-        <module name="SuppressWarningsHolder" />
         <module name="LineLength">
             <property name="max" value="180"/>
         </module>

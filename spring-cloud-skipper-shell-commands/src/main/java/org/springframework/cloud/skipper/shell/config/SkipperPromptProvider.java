@@ -15,13 +15,16 @@
  */
 package org.springframework.cloud.skipper.shell.config;
 
+import org.springframework.cloud.skipper.client.SkipperClient;
+import org.springframework.cloud.skipper.shell.command.support.SkipperClientUpdatedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.shell.plugin.PromptProvider;
 import org.springframework.stereotype.Component;
 
 /**
- * A provider that sets the shell prompt to 'dataflow' if the server is available,
+ * A provider that sets the shell prompt to 'skipper' if the server is available,
  * 'server-unknown' otherwise.
  *
  * @author Ilayaperumal Gopinathan
@@ -30,7 +33,7 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SkipperPromptProvider implements PromptProvider {
 
-	private String operations;
+	private SkipperClient skipperClient;
 
 	@Override
 	public String getProviderName() {
@@ -39,12 +42,16 @@ public class SkipperPromptProvider implements PromptProvider {
 
 	@Override
 	public String getPrompt() {
-		// if (shell.getDataFlowOperations() == null) {
-		if (operations != null) {
+		if (skipperClient != null) {
 			return "server-unknown:>";
 		}
 		else {
 			return "skipper:>";
 		}
+	}
+
+	@EventListener
+	void handle(SkipperClientUpdatedEvent event) {
+		this.skipperClient = event.getSkipperClient();
 	}
 }

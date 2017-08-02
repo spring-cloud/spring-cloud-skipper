@@ -25,16 +25,26 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 /**
+ * Client's configuration class.
  * @author Mark Pollack
  */
 @Configuration
-@EnableConfigurationProperties(SkipperClientConfigurationProperties.class)
+@EnableConfigurationProperties(SkipperClientProperties.class)
 @EnableHypermediaSupport(type = EnableHypermediaSupport.HypermediaType.HAL)
 public class SkipperClientConfiguration {
 
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
 		RestTemplate restTemplate = restTemplateBuilder.build();
+		return validateRestTemplate(restTemplate);
+	}
+
+	@Bean
+	public SkipperClient skipperClient(SkipperClientProperties properties, RestTemplate restTemplate) {
+		return new DefaultSkipperClient(properties.getServerUrl(), restTemplate);
+	}
+
+	public RestTemplate validateRestTemplate(RestTemplate restTemplate) {
 		boolean containsMappingJackson2HttpMessageConverter = false;
 
 		for (HttpMessageConverter<?> converter : restTemplate.getMessageConverters()) {
@@ -48,11 +58,6 @@ public class SkipperClientConfiguration {
 					"The RestTemplate does not contain a required " + "MappingJackson2HttpMessageConverter.");
 		}
 		return restTemplate;
-	}
-
-	@Bean
-	public SkipperClient skipperClient(SkipperClientConfigurationProperties properties) {
-		return new DefaultSkipperClient(properties.getHome());
 	}
 
 }

@@ -25,7 +25,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * @author Mark Pollack
  */
-@ConfigurationProperties("spring.cloud.skipper")
+@ConfigurationProperties("spring.cloud.skipper.server")
 public class SkipperServerProperties {
 
 	/*
