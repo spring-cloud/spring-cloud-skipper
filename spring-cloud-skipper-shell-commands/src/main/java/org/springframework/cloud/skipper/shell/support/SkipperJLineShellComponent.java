@@ -21,19 +21,12 @@ import org.springframework.util.Assert;
 
 /**
  * @author Mark Pollack
+ * @author Ilayaperumal Gopinathan
  */
-// TODO enabling this gives errors on startup, investigate.
-//@Component
 public class SkipperJLineShellComponent extends JLineShellComponent {
 
-	private JLineShellComponent jLineShellComponent;
-
-	public SkipperJLineShellComponent() {
-		jLineShellComponent = new JLineShellComponent();
-	}
-
 	public CommandResult executeCommand(String command) {
-		CommandResult cr = this.jLineShellComponent.executeCommand(command);
+		CommandResult cr = super.executeCommand(command);
 		if (cr.getException() != null) {
 			cr.getException().printStackTrace();
 		}

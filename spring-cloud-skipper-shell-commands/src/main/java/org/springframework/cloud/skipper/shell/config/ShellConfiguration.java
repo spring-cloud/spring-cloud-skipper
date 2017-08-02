@@ -28,10 +28,14 @@ import org.springframework.cloud.skipper.shell.command.support.TargetHolder;
 import org.springframework.cloud.skipper.shell.support.ShellCommandLineParser;
 import org.springframework.cloud.skipper.shell.support.ShellCommandLineRunner;
 import org.springframework.cloud.skipper.shell.support.ShellProperties;
-import org.springframework.context.annotation.*;
+import org.springframework.cloud.skipper.shell.support.SkipperJLineShellComponent;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.shell.CommandLine;
 import org.springframework.shell.core.JLineShell;
-import org.springframework.shell.core.JLineShellComponent;
 
 /**
  * Configures the various commands that are part of the default Spring Shell experience.
@@ -39,6 +43,7 @@ import org.springframework.shell.core.JLineShellComponent;
  * @author Josh Long
  * @author Mark Pollack
  * @author Eric Bottard
+ * @author Ilayaperumal Gopinathan
  */
 @Configuration
 @ImportResource("classpath*:/META-INF/spring/spring-shell-plugin.xml")
@@ -67,9 +72,9 @@ public class ShellConfiguration {
 
 	/**
 	 * Return the interactive command line runner. Note: Add a
-	 * {@link ConditionalOnMissingBean} annotation is used so that this interactive command
-	 * line runner is not created when running the shell in the same process as the Gilligan
-	 * server.
+	 * {@link ConditionalOnMissingBean} annotation is used so that this interactive
+	 * command line runner is not created when running the shell in the same process as
+	 * the Gilligan server.
 	 *
 	 * @return the interactive shell
 	 */
@@ -87,8 +92,8 @@ public class ShellConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(JLineShell.class)
-	public JLineShellComponent shell() {
-		return new JLineShellComponent();
+	public SkipperJLineShellComponent shell() {
+		return new SkipperJLineShellComponent();
 	}
 
 	@Configuration
@@ -103,8 +108,7 @@ public class ShellConfiguration {
 	}
 
 	@Configuration
-	@ComponentScan({ "org.springframework.shell.commands", "org.springframework.cloud.skipper.shell.command",
-			"org.springframework.cloud.skipper.shell.config" })
+	@ComponentScan({ "org.springframework.shell.commands", "org.springframework.cloud.skipper.shell.command" })
 	public static class RegisterInternalCommands {
 
 		@PostConstruct
