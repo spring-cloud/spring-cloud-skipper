@@ -21,6 +21,8 @@ import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
+ * Configurable properties of the server.
+ *
  * @author Mark Pollack
  */
 @ConfigurationProperties("spring.cloud.skipper")
