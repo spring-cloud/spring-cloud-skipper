@@ -76,17 +76,17 @@ public class PackageIndexDownloader implements ResourceLoaderAware {
 	public List<File> getIndexFiles() {
 		List<File> files = new ArrayList<>();
 		Path indexPath = Paths.get(skipperServerProperties.getPackageIndexDir());
-		try (Stream<Path> paths = Files.walk(indexPath, 1)) {
-			files = paths.filter(i -> i.toString().endsWith(".yml"))
-					.map(i -> i.toAbsolutePath().toFile())
-					.collect(Collectors.toList());
+		if (indexPath.toFile().exists()) {
+			try (Stream<Path> paths = Files.walk(indexPath, 1)) {
+				files = paths.filter(i -> i.toString().endsWith(".yml"))
+						.map(i -> i.toAbsolutePath().toFile())
+						.collect(Collectors.toList());
+			}
+			catch (IOException e) {
+				logger.error("Could not read index files in path " + indexPath, e);
+			}
 		}
-		catch (IOException e) {
-			logger.error("Could not read index files in path " + indexPath, e);
-		}
-		finally {
-			return files;
-		}
+		return files;
 	}
 
 	public String computeFilename(Resource resource) throws IOException {
