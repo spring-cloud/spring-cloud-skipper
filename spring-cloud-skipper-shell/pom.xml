@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-skipper-parent</artifactId>
-        <version>1.0.0-BUILD-SNAPSHOT</version>
+        <version>1.0.0.BUILD-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -21,12 +21,16 @@
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.shell</groupId>
-            <artifactId>spring-shell</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-skipper-client</artifactId>
+        </dependency>
+
+        <!-- Give me a break -->
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.3.4</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -37,7 +41,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-skipper-shell-commands</artifactId>
-            <version>1.0.0-BUILD-SNAPSHOT</version>
+            <version>1.0.0.BUILD-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
