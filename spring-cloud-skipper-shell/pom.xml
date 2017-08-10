@@ -20,10 +20,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-skipper-client</artifactId>
-        </dependency>
 
         <!-- Give me a break -->
         <dependency>
@@ -41,7 +37,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-skipper-shell-commands</artifactId>
-            <version>1.0.0.BUILD-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
