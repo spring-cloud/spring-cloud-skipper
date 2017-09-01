@@ -240,7 +240,9 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		Resource resource = delegatingResourceLoader.getResource(deployment.getResource());
 
 		Map<String, String> deploymentProperties = deployment.getDeploymentProperties();
-		deploymentProperties.put(AppDeployer.COUNT_PROPERTY_KEY, String.valueOf(deployment.getCount()));
+		if (deployment.getCount() != 0) {
+			deploymentProperties.put(AppDeployer.COUNT_PROPERTY_KEY, String.valueOf(deployment.getCount()));
+		}
 		deploymentProperties.put(AppDeployer.GROUP_PROPERTY_KEY, releaseName + "-v" + version);
 
 		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(appDefinition, resource,

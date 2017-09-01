@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Application
+deployment:
+  name: time
+  count: {{count}}
+  applicationProperties:
+  resource: {{resources.time.resourceGroupAndName}}:{{resources.time.version}}
+  resourceMetadata: {{resources.time.resourceGroupAndName}}:jar:metadata:{{resources.time.version}}
+  deploymentProperties:

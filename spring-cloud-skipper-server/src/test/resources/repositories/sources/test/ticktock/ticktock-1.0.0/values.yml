@@ -1,0 +1,16 @@
+# Default values for {{name}}
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates
+
+
+time:
+  deployment:
+    applicationProperties:
+      trigger.fixed-delay: 5
+log:
+  deployment:
+    count: 1
+    applicationProperties:
+      log.level: WARN
+    deploymentProperties:
+      memory: 1024m

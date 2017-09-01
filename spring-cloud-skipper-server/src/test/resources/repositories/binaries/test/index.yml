@@ -24,3 +24,30 @@ packageHomeUrl: http://cloud.spring.io/spring-cloud-stream-app-starters/
 tags: logging, sink
 maintainer: https://github.com/sobychacko
 description: The log sink uses the application logger to output the data for inspection.
+
+---
+apiVersion: v1
+kind: skipper
+origin: classpath:/repositories/binaries/test
+name: log
+version: 2.0.0
+appVersion: 1.2.0.RELEASE
+packageSourceUrl: https://github.com/spring-cloud-stream-app-starters/log/tree/v1.2.0.RELEASE
+packageHomeUrl: http://cloud.spring.io/spring-cloud-stream-app-starters/
+tags: logging, sink
+maintainer: https://github.com/sobychacko
+description: The log sink uses the application logger to output the data for inspection.
+
+---
+apiVersion: v1
+kind: skipper
+origin: classpath:/repositories/binaries/test
+name: time
+version: 2.0.0
+appVersion: 1.2.0.RELEASE
+packageSourceUrl: https://github.com/spring-cloud-stream-app-starters/time/tree/v1.2.0.RELEASE
+packageHomeUrl: http://cloud.spring.io/spring-cloud-stream-app-starters/
+tags: time, source
+maintainer: https://github.com/sobychacko
+description: The time source periodically emits a timestamp string.
+
