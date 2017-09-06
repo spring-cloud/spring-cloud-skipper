@@ -85,7 +85,7 @@ public class ReleaseService {
 	}
 
 	private Release deploy(Release release) {
-		Properties model = mergeConfigValues(release.getConfigValues(), release.getPkg().getConfigValues());
+		Properties model = mergeConfigValues(release.getPkg().getConfigValues(), release.getConfigValues());
 		// Render yaml resources
 		String manifest = createManifest(release.getPkg(), model);
 		release.setManifest(manifest);

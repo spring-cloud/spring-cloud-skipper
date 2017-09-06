@@ -2,8 +2,14 @@ apiVersion: v1
 kind: Application
 deployment:
   name: time
-  count: {{count}}
+  count: {{deployment.count}}
   applicationProperties:
-  resource: {{resources.time.resourceGroupAndName}}:{{resources.time.version}}
-  resourceMetadata: {{resources.time.resourceGroupAndName}}:jar:metadata:{{resources.time.version}}
+    {{#deployment.applicationProperties.entrySet}}
+    {{key}}: {{value}}
+    {{/deployment.applicationProperties.entrySet}}
+  resource: maven://org.springframework.cloud.stream.app:time-source-rabbit:{{appVersion}}
+  resourceMetadata: maven://org.springframework.cloud.stream.app:time-source-rabbit:jar:metadata:{{appVersion}}
   deploymentProperties:
+    {{#deployment.deploymentProperties.entrySet}}
+    {{key}}: {{value}}
+    {{/deployment.deploymentProperties.entrySet}}

@@ -1,14 +1,14 @@
 apiVersion: v1
-kind: Application
+kind: SpringCloudDeployerApplication
 deployment:
-  name: log
+  name: time
   count: {{deployment.count}}
   applicationProperties:
     {{#deployment.applicationProperties.entrySet}}
     {{key}}: {{value}}
     {{/deployment.applicationProperties.entrySet}}
-  resource: maven://org.springframework.cloud.stream.app:log-sink-rabbit:{{appVersion}}
-  resourceMetadata: maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:{{appVersion}}
+  resource: maven://org.springframework.cloud.stream.app:time-source-rabbit:{{appVersion}}
+  resourceMetadata: maven://org.springframework.cloud.stream.app:time-source-rabbit:jar:metadata:{{appVersion}}
   deploymentProperties:
     {{#deployment.deploymentProperties.entrySet}}
     {{key}}: {{value}}
