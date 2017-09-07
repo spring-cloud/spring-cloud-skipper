@@ -4,5 +4,3 @@
 appVersion: 1.2.0.RELEASE
 deployment:
   count: 1
-
-

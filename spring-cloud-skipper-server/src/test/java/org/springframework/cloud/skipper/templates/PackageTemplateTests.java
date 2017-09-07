@@ -57,6 +57,7 @@ public class PackageTemplateTests {
 		String resolvedYml = mustacheTemplate.execute(model);
 		Map map = (Map) yaml.load(resolvedYml);
 
+		System.out.println(resolvedYml);
 		assertThat(map).containsKeys("apiVersion", "deployment");
 		Map deploymentMap = (Map) map.get("deployment");
 		assertThat(deploymentMap).contains(entry("name", "time"))
