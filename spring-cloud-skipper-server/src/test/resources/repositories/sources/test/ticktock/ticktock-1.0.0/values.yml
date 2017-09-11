@@ -4,13 +4,15 @@
 
 
 time:
+  appVersion: 1.2.2.RELEASE
   deployment:
-    applicationProperties:
-      trigger.fixed-delay: 5
-log:
-  deployment:
-    count: 1
     applicationProperties:
       log.level: WARN
-    deploymentProperties:
-      memory: 1024m
+      trigger.fixed-delay: 1
+log:
+  deployment:
+    count: 2
+    applicationProperties:
+      log.level: WARN
+      log.name: skipperlogger
+

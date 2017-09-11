@@ -90,7 +90,7 @@ public class PackageService implements ResourceLoaderAware {
 		return loadPackageOnPath(packageMetadata.getOrigin(), resolvedPackagePath);
 	}
 
-	protected Package loadPackageOnPath(String packageOrigin, String packagePath) {
+	public Package loadPackageOnPath(String packageOrigin, String packagePath) {
 		List<File> files;
 		try (Stream<Path> paths = Files.walk(Paths.get(packagePath), 1)) {
 			files = paths.map(i -> i.toAbsolutePath().toFile()).collect(Collectors.toList());

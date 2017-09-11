@@ -50,18 +50,18 @@ public abstract class AbstractMockMvcTests {
 	@Autowired
 	protected WebApplicationContext wac;
 
-	@Before
-	public void setupMockMvc() {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(wac)
-				.defaultRequest(get("/").accept(MediaType.APPLICATION_JSON).contentType(contentType))
-				.build();
-	}
-
 	public static String convertObjectToJson(Object object) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		String json = mapper.writeValueAsString(object);
 		return json;
+	}
+
+	@Before
+	public void setupMockMvc() {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(wac)
+				.defaultRequest(get("/").accept(MediaType.APPLICATION_JSON).contentType(contentType))
+				.build();
 	}
 
 }

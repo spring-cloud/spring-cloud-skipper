@@ -64,16 +64,18 @@ public class PackageControllerTests extends AbstractMockMvcTests {
 		File packageDirectory = new File(skipperServerProperties.getPackageDir());
 		FileSystemUtils.deleteRecursively(new File(skipperServerProperties.getPackageDir()));
 		assertThat(packageDirectory).doesNotExist();
-			}
+	}
 
 	@After
 	public void cleanupReleases() throws Exception {
-		// Add a sleep for now to give the local deployer a chance to deploy the app.  This should go away
+		// Add a sleep for now to give the local deployer a chance to deploy the app. This should
+		// go away
 		// once we introduce spring state machine.
 		Thread.sleep(5000);
 		for (Release release : releaseRepository.findAll()) {
 			if (release.getInfo().getStatus().getStatusCode() != StatusCode.DELETED) {
-				mockMvc.perform(post("/release/undeploy/" + release.getName() + "/" + release.getVersion())).andDo(print())
+				mockMvc.perform(post("/release/undeploy/" + release.getName() + "/" + release.getVersion()))
+						.andDo(print())
 						.andExpect(status().isCreated()).andReturn();
 			}
 		}

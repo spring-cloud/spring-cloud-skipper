@@ -20,8 +20,9 @@ import org.springframework.cloud.skipper.domain.Release;
 /**
  * Manages the lifecycle of a release.
  *
- * The current implementation is a simple sequence of AppDeployer commands, but more sophisticated
- * implementations based on Spring Cloud State Machine or Concourse are possible.
+ * The current implementation is a simple sequence of AppDeployer commands, but more
+ * sophisticated implementations based on Spring Cloud State Machine or Concourse are
+ * possible.
  *
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
