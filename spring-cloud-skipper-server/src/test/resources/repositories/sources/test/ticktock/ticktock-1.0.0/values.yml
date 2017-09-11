@@ -3,16 +3,5 @@
 # Declare variables to be passed into your templates
 
 
-time:
-  appVersion: 1.2.2.RELEASE
-  deployment:
-    applicationProperties:
-      log.level: WARN
-      trigger.fixed-delay: 1
-log:
-  deployment:
-    count: 2
-    applicationProperties:
-      log.level: WARN
-      log.name: skipperlogger
+# No values to override
 

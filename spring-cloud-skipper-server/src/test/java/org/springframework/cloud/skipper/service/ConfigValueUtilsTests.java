@@ -56,37 +56,19 @@ public class ConfigValueUtilsTests {
 
 	@Test
 	public void testYamlMerge() throws IOException {
-		Resource resource = new ClassPathResource("/repositories/sources/test/ticktock/ticktock-1.0.0");
+		Resource resource = new ClassPathResource("/org/springframework/cloud/skipper/service/ticktock-1.0.0");
 
-		System.out.println("================================");
-		System.out.println(resource.getFile().getPath());
-		System.out.println("================================");
 		Package pkg = packageService.loadPackageOnPath("classpathOrigin", resource.getFile().getPath());
-		System.out.println(pkg);
-
 		Map<String, Object> mergedMap = ConfigValueUtils.mergeConfigValues(pkg, new ConfigValues());
 
 		DumperOptions dumperOptions = new DumperOptions();
 		dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 		dumperOptions.setPrettyFlow(true);
 		Yaml yaml = new Yaml(dumperOptions);
-		System.out.println("================================");
-		System.out.println(yaml.dump(mergedMap));
-		System.out.println("================================");
-
 		String mergedYaml = yaml.dump(mergedMap);
 		String expectedYaml = StreamUtils.copyToString(
 				TestResourceUtils.qualifiedResource(getClass(), "merged.yaml").getInputStream(),
 				Charset.defaultCharset());
 		assertThat(mergedYaml).isEqualTo(expectedYaml);
-		//
-		// System.out.println("================================");
-		// System.out.println(skipperServerProperties.getPackageDir());
-		// System.out.println("================================");
-		// for (Repository packageRepository :
-		// this.skipperServerProperties.getPackageRepositories()) {
-		// System.out.println(packageRepository.getUrl());
-		// }
-		System.out.println("================================");
 	}
 }
