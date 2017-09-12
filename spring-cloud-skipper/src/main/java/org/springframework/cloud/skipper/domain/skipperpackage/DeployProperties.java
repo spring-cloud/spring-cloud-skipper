@@ -19,14 +19,35 @@ import org.springframework.cloud.skipper.domain.ConfigValues;
 
 /**
  * @author Mark Pollack
+ * @author Ilayaperumal Gopinathan
  */
 public class DeployProperties {
+
+	private String packageName;
+
+	private String packageVersion;
 
 	private String platformName;
 
 	private String releaseName;
 
 	private ConfigValues configValues;
+
+	public String getPackageName() {
+		return packageName;
+	}
+
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
+
+	public String getPackageVersion() {
+		return packageVersion;
+	}
+
+	public void setPackageVersion(String packageVersion) {
+		this.packageVersion = packageVersion;
+	}
 
 	public String getPlatformName() {
 		return platformName;

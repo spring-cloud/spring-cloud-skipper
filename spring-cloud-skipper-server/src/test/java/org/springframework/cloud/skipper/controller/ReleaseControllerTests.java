@@ -75,11 +75,13 @@ public class ReleaseControllerTests extends AbstractMockMvcTests {
 		String releaseName = "test1";
 		String packageVersion = "1.0.0";
 		DeployProperties deployProperties = new DeployProperties();
+		deployProperties.setPackageName(packageName);
+		deployProperties.setPackageVersion(packageVersion);
 		deployProperties.setPlatformName("test");
 		deployProperties.setReleaseName(releaseName);
 		PackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndVersion(packageName,
 				packageVersion);
-		mockMvc.perform(post("/package/" + packageMetadata.getId() + "/deploy")
+		mockMvc.perform(post("/package/deploy")
 				.content(convertObjectToJson(deployProperties))).andDo(print())
 				.andExpect(status().isCreated()).andReturn();
 		CountDownLatch latch = new CountDownLatch(1);
@@ -106,11 +108,13 @@ public class ReleaseControllerTests extends AbstractMockMvcTests {
 		// Deploy
 		String packageVersion = "1.0.0";
 		DeployProperties deployProperties = new DeployProperties();
+		deployProperties.setPackageName(packageName);
+		deployProperties.setPackageVersion(packageVersion);
 		deployProperties.setPlatformName("test");
 		deployProperties.setReleaseName(releaseName);
 		PackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndVersion(packageName,
 				packageVersion);
-		mockMvc.perform(post("/package/" + packageMetadata.getId() + "/deploy")
+		mockMvc.perform(post("/package/deploy")
 				.content(convertObjectToJson(deployProperties))).andDo(print())
 				.andExpect(status().isCreated()).andReturn();
 		Release deployedRelease = this.releaseRepository.findByNameAndVersion(releaseName, 1);
@@ -124,9 +128,11 @@ public class ReleaseControllerTests extends AbstractMockMvcTests {
 		PackageMetadata updatePackageMetadata = packageMetadataRepository.findByNameAndVersion(packageName,
 				updatePackageVersion);
 		DeployProperties newDeployProperties = new DeployProperties();
+		newDeployProperties.setPackageName(packageName);
+		newDeployProperties.setPackageVersion(updatePackageVersion);
 		newDeployProperties.setPlatformName("test");
 		newDeployProperties.setReleaseName(releaseName);
-		mockMvc.perform(post("/package/" + updatePackageMetadata.getId() + "/update")
+		mockMvc.perform(post("/package/update")
 				.content(convertObjectToJson(newDeployProperties))).andDo(print())
 				.andExpect(status().isCreated()).andReturn();
 		Release updatedRelease = this.releaseRepository.findByNameAndVersion(releaseName, 2);
