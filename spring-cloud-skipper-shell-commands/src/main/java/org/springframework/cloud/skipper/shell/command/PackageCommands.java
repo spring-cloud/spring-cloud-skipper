@@ -34,8 +34,6 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.util.Assert;
 
-import static org.springframework.shell.standard.ShellOption.NULL;
-
 /**
  * @author Ilayaperumal Gopinathan
  */
@@ -57,31 +55,36 @@ public class PackageCommands {
 
 	@ShellMethod(key = "package deploy", value = "Deploy the package metadata")
 	public String deploy(
-			@ShellOption(help = "packageId of the package metadata to deploy", defaultValue = NULL) String packageId,
-			@ShellOption(help = "the properties file to use to deploy", defaultValue = NULL) File propertiesFile,
-			@ShellOption(help = "the release name to use", defaultValue = NULL) String releaseName,
-			@ShellOption(help = "the platform name to use", defaultValue = "default") String platformName)
+			@ShellOption(help = "name of the package to deploy") String packageName,
+			@ShellOption(help = "version of the package to deploy") String packageVersion,
+			@ShellOption(help = "the properties file to use to deploy") File propertiesFile,
+			@ShellOption(help = "the release name to use") String releaseName,
+			@ShellOption(help = "the platform name to use") String platformName)
 			throws IOException {
 		// todo: Make releaseName & propertiesFile mutually exclusive
-		Assert.notNull(packageId, "Package Id must not be null");
-		return skipperClient.deploy(packageId, getDeployProperties(releaseName, platformName, propertiesFile));
+		return skipperClient
+				.deploy(getDeployProperties(packageName, packageVersion, releaseName, platformName, propertiesFile));
 	}
 
 	@ShellMethod(key = "package update", value = "Update a specific release")
 	public String update(
-			@ShellOption(help = "the package id to update", defaultValue = NULL) String packageId,
-			@ShellOption(help = "the properties file to use to deploy", defaultValue = NULL) File propertiesFile,
-			@ShellOption(help = "the release name to use", defaultValue = NULL) String releaseName,
-			@ShellOption(help = "the platform name to use", defaultValue = "default") String platformName)
+			@ShellOption(help = "name of the package to deploy") String packageName,
+			@ShellOption(help = "version of the package to deploy") String packageVersion,
+			@ShellOption(help = "the release name to use") String releaseName,
+			@ShellOption(help = "the platform name to use", defaultValue = "default") String platformName,
+			@ShellOption(help = "the properties file to use to deploy") File propertiesFile)
 			throws IOException {
-		Assert.notNull(packageId, "Package Id must not be null");
-		return skipperClient.update(packageId, getDeployProperties(releaseName, platformName, propertiesFile));
+		return skipperClient
+				.update(getDeployProperties(packageName, packageVersion, releaseName, platformName, propertiesFile));
 	}
 
-	private DeployProperties getDeployProperties(String releaseName, String platformName, File propertiesFile)
+	private DeployProperties getDeployProperties(String packageName, String packageVersion, String releaseName,
+			String platformName, File propertiesFile)
 			throws IOException {
 		DeployProperties deployProperties = new DeployProperties();
 		if (releaseName != null) {
+			deployProperties.setPackageName(packageName);
+			deployProperties.setPackageVersion(packageVersion);
 			deployProperties.setReleaseName(releaseName);
 			deployProperties.setPlatformName(platformName);
 		}

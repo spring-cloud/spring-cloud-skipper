@@ -76,14 +76,14 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public String deploy(String packageId, DeployProperties deployProperties) {
-		String url = String.format("%s/%s/%s/%s", baseUrl, "package", packageId, "deploy");
+	public String deploy(DeployProperties deployProperties) {
+		String url = String.format("%s/%s/%s", baseUrl, "package", "deploy");
 		return this.restTemplate.postForObject(url, deployProperties, String.class);
 	}
 
 	@Override
-	public String update(String packageId, DeployProperties deployProperties) {
-		String url = String.format("%s/%s/%s/%s", baseUrl, "package", packageId, "update");
+	public String update(DeployProperties deployProperties) {
+		String url = String.format("%s/%s/%s", baseUrl, "package", "update");
 		return this.restTemplate.postForObject(url, deployProperties, String.class);
 	}
 
