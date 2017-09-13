@@ -36,9 +36,9 @@ public class ConfigValueUtils {
 	 * at runtime override those specified in the package. The ConfigValue string is assumed
 	 * to be in YAML format and parsed into a Map.
 	 * <p>
-	 * The values for dependencies of packages are
-	 * also merged, which higher level packages overriding lower level packages. Only one
-	 * level of dependent packages are currently supported.
+	 * The values for dependencies of packages are also merged, which higher level packages
+	 * overriding lower level packages. Only one level of dependent packages are currently
+	 * supported.
 	 * <p>
 	 * @param pkg The package to be installed or updated.
 	 * @param overrideValues Configuration values pass in at runtime, when installing or
@@ -81,10 +81,15 @@ public class ConfigValueUtils {
 		Map<String, Object> packageValueMap = (Map<String, Object>) yaml.load(pkg.getConfigValues().getRaw());
 
 		// exclude dependency values from being merged into the current packages' values
-		for (Package dependency : pkg.getDependencies()) {
-			if (packageValueMap.containsKey(dependency.getMetadata().getName())) {
-				packageValueMap.remove(dependency.getMetadata().getName());
+		if (packageValueMap != null) {
+			for (Package dependency : pkg.getDependencies()) {
+				if (packageValueMap.containsKey(dependency.getMetadata().getName())) {
+					packageValueMap.remove(dependency.getMetadata().getName());
+				}
 			}
+		}
+		else {
+			packageValueMap = new TreeMap<>();
 		}
 
 		merge(packageValueMap, overrideMap);
@@ -105,9 +110,12 @@ public class ConfigValueUtils {
 		if (StringUtils.hasText(pkg.getConfigValues().getRaw())) {
 			currentPackageValueMap = (Map<String, Object>) yaml.load(pkg.getConfigValues().getRaw());
 		}
+		if (currentPackageValueMap == null) {
+			currentPackageValueMap = new TreeMap<>();
+		}
 		for (Package dependency : dependencies) {
 			Map<String, Object> currentPackageValueMapForDependency = (Map<String, Object>) currentPackageValueMap
-					.get(dependency.getMetadata().getName());
+					.getOrDefault(dependency.getMetadata().getName(), new TreeMap<>());
 			merge(currentPackageValueMapForDependency, overrideMap);
 			mergedValues.put(dependency.getMetadata().getName(),
 					// TODO support multiple levels of dependency, convert PackageValueMap to ConfigValues

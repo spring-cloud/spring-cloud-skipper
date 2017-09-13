@@ -16,6 +16,7 @@
 package org.springframework.cloud.skipper.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.skipper.domain.DeployRequest;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
 import org.springframework.cloud.skipper.service.ReleaseService;
@@ -37,6 +38,12 @@ public class PackageController {
 	@Autowired
 	public PackageController(ReleaseService releaseService) {
 		this.releaseService = releaseService;
+	}
+
+	@RequestMapping(path = "/deploy", method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
+	public Release deploy(@RequestBody DeployRequest deployRequest) {
+		return this.releaseService.deploy(deployRequest);
 	}
 
 	@RequestMapping(path = "/{id}/deploy", method = RequestMethod.POST)

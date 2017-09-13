@@ -15,11 +15,15 @@
  */
 package org.springframework.cloud.skipper.controller;
 
+import java.io.File;
+
 import org.junit.After;
 import org.junit.Before;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.AbstractMockMvcTests;
 import org.springframework.cloud.skipper.config.SkipperServerProperties;
+import org.springframework.cloud.skipper.domain.DeployRequest;
 import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.StatusCode;
@@ -27,8 +31,6 @@ import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
 import org.springframework.cloud.skipper.repository.PackageMetadataRepository;
 import org.springframework.cloud.skipper.repository.ReleaseRepository;
 import org.springframework.util.FileSystemUtils;
-
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -86,10 +88,24 @@ public class AbstractControllerTests extends AbstractMockMvcTests {
 		return deployedRelease;
 	}
 
+	protected Release deploy(DeployRequest deployRequest) throws Exception {
+		mockMvc.perform(post("/package/deploy")
+				.content(convertObjectToJson(deployRequest))).andDo(print())
+				.andExpect(status().isCreated()).andReturn();
+
+		String releaseName = deployRequest.getDeployProperties().getReleaseName();
+		Release deployedRelease = this.releaseRepository.findByNameAndVersion(releaseName, 1);
+		PackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndVersion(
+				deployRequest.getPackageIdentifier().getPackageName(),
+				deployRequest.getPackageIdentifier().getPackageVersion());
+		commonReleaseAssertions(releaseName, packageMetadata, deployedRelease);
+		return deployedRelease;
+	}
+
 	protected Release update(String packageName, String packageVersion, String releaseName) throws Exception {
 		DeployProperties newDeployProperties = createDeployProperties(releaseName);
-		PackageMetadata updatePackageMetadata =
-				packageMetadataRepository.findByNameAndVersion(packageName, packageVersion);
+		PackageMetadata updatePackageMetadata = packageMetadataRepository.findByNameAndVersion(packageName,
+				packageVersion);
 		assertThat(updatePackageMetadata).isNotNull();
 		mockMvc.perform(post("/package/" + updatePackageMetadata.getId() + "/update")
 				.content(convertObjectToJson(newDeployProperties))).andDo(print())
@@ -106,7 +122,8 @@ public class AbstractControllerTests extends AbstractMockMvcTests {
 		return deployProperties;
 	}
 
-	protected void commonReleaseAssertions(String releaseName, PackageMetadata packageMetadata, Release deployedRelease) {
+	protected void commonReleaseAssertions(String releaseName, PackageMetadata packageMetadata,
+			Release deployedRelease) {
 		assertThat(deployedRelease.getName()).isEqualTo(releaseName);
 		assertThat(deployedRelease.getPlatformName()).isEqualTo("test");
 		assertThat(deployedRelease.getPkg().getMetadata()).isEqualToIgnoringGivenFields(packageMetadata, "id");

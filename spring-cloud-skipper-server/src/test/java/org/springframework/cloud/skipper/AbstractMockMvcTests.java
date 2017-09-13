@@ -69,7 +69,8 @@ public abstract class AbstractMockMvcTests {
 				.build();
 	}
 
-	protected void assertReleaseIsDeployedSuccessfully(String releaseName, String releaseVersion) throws InterruptedException {
+	protected void assertReleaseIsDeployedSuccessfully(String releaseName, String releaseVersion)
+			throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(1);
 		long startTime = System.currentTimeMillis();
 		while (!isDeployed(releaseName, releaseVersion)

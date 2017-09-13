@@ -17,14 +17,12 @@ package org.springframework.cloud.skipper.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import com.samskivert.mustache.Mustache;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.cloud.skipper.domain.*;
@@ -71,11 +69,32 @@ public class ReleaseService {
 	 * @param id of the package
 	 * @param deployProperties contains the name of the release, the platfrom to deploy to,
 	 * and configuration values to replace in the package template.
-	 * @return the Release object associated with this installation
+	 * @return the Release object associated with this deployment
 	 */
 	public Release deploy(String id, DeployProperties deployProperties) {
 		Assert.notNull(deployProperties, "Install Properties can not be null");
 		PackageMetadata packageMetadata = this.packageMetadataRepository.findOne(id);
+		return deploy(packageMetadata, deployProperties);
+	}
+
+	/**
+	 * Downloads the package metadata and package zip file specified by PackageIdentifier
+	 * property of the DeploymentRequest. Deploys the package on the target platform.
+	 * @param deployRequest the deploymentRequest
+	 * @return the Release object associated with this deployment
+	 */
+	public Release deploy(DeployRequest deployRequest) {
+		// TODO deployRequest validation.
+		PackageIdentifier packageIdentifier = deployRequest.getPackageIdentifier();
+		PackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndVersion(
+				packageIdentifier.getPackageName(),
+				packageIdentifier.getPackageVersion());
+		// TODO - what about multi-repository support....
+		// deployRequest.getPackageIdentifier().getRepositoryName()
+		return deploy(packageMetadata.getId(), deployRequest.getDeployProperties());
+	}
+
+	protected Release deploy(PackageMetadata packageMetadata, DeployProperties deployProperties) {
 		this.packageService.downloadPackage(packageMetadata);
 		Package packageToInstall = this.packageService.loadPackage(packageMetadata);
 		Release release = createInitialRelease(deployProperties, packageToInstall);
@@ -83,9 +102,11 @@ public class ReleaseService {
 	}
 
 	private Release deploy(Release release) {
-		Properties model = mergeConfigValues(release.getPkg().getConfigValues(), release.getConfigValues());
+		Map<String, Object> mergedMap = ConfigValueUtils.mergeConfigValues(release.getPkg(), release.getConfigValues());
+		// Properties model = mergeConfigValues(release.getPkg().getConfigValues(),
+		// release.getConfigValues());
 		// Render yaml resources
-		String manifest = createManifest(release.getPkg(), model);
+		String manifest = createManifest(release.getPkg(), mergedMap);
 		release.setManifest(manifest);
 		// Deployment
 		return this.releaseManager.deploy(release);
@@ -123,7 +144,10 @@ public class ReleaseService {
 	public Release update(String packageId, DeployProperties deployProperties) {
 		Release oldRelease = getLatestRelease(deployProperties.getReleaseName());
 		Release newRelease = createNewRelease(packageId, oldRelease.getVersion() + 1, deployProperties);
-		Properties model = mergeConfigValues(newRelease.getPkg().getConfigValues(), newRelease.getConfigValues());
+		// Properties model = mergeConfigValues(newRelease.getPkg().getConfigValues(),
+		// newRelease.getConfigValues());
+		Map<String, Object> model = ConfigValueUtils.mergeConfigValues(newRelease.getPkg(),
+				newRelease.getConfigValues());
 		String manifest = createManifest(newRelease.getPkg(), model);
 		newRelease.setManifest(manifest);
 		return update(oldRelease, newRelease);
@@ -161,7 +185,7 @@ public class ReleaseService {
 		Assert.notNull(existingRelease, "Existing Release must not be null");
 		Assert.notNull(replacingRelease, "Replacing Release must not be null");
 		Release release = this.releaseManager.deploy(replacingRelease);
-		//TODO UpdateStrategy (manfiestSave, healthCheck)
+		// TODO UpdateStrategy (manfiestSave, healthCheck)
 		this.releaseManager.undeploy(existingRelease);
 		return release;
 	}
@@ -169,7 +193,8 @@ public class ReleaseService {
 	public Release rollback(String releaseName, int rollbackVersion) {
 		Assert.notNull(releaseName, "Release name must not be null");
 		Release releaseToRollback = this.releaseRepository.findByNameAndVersion(releaseName, rollbackVersion);
-		Assert.notNull(releaseToRollback, "Could not find Release to rollback to [releaseName,releaseVersion] = [" + releaseName + "," + rollbackVersion + "]");
+		Assert.notNull(releaseToRollback, "Could not find Release to rollback to [releaseName,releaseVersion] = ["
+				+ releaseName + "," + rollbackVersion + "]");
 
 		Release currentRelease = this.releaseRepository.findLatestRelease(releaseName);
 		Assert.notNull(currentRelease, "Could not find current release with [releaseName] = [" + releaseName + "]");
@@ -183,7 +208,8 @@ public class ReleaseService {
 		newRelease.setManifest(releaseToRollback.getManifest());
 		newRelease.setVersion(currentRelease.getVersion() + 1);
 		newRelease.setPlatformName(releaseToRollback.getPlatformName());
-		//Do not set ConfigValues since the manifest from the previous release has already resolved those...
+		// Do not set ConfigValues since the manifest from the previous release has already
+		// resolved those...
 		newRelease.setInfo(createNewInfo());
 
 		update(currentRelease, newRelease);
@@ -199,7 +225,7 @@ public class ReleaseService {
 	 * @param model The placeholder values.
 	 * @return A YAML string containing all the templates with replaced values.
 	 */
-	public String createManifest(Package packageToDeploy, Properties model) {
+	public String createManifest(Package packageToDeploy, Map<String, Object> model) {
 
 		// Aggregate all valid manifests into one big doc.
 		StringBuilder sb = new StringBuilder();
@@ -214,7 +240,17 @@ public class ReleaseService {
 			}
 		}
 
-		// TODO package dependencies
+		for (Package pkg : packageToDeploy.getDependencies()) {
+			String packageName = pkg.getMetadata().getName();
+			Map<String, Object> modelForDependency;
+			if (model.containsKey(packageName)) {
+				modelForDependency = (Map<String, Object>) model.get(pkg.getMetadata().getName());
+			}
+			else {
+				modelForDependency = new TreeMap<>();
+			}
+			sb.append(createManifest(pkg, modelForDependency));
+		}
 
 		return sb.toString();
 	}
@@ -304,4 +340,5 @@ public class ReleaseService {
 		info.setDescription("Initial deploy underway");
 		return info;
 	}
+
 }

@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 import io.jsonwebtoken.lang.Assert;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.config.SkipperServerProperties;
 import org.springframework.cloud.skipper.domain.Release;

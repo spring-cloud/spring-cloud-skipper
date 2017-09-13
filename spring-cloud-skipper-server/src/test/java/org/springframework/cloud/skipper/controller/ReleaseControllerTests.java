@@ -15,23 +15,12 @@
  */
 package org.springframework.cloud.skipper.controller;
 
-import java.io.File;
-
-import org.junit.Before;
 import org.junit.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.skipper.AbstractMockMvcTests;
-import org.springframework.cloud.skipper.config.SkipperServerProperties;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.StatusCode;
-import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
-import org.springframework.cloud.skipper.repository.PackageMetadataRepository;
-import org.springframework.cloud.skipper.repository.ReleaseRepository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -47,8 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		"spring.cloud.skipper.server.platform.local.accounts[test].key=value",
 		"maven.remote-repositories.repo1.url=http://repo.spring.io/libs-snapshot" })
 public class ReleaseControllerTests extends AbstractControllerTests {
-
-
 
 	@Test
 	public void checkDeployStatus() throws Exception {
@@ -88,17 +75,16 @@ public class ReleaseControllerTests extends AbstractControllerTests {
 		release = this.releaseRepository.findByNameAndVersion(releaseName, Integer.valueOf(releaseVersion));
 		assertReleaseIsDeployedSuccessfully(releaseName, "3");
 
-		//TODO the common assert doesn't check for this status code.
+		// TODO the common assert doesn't check for this status code.
 		assertThat(release.getInfo().getStatus().getStatusCode()).isEqualTo(StatusCode.DEPLOYED);
 
 		// Undeploy
 		mockMvc.perform(post("/release/undeploy/" + releaseName + "/" + releaseVersion))
 				.andDo(print())
 				.andExpect(status().isCreated()).andReturn();
-		Release undeployedRelease =
-				this.releaseRepository.findByNameAndVersion(releaseName, Integer.valueOf(releaseVersion));
+		Release undeployedRelease = this.releaseRepository.findByNameAndVersion(releaseName,
+				Integer.valueOf(releaseVersion));
 		assertThat(undeployedRelease.getInfo().getStatus().getStatusCode()).isEqualTo(StatusCode.DELETED);
 	}
-
 
 }

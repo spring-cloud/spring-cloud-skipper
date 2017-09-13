@@ -15,29 +15,16 @@
  */
 package org.springframework.cloud.skipper.controller;
 
-import java.io.File;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.skipper.AbstractMockMvcTests;
-import org.springframework.cloud.skipper.config.SkipperServerProperties;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.DeployRequest;
+import org.springframework.cloud.skipper.domain.PackageIdentifier;
 import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
-import org.springframework.cloud.skipper.repository.PackageMetadataRepository;
-import org.springframework.cloud.skipper.repository.ReleaseRepository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author Mark Pollack
@@ -49,16 +36,36 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		"maven.remote-repositories.repo1.url=http://repo.spring.io/libs-snapshot" })
 public class PackageControllerTests extends AbstractControllerTests {
 
-
-
 	@Test
 	public void deployTickTock() throws Exception {
-		//String releaseName = deploy("ticktock", "1.0.0", "myTicker");
+		String releaseName = "myTicker";
+		Release release = deploy("ticktock", "1.0.0", "myTicker");
+		assertReleaseIsDeployedSuccessfully(releaseName, "1");
+		assertThat(release.getVersion()).isEqualTo(1);
+	}
+
+	@Test
+	public void packageDeployRequest() throws Exception {
+		String releaseName = "myLog";
+		DeployRequest deployRequest = new DeployRequest();
+		PackageIdentifier packageIdentifier = new PackageIdentifier();
+		packageIdentifier.setPackageName("log");
+		packageIdentifier.setPackageVersion("1.0.0");
+		packageIdentifier.setRepositoryName("notused");
+		deployRequest.setPackageIdentifier(packageIdentifier);
+		DeployProperties deployProperties = new DeployProperties();
+		deployProperties.setReleaseName(releaseName);
+		deployProperties.setPlatformName("test");
+		deployRequest.setDeployProperties(deployProperties);
+
+		Release release = deploy(deployRequest);
+		assertReleaseIsDeployedSuccessfully(releaseName, "1");
+		assertThat(release.getVersion()).isEqualTo(1);
 	}
 
 	@Test
 	public void packageDeployAndUpdate() throws Exception {
-		String releaseName =  "myLog";
+		String releaseName = "myLog";
 		Release release = deploy("log", "1.0.0", releaseName);
 		assertReleaseIsDeployedSuccessfully(releaseName, "1");
 		assertThat(release.getVersion()).isEqualTo(1);
