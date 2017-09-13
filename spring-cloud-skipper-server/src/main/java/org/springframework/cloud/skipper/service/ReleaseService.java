@@ -70,14 +70,14 @@ public class ReleaseService {
 	/**
 	 * Downloads the package metadata and package zip file specified by the given Id and
 	 * deploys the package on the target platform.
-	 * @param id of the package
 	 * @param deployProperties contains the name of the release, the platfrom to deploy
 	 * to, and configuration values to replace in the package template.
 	 * @return the Release object associated with this installation
 	 */
-	public Release deploy(String id, DeployProperties deployProperties) {
+	public Release deploy(DeployProperties deployProperties) {
 		Assert.notNull(deployProperties, "Install Properties can not be null");
-		PackageMetadata packageMetadata = this.packageMetadataRepository.findOne(id);
+		PackageMetadata packageMetadata = this.packageMetadataRepository
+				.findByNameAndVersion(deployProperties.getPackageName(), deployProperties.getPackageVersion());
 		this.packageService.downloadPackage(packageMetadata);
 		Package packageToInstall = this.packageService.loadPackage(packageMetadata);
 		Release release = createInitialRelease(deployProperties, packageToInstall);
@@ -122,15 +122,16 @@ public class ReleaseService {
 		return release;
 	}
 
-	public Release update(String packageId, DeployProperties deployProperties) {
+	public Release update(DeployProperties deployProperties) {
 		Release oldRelease = getLatestRelease(deployProperties.getReleaseName());
-		Release newRelease = createNewRelease(packageId, oldRelease.getVersion() + 1, deployProperties);
+		Release newRelease = createNewRelease(oldRelease.getVersion() + 1, deployProperties);
 		return update(oldRelease, newRelease);
 	}
 
-	public Release createNewRelease(String packageId, Integer newVersion, DeployProperties deployProperties) {
+	public Release createNewRelease(Integer newVersion, DeployProperties deployProperties) {
 		Assert.notNull(deployProperties, "Deploy Properties can not be null");
-		PackageMetadata packageMetadata = this.packageMetadataRepository.findOne(packageId);
+		PackageMetadata packageMetadata = this.packageMetadataRepository
+				.findByNameAndVersion(deployProperties.getPackageName(), deployProperties.getPackageVersion());
 		this.packageService.downloadPackage(packageMetadata);
 		Package packageToInstall = this.packageService.loadPackage(packageMetadata);
 		packageToInstall.getMetadata().setId(packageMetadata.getId());

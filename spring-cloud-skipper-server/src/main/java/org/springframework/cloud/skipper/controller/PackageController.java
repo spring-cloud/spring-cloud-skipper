@@ -20,7 +20,6 @@ import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
 import org.springframework.cloud.skipper.service.ReleaseService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,22 +36,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/package")
 public class PackageController {
 
-	private ReleaseService releaseService;
+	private final ReleaseService releaseService;
 
 	@Autowired
 	public PackageController(ReleaseService releaseService) {
 		this.releaseService = releaseService;
 	}
 
-	@RequestMapping(path = "/{id}/deploy", method = RequestMethod.POST)
+	@RequestMapping(path = "/deploy", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public Release deploy(@PathVariable("id") String id, @RequestBody DeployProperties deployProperties) {
-		return this.releaseService.deploy(id, deployProperties);
+	public Release deploy(@RequestBody DeployProperties deployProperties) {
+		return this.releaseService.deploy(deployProperties);
 	}
 
-	@RequestMapping(path = "{id}/update", method = RequestMethod.POST)
+	@RequestMapping(path = "update", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public Release update(@PathVariable("id") String packageId, @RequestBody DeployProperties deployProperties) {
-		return this.releaseService.update(packageId, deployProperties);
+	public Release update(@RequestBody DeployProperties deployProperties) {
+		return this.releaseService.update(deployProperties);
 	}
 }

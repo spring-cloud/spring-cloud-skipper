@@ -46,20 +46,18 @@ public interface SkipperClient {
 	/**
 	 * Deploy the package.
 	 *
-	 * @param packageId the package Id.
 	 * @param deployProperties the (@link DeployProperties)
 	 * @return the deployed {@link Release}
 	 */
-	String deploy(String packageId, DeployProperties deployProperties);
+	String deploy(DeployProperties deployProperties);
 
 	/**
 	 * Update the package.
 	 *
-	 * @param packageId the ID of the package to update.
 	 * @param deployProperties the (@link DeployProperties)
 	 * @return the deployed {@link Release}
 	 */
-	String update(String packageId, DeployProperties deployProperties);
+	String update(DeployProperties deployProperties);
 
 	/**
 	 * Undeploy a specific release.

@@ -17,6 +17,7 @@ package org.springframework.cloud.skipper.index;
 
 import org.springframework.cloud.skipper.controller.PackageController;
 import org.springframework.cloud.skipper.domain.PackageSummary;
+import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
@@ -33,9 +34,11 @@ public class PackageSummaryResourceProcessor implements ResourceProcessor<Resour
 
 	@Override
 	public Resource<PackageSummary> process(Resource<PackageSummary> packageSummaryResource) {
+		DeployProperties deployProperties = new DeployProperties();
+		deployProperties.setPackageName(packageSummaryResource.getContent().getName());
+		deployProperties.setPackageVersion(packageSummaryResource.getContent().getVersion());
 		Link link = linkTo(
-				methodOn(PackageController.class).deploy(packageSummaryResource.getContent().getId(), null))
-						.withRel("deploy");
+				methodOn(PackageController.class).deploy(deployProperties)).withRel("deploy");
 		packageSummaryResource.add(link);
 		return packageSummaryResource;
 	}
