@@ -121,11 +121,11 @@ public class ReleaseService {
 	}
 
 	public Release update(String packageId, DeployProperties deployProperties) {
-
-
 		Release oldRelease = getLatestRelease(deployProperties.getReleaseName());
 		Release newRelease = createNewRelease(packageId, oldRelease.getVersion() + 1, deployProperties);
-		// TODO manifest is null... String manifest = createManifest(skipperPackage);
+		Properties model = mergeConfigValues(newRelease.getPkg().getConfigValues(), newRelease.getConfigValues());
+		String manifest = createManifest(newRelease.getPkg(), model);
+		newRelease.setManifest(manifest);
 		return update(oldRelease, newRelease);
 	}
 
