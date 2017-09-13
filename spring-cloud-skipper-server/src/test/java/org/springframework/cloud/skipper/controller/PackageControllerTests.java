@@ -47,85 +47,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties = { "spring.cloud.skipper.server.synchonizeIndexOnContextRefresh=true",
 		"spring.cloud.skipper.server.platform.local.accounts[test].key=value",
 		"maven.remote-repositories.repo1.url=http://repo.spring.io/libs-snapshot" })
-public class PackageControllerTests extends AbstractMockMvcTests {
+public class PackageControllerTests extends AbstractControllerTests {
 
-	@Autowired
-	private PackageMetadataRepository packageMetadataRepository;
 
-	@Autowired
-	private ReleaseRepository releaseRepository;
-
-	@Autowired
-	private SkipperServerProperties skipperServerProperties;
-
-	@Before
-	public void cleanupPackageDir() {
-		this.releaseRepository.deleteAll();
-		File packageDirectory = new File(skipperServerProperties.getPackageDir());
-		FileSystemUtils.deleteRecursively(new File(skipperServerProperties.getPackageDir()));
-		assertThat(packageDirectory).doesNotExist();
-	}
-
-	@After
-	public void cleanupReleases() throws Exception {
-		// Add a sleep for now to give the local deployer a chance to deploy the app. This should
-		// go away
-		// once we introduce spring state machine.
-		Thread.sleep(5000);
-		for (Release release : releaseRepository.findAll()) {
-			if (release.getInfo().getStatus().getStatusCode() != StatusCode.DELETED) {
-				mockMvc.perform(post("/release/undeploy/" + release.getName() + "/" + release.getVersion()))
-						.andDo(print())
-						.andExpect(status().isCreated()).andReturn();
-			}
-		}
-	}
 
 	@Test
-	public void deployTime() throws Exception {
-		String releaseName = deploy("time", "2.0.0", "time-source-app-release");
+	public void deployTickTock() throws Exception {
+		//String releaseName = deploy("ticktock", "1.0.0", "myTicker");
 	}
 
 	@Test
 	public void packageDeployAndUpdate() throws Exception {
-		String releaseName = deploy("log", "1.0.0", "log-sink-app");
-		// Update
-		String updatePackageVersion = "1.0.1";
-		String updatePkgName = "log2";
-		PackageMetadata updatePackageMetadata = packageMetadataRepository.findByNameAndVersion(updatePkgName,
-				updatePackageVersion);
-		DeployProperties newDeployProperties = new DeployProperties();
-		newDeployProperties.setPlatformName("test");
-		newDeployProperties.setReleaseName(releaseName);
-		mockMvc.perform(post("/package/" + updatePackageMetadata.getId() + "/update")
-				.content(convertObjectToJson(newDeployProperties))).andDo(print())
-				.andExpect(status().isCreated()).andReturn();
-		Release updatedRelease = this.releaseRepository.findByNameAndVersion(releaseName, 2);
-		assertThat(updatedRelease.getName()).isEqualTo(releaseName);
-		assertThat(updatedRelease.getPlatformName()).isEqualTo("test");
-		assertThat(updatedRelease.getVersion()).isEqualTo(2);
-		assertThat(updatedRelease.getPkg().getMetadata().equals(updatePackageMetadata)).isTrue();
-		assertThat(updatedRelease.getInfo().getStatus().getStatusCode()).isEqualTo(StatusCode.DEPLOYED);
-	}
+		String releaseName =  "myLog";
+		Release release = deploy("log", "1.0.0", releaseName);
+		assertReleaseIsDeployedSuccessfully(releaseName, "1");
+		assertThat(release.getVersion()).isEqualTo(1);
 
-	protected String deploy(String packageName, String packageVersion, String releaseName) throws Exception {
-		// Deploy
-		DeployProperties deployProperties = new DeployProperties();
-		deployProperties.setPlatformName("test");
-		deployProperties.setReleaseName(releaseName);
-		PackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndVersion(packageName,
-				packageVersion);
-		mockMvc.perform(post("/package/" + packageMetadata.getId() + "/deploy")
-				.content(convertObjectToJson(deployProperties))).andDo(print())
-				.andExpect(status().isCreated()).andReturn();
-		Release deployedRelease = this.releaseRepository.findByNameAndVersion(releaseName, 1);
-		assertThat(deployedRelease.getName()).isEqualTo(releaseName);
-		assertThat(deployedRelease.getPlatformName()).isEqualTo("test");
-		assertThat(deployedRelease.getVersion()).isEqualTo(1);
-		assertThat(deployedRelease.getPkg().getMetadata()).isEqualToIgnoringGivenFields(packageMetadata, "id");
-		assertThat(deployedRelease.getPkg().getMetadata().equals(packageMetadata));
-		assertThat(deployedRelease.getInfo().getStatus().getStatusCode()).isEqualTo(StatusCode.DEPLOYED);
-		return releaseName;
+		// Update
+		release = update("log", "1.1.0", releaseName);
+		assertReleaseIsDeployedSuccessfully(releaseName, "2");
+		assertThat(release.getVersion()).isEqualTo(2);
+
 	}
 
 }

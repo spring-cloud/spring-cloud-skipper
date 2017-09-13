@@ -17,6 +17,8 @@ package org.springframework.cloud.skipper;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,10 +31,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
  * @author Mark Pollack
@@ -62,6 +67,37 @@ public abstract class AbstractMockMvcTests {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(wac)
 				.defaultRequest(get("/").accept(MediaType.APPLICATION_JSON).contentType(contentType))
 				.build();
+	}
+
+	protected void assertReleaseIsDeployedSuccessfully(String releaseName, String releaseVersion) throws InterruptedException {
+		CountDownLatch latch = new CountDownLatch(1);
+		long startTime = System.currentTimeMillis();
+		while (!isDeployed(releaseName, releaseVersion)
+				|| (System.currentTimeMillis() - startTime) < 12000) {
+			Thread.sleep(10000);
+		}
+		if (isDeployed(releaseName, releaseVersion)) {
+			latch.countDown();
+		}
+		assertThat(latch.await(1, TimeUnit.SECONDS)).describedAs("Status check timed out").isTrue();
+	}
+
+	private boolean isDeployed(String releaseName, String releaseVersion) {
+		try {
+			MvcResult result = mockMvc.perform(get(String.format("/release/status/%s/%s", releaseName, releaseVersion)))
+					.andDo(print()).andReturn();
+			String content = result.getResponse().getContentAsString();
+			return content.startsWith(getSuccessStatus(releaseName, releaseVersion));
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+
+	private String getSuccessStatus(String release, String version) {
+		return "{\"name\":\"" + release + "\",\"version\":" + version + ","
+				+ "\"info\":{\"status\":{\"statusCode\":\"DEPLOYED\","
+				+ "\"platformStatus\":\"All the applications are deployed successfully.";
 	}
 
 }

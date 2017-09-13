@@ -23,6 +23,8 @@ import java.util.Properties;
 
 import com.samskivert.mustache.Mustache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.cloud.skipper.domain.*;
@@ -41,6 +43,8 @@ import org.springframework.util.StringUtils;
  */
 @Service
 public class ReleaseService {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final PackageMetadataRepository packageMetadataRepository;
 
@@ -117,8 +121,11 @@ public class ReleaseService {
 	}
 
 	public Release update(String packageId, DeployProperties deployProperties) {
+
+
 		Release oldRelease = getLatestRelease(deployProperties.getReleaseName());
 		Release newRelease = createNewRelease(packageId, oldRelease.getVersion() + 1, deployProperties);
+		// TODO manifest is null... String manifest = createManifest(skipperPackage);
 		return update(oldRelease, newRelease);
 	}
 
@@ -134,30 +141,52 @@ public class ReleaseService {
 		release.setConfigValues(deployProperties.getConfigValues());
 		release.setPkg(packageToInstall);
 		release.setVersion(newVersion);
+		Info info = createNewInfo("Update deploy underway");
+		release.setInfo(info);
+		return release;
+	}
+
+	protected Info createNewInfo(String update_deploy_underway) {
 		Info info = new Info();
 		info.setFirstDeployed(new Date());
 		info.setLastDeployed(new Date());
 		Status status = new Status();
 		status.setStatusCode(StatusCode.UNKNOWN);
 		info.setStatus(status);
-		info.setDescription("Update deploy underway");
-		release.setInfo(info);
-		return release;
+		info.setDescription(update_deploy_underway);
+		return info;
 	}
 
 	public Release update(Release existingRelease, Release replacingRelease) {
 		Assert.notNull(existingRelease, "Existing Release must not be null");
 		Assert.notNull(replacingRelease, "Replacing Release must not be null");
-		deploy(replacingRelease);
+		Release release = this.releaseManager.deploy(replacingRelease);
+		//TODO UpdateStrategy (manfiestSave, healthCheck)
 		this.releaseManager.undeploy(existingRelease);
-		return replacingRelease;
+		return release;
 	}
 
 	public Release rollback(String releaseName, int rollbackVersion) {
 		Assert.notNull(releaseName, "Release name must not be null");
-		Release releaseToRollback = getRelease(releaseName, rollbackVersion);
-		Release currentRelease = getLatestRelease(releaseName);
-		update(currentRelease, releaseToRollback);
+		Release releaseToRollback = this.releaseRepository.findByNameAndVersion(releaseName, rollbackVersion);
+		Assert.notNull(releaseToRollback, "Could not find Release to rollback to [releaseName,releaseVersion] = [" + releaseName + "," + rollbackVersion + "]");
+
+		Release currentRelease = this.releaseRepository.findLatestRelease(releaseName);
+		Assert.notNull(currentRelease, "Could not find current release with [releaseName] = [" + releaseName + "]");
+
+		logger.info("Rolling back releaseName={}.  Current version={}, Target version={}", releaseName,
+				currentRelease.getVersion(), releaseToRollback.getVersion());
+
+		Release newRelease = new Release();
+		newRelease.setName(releaseName);
+		newRelease.setPkg(releaseToRollback.getPkg());
+		newRelease.setManifest(releaseToRollback.getManifest());
+		newRelease.setVersion(currentRelease.getVersion() + 1);
+		newRelease.setPlatformName(releaseToRollback.getPlatformName());
+		//Do not set ConfigValues since the manifest from the previous release has already resolved those...
+		newRelease.setInfo(createNewInfo());
+
+		update(currentRelease, newRelease);
 		return releaseToRollback;
 	}
 
@@ -260,6 +289,12 @@ public class ReleaseService {
 		release.setConfigValues(deployProperties.getConfigValues());
 		release.setPkg(packageToInstall);
 		release.setVersion(1);
+		Info info = createNewInfo();
+		release.setInfo(info);
+		return release;
+	}
+
+	private Info createNewInfo() {
 		Info info = new Info();
 		info.setFirstDeployed(new Date());
 		info.setLastDeployed(new Date());
@@ -267,7 +302,6 @@ public class ReleaseService {
 		status.setStatusCode(StatusCode.UNKNOWN);
 		info.setStatus(status);
 		info.setDescription("Initial deploy underway");
-		release.setInfo(info);
-		return release;
+		return info;
 	}
 }
