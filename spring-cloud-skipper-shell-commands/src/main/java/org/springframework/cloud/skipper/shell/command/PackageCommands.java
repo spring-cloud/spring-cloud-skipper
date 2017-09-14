@@ -18,26 +18,42 @@ package org.springframework.cloud.skipper.shell.command;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.cloud.skipper.client.SkipperClient;
+import org.springframework.cloud.skipper.client.resource.PackageMetadataResource;
 import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
 import org.springframework.cloud.skipper.shell.command.support.SkipperClientUpdatedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.table.ArrayTableModel;
+import org.springframework.shell.table.BeanListTableModel;
+import org.springframework.shell.table.BorderSpecification;
+import org.springframework.shell.table.BorderStyle;
+import org.springframework.shell.table.CellMatchers;
+import org.springframework.shell.table.SimpleHorizontalAligner;
+import org.springframework.shell.table.SimpleVerticalAligner;
+import org.springframework.shell.table.TableBuilder;
+import org.springframework.shell.table.TableModel;
+import org.springframework.shell.table.Tables;
 import org.springframework.util.Assert;
 
 import static org.springframework.shell.standard.ShellOption.NULL;
 
 /**
  * @author Ilayaperumal Gopinathan
+ * @author Eric Bottard
  */
 @ShellComponent
 public class PackageCommands {
@@ -49,10 +65,60 @@ public class PackageCommands {
 		this.skipperClient = skipperClient;
 	}
 
-	@ShellMethod(key = "package list", value = "Get the package metadata")
-	public String packageMetadata(
-			@ShellOption(help = "boolean to set for more detailed package metadata", defaultValue = "false") boolean details) {
-		return skipperClient.getPackageMetadata(details);
+	@ShellMethod(key = "package search", value = "Search for the packages")
+	public Object searchPackage(
+			@ShellOption(help = "wildcard expression to search for the package name", defaultValue = NULL) String name,
+			@ShellOption(help = "boolean to set for more detailed package metadata", defaultValue = "false") boolean details)
+			throws JsonProcessingException {
+		PagedResources<PackageMetadataResource> resources = skipperClient.getPackageMetadata(name, details);
+		if (!details) {
+			LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
+			headers.put("name", "Name");
+			headers.put("version", "Version");
+			headers.put("description", "Description");
+			TableModel model = new BeanListTableModel<>(resources.getContent(), headers);
+			TableBuilder tableBuilder = new TableBuilder(model);
+			applyStyle(tableBuilder);
+			return tableBuilder.build();
+		}
+		else {
+			ObjectMapper mapper = new ObjectMapper();
+			String[][] data = new String[resources.getContent().size()][1];
+			TableModel model = new ArrayTableModel(data);
+			TableBuilder tableBuilder = new TableBuilder(model);
+			PackageMetadataResource[] packageMetadataResources = resources.getContent()
+					.toArray(new PackageMetadataResource[0]);
+			for (int i = 0; i < resources.getContent().size(); i++) {
+				for (int j = 0; j < 1; j++) {
+					data[i][j] = mapper.writeValueAsString(packageMetadataResources[i]);
+				}
+			}
+			return tableBuilder.build();
+		}
+	}
+
+	/**
+	 * Customize the given TableBuilder with the following common features (these choices
+	 * can always be overridden by applying later customizations) :
+	 * <ul>
+	 * <li>double border around the whole table and first row</li>
+	 * <li>vertical space (air) borders, single line separators between rows</li>
+	 * <li>first row is assumed to be a header and is centered horizontally and
+	 * vertically</li>
+	 * <li>cells containing Map values are rendered as {@literal key = value} lines,
+	 * trying to align on equal signs</li>
+	 * </ul>
+	 *
+	 * @param builder the table builder to use
+	 * @return the configured table builder
+	 */
+	public static TableBuilder applyStyle(TableBuilder builder) {
+		builder.addOutlineBorder(BorderStyle.fancy_double)
+				.paintBorder(BorderStyle.air, BorderSpecification.INNER_VERTICAL).fromTopLeft().toBottomRight()
+				.paintBorder(BorderStyle.fancy_light, BorderSpecification.INNER_VERTICAL).fromTopLeft().toBottomRight()
+				.addHeaderBorder(BorderStyle.fancy_double).on(CellMatchers.row(0))
+				.addAligner(SimpleVerticalAligner.middle).addAligner(SimpleHorizontalAligner.center);
+		return Tables.configureKeyValueRendering(builder, " = ");
 	}
 
 	@ShellMethod(key = "package deploy", value = "Deploy the package metadata")

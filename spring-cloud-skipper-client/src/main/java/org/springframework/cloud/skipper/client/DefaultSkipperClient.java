@@ -18,9 +18,12 @@ package org.springframework.cloud.skipper.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.cloud.skipper.client.resource.PackageMetadataResource;
 import org.springframework.cloud.skipper.domain.AboutInfo;
 import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -70,9 +73,11 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public String getPackageMetadata(boolean details) {
-		String url = baseUrl + "/packageMetadata";
-		return this.restTemplate.getForObject((details) ? url : url + "?projection=summary", String.class);
+	public PagedResources<PackageMetadataResource> getPackageMetadata(String name, boolean details) {
+		String url = baseUrl + "packageMetadata";
+		url = StringUtils.hasText(name) ? url + "/search/findByNameLike?size=2000&name=" + name : url + "?size=2000";
+		url = (details) ? url : url + "&projection=summary";
+		return this.restTemplate.getForObject(url, PackageMetadataResource.PackageMetadataResources.class);
 	}
 
 	@Override
