@@ -16,27 +16,8 @@
 package org.springframework.cloud.skipper.domain;
 
 /**
- * @author Mark Pollack
+ * @author Ilayaperumal Gopinathan
  */
-public class DeployRequest {
+public class UpdateProperties extends CommonDeploymentProperties {
 
-	private PackageIdentifier packageIdentifier;
-
-	private DeployProperties deployProperties;
-
-	public PackageIdentifier getPackageIdentifier() {
-		return packageIdentifier;
-	}
-
-	public void setPackageIdentifier(PackageIdentifier packageIdentifier) {
-		this.packageIdentifier = packageIdentifier;
-	}
-
-	public DeployProperties getDeployProperties() {
-		return deployProperties;
-	}
-
-	public void setDeployProperties(DeployProperties deployProperties) {
-		this.deployProperties = deployProperties;
-	}
 }
