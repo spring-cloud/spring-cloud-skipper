@@ -21,20 +21,18 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Properties;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.cloud.skipper.client.SkipperClient;
-import org.springframework.cloud.skipper.client.resource.PackageMetadataResource;
 import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
 import org.springframework.cloud.skipper.shell.command.support.SkipperClientUpdatedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resources;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -65,8 +63,8 @@ public class PackageCommands {
 	public Table searchPackage(
 			@ShellOption(help = "wildcard expression to search for the package name", defaultValue = NULL) String name,
 			@ShellOption(help = "boolean to set for more detailed package metadata") boolean details)
-			throws JsonProcessingException {
-		PagedResources<PackageMetadata> resources = skipperClient.getPackageMetadata(name, details);
+			throws Exception {
+		Resources<PackageMetadata> resources = skipperClient.getPackageMetadata(name, details);
 		TableBuilder tableBuilder = null;
 		if (!details) {
 			LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
@@ -80,8 +78,7 @@ public class PackageCommands {
 		else {
 			ObjectMapper mapper = new ObjectMapper();
 			String[][] data = new String[resources.getContent().size()][1];
-			PackageMetadataResource[] packageMetadataResources = resources.getContent()
-					.toArray(new PackageMetadataResource[0]);
+			PackageMetadata[] packageMetadataResources = resources.getContent().toArray(new PackageMetadata[0]);
 			for (int i = 0; i < resources.getContent().size(); i++) {
 				for (int j = 0; j < 1; j++) {
 					data[i][j] = mapper.writeValueAsString(packageMetadataResources[i]);
