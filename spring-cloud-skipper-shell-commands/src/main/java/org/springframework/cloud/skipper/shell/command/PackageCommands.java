@@ -44,6 +44,7 @@ import org.springframework.shell.table.BorderStyle;
 import org.springframework.shell.table.CellMatchers;
 import org.springframework.shell.table.SimpleHorizontalAligner;
 import org.springframework.shell.table.SimpleVerticalAligner;
+import org.springframework.shell.table.Table;
 import org.springframework.shell.table.TableBuilder;
 import org.springframework.shell.table.TableModel;
 import org.springframework.shell.table.Tables;
@@ -66,26 +67,24 @@ public class PackageCommands {
 	}
 
 	@ShellMethod(key = "package search", value = "Search for the packages")
-	public Object searchPackage(
+	public Table searchPackage(
 			@ShellOption(help = "wildcard expression to search for the package name", defaultValue = NULL) String name,
-			@ShellOption(help = "boolean to set for more detailed package metadata", defaultValue = "false") boolean details)
+			@ShellOption(help = "boolean to set for more detailed package metadata") boolean details)
 			throws JsonProcessingException {
 		PagedResources<PackageMetadataResource> resources = skipperClient.getPackageMetadata(name, details);
+		boolean outlineOnly = false;
+		TableModel model;
 		if (!details) {
 			LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
 			headers.put("name", "Name");
 			headers.put("version", "Version");
 			headers.put("description", "Description");
-			TableModel model = new BeanListTableModel<>(resources.getContent(), headers);
-			TableBuilder tableBuilder = new TableBuilder(model);
-			applyStyle(tableBuilder);
-			return tableBuilder.build();
+			model = new BeanListTableModel<>(resources.getContent(), headers);
 		}
 		else {
+			outlineOnly = true;
 			ObjectMapper mapper = new ObjectMapper();
 			String[][] data = new String[resources.getContent().size()][1];
-			TableModel model = new ArrayTableModel(data);
-			TableBuilder tableBuilder = new TableBuilder(model);
 			PackageMetadataResource[] packageMetadataResources = resources.getContent()
 					.toArray(new PackageMetadataResource[0]);
 			for (int i = 0; i < resources.getContent().size(); i++) {
@@ -93,8 +92,11 @@ public class PackageCommands {
 					data[i][j] = mapper.writeValueAsString(packageMetadataResources[i]);
 				}
 			}
-			return tableBuilder.build();
+			model = new ArrayTableModel(data);
 		}
+		TableBuilder tableBuilder = new TableBuilder(model);
+		applyStyle(tableBuilder, outlineOnly);
+		return tableBuilder.build();
 	}
 
 	/**
@@ -110,15 +112,23 @@ public class PackageCommands {
 	 * </ul>
 	 *
 	 * @param builder the table builder to use
+	 * @param outlineOnly boolean flag to specify if outline border only is required
 	 * @return the configured table builder
 	 */
-	public static TableBuilder applyStyle(TableBuilder builder) {
-		builder.addOutlineBorder(BorderStyle.fancy_double)
-				.paintBorder(BorderStyle.air, BorderSpecification.INNER_VERTICAL).fromTopLeft().toBottomRight()
-				.paintBorder(BorderStyle.fancy_light, BorderSpecification.INNER_VERTICAL).fromTopLeft().toBottomRight()
-				.addHeaderBorder(BorderStyle.fancy_double).on(CellMatchers.row(0))
-				.addAligner(SimpleVerticalAligner.middle).addAligner(SimpleHorizontalAligner.center);
-		return Tables.configureKeyValueRendering(builder, " = ");
+	public static TableBuilder applyStyle(TableBuilder builder, boolean outlineOnly) {
+		if (outlineOnly) {
+			builder.addOutlineBorder(BorderStyle.fancy_double);
+			return builder;
+		}
+		else {
+			builder.addOutlineBorder(BorderStyle.fancy_double)
+					.paintBorder(BorderStyle.air, BorderSpecification.INNER_VERTICAL).fromTopLeft().toBottomRight()
+					.paintBorder(BorderStyle.fancy_light, BorderSpecification.INNER_VERTICAL).fromTopLeft()
+					.toBottomRight()
+					.addHeaderBorder(BorderStyle.fancy_double).on(CellMatchers.row(0))
+					.addAligner(SimpleVerticalAligner.middle).addAligner(SimpleHorizontalAligner.center);
+			return Tables.configureKeyValueRendering(builder, " = ");
+		}
 	}
 
 	@ShellMethod(key = "package deploy", value = "Deploy the package metadata")
