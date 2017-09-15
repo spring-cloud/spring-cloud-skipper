@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.cloud.skipper.client.SkipperClient;
 import org.springframework.cloud.skipper.client.resource.PackageMetadataResource;
+import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
 import org.springframework.cloud.skipper.shell.command.support.SkipperClientUpdatedEvent;
 import org.springframework.context.event.EventListener;
@@ -39,15 +40,9 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.table.ArrayTableModel;
 import org.springframework.shell.table.BeanListTableModel;
-import org.springframework.shell.table.BorderSpecification;
-import org.springframework.shell.table.BorderStyle;
-import org.springframework.shell.table.CellMatchers;
-import org.springframework.shell.table.SimpleHorizontalAligner;
-import org.springframework.shell.table.SimpleVerticalAligner;
 import org.springframework.shell.table.Table;
 import org.springframework.shell.table.TableBuilder;
 import org.springframework.shell.table.TableModel;
-import org.springframework.shell.table.Tables;
 import org.springframework.util.Assert;
 
 import static org.springframework.shell.standard.ShellOption.NULL;
@@ -71,18 +66,18 @@ public class PackageCommands {
 			@ShellOption(help = "wildcard expression to search for the package name", defaultValue = NULL) String name,
 			@ShellOption(help = "boolean to set for more detailed package metadata") boolean details)
 			throws JsonProcessingException {
-		PagedResources<PackageMetadataResource> resources = skipperClient.getPackageMetadata(name, details);
-		boolean outlineOnly = false;
-		TableModel model;
+		PagedResources<PackageMetadata> resources = skipperClient.getPackageMetadata(name, details);
+		TableBuilder tableBuilder = null;
 		if (!details) {
 			LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
 			headers.put("name", "Name");
 			headers.put("version", "Version");
 			headers.put("description", "Description");
-			model = new BeanListTableModel<>(resources.getContent(), headers);
+			TableModel model = new BeanListTableModel<>(resources.getContent(), headers);
+			tableBuilder = new TableBuilder(model);
+			TableUtils.applyStyle(tableBuilder);
 		}
 		else {
-			outlineOnly = true;
 			ObjectMapper mapper = new ObjectMapper();
 			String[][] data = new String[resources.getContent().size()][1];
 			PackageMetadataResource[] packageMetadataResources = resources.getContent()
@@ -92,43 +87,11 @@ public class PackageCommands {
 					data[i][j] = mapper.writeValueAsString(packageMetadataResources[i]);
 				}
 			}
-			model = new ArrayTableModel(data);
+			TableModel model = new ArrayTableModel(data);
+			// todo: apply style
+			tableBuilder = new TableBuilder(model);
 		}
-		TableBuilder tableBuilder = new TableBuilder(model);
-		applyStyle(tableBuilder, outlineOnly);
 		return tableBuilder.build();
-	}
-
-	/**
-	 * Customize the given TableBuilder with the following common features (these choices
-	 * can always be overridden by applying later customizations) :
-	 * <ul>
-	 * <li>double border around the whole table and first row</li>
-	 * <li>vertical space (air) borders, single line separators between rows</li>
-	 * <li>first row is assumed to be a header and is centered horizontally and
-	 * vertically</li>
-	 * <li>cells containing Map values are rendered as {@literal key = value} lines,
-	 * trying to align on equal signs</li>
-	 * </ul>
-	 *
-	 * @param builder the table builder to use
-	 * @param outlineOnly boolean flag to specify if outline border only is required
-	 * @return the configured table builder
-	 */
-	public static TableBuilder applyStyle(TableBuilder builder, boolean outlineOnly) {
-		if (outlineOnly) {
-			builder.addOutlineBorder(BorderStyle.fancy_double);
-			return builder;
-		}
-		else {
-			builder.addOutlineBorder(BorderStyle.fancy_double)
-					.paintBorder(BorderStyle.air, BorderSpecification.INNER_VERTICAL).fromTopLeft().toBottomRight()
-					.paintBorder(BorderStyle.fancy_light, BorderSpecification.INNER_VERTICAL).fromTopLeft()
-					.toBottomRight()
-					.addHeaderBorder(BorderStyle.fancy_double).on(CellMatchers.row(0))
-					.addAligner(SimpleVerticalAligner.middle).addAligner(SimpleHorizontalAligner.center);
-			return Tables.configureKeyValueRendering(builder, " = ");
-		}
 	}
 
 	@ShellMethod(key = "package deploy", value = "Deploy the package metadata")
