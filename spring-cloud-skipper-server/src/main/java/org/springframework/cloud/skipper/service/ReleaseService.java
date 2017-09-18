@@ -29,7 +29,9 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.cloud.skipper.domain.CommonDeploymentProperties;
 import org.springframework.cloud.skipper.domain.ConfigValues;
+import org.springframework.cloud.skipper.domain.DeployProperties;
 import org.springframework.cloud.skipper.domain.DeployRequest;
 import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.Package;
@@ -39,7 +41,8 @@ import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.Status;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.domain.Template;
-import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
+import org.springframework.cloud.skipper.domain.UpdateProperties;
+import org.springframework.cloud.skipper.domain.UpdateRequest;
 import org.springframework.cloud.skipper.index.PackageException;
 import org.springframework.cloud.skipper.repository.DeployerRepository;
 import org.springframework.cloud.skipper.repository.PackageMetadataRepository;
@@ -85,8 +88,8 @@ public class ReleaseService {
 	 * Downloads the package metadata and package zip file specified by the given Id and
 	 * deploys the package on the target platform.
 	 * @param id of the package
-	 * @param deployProperties contains the name of the release, the platfrom to deploy to,
-	 * and configuration values to replace in the package template.
+	 * @param deployProperties contains the name of the release, the platfrom to deploy
+	 * to, and configuration values to replace in the package template.
 	 * @return the Release object associated with this deployment
 	 * @throws PackageException if the package to deploy can not be found.
 	 */
@@ -154,12 +157,14 @@ public class ReleaseService {
 		return this.releaseRepository.findLatestRelease(releaseName);
 	}
 
-
-	public Release update(String packageId, DeployProperties deployProperties) {
-		Release oldRelease = getLatestRelease(deployProperties.getReleaseName());
-		Release newRelease = createNewRelease(packageId, oldRelease.getVersion() + 1, deployProperties);
-		// Properties model = mergeConfigValues(newRelease.getPkg().getConfigValues(),
-		// newRelease.getConfigValues());
+	public Release update(UpdateRequest updateRequest) {
+		UpdateProperties updateProperties = updateRequest.getUpdateProperties();
+		Release oldRelease = getLatestRelease(updateProperties.getReleaseName());
+		PackageIdentifier packageIdentifier = updateRequest.getPackageIdentifier();
+		// todo: search multi repository
+		PackageMetadata packageMetadata = this.packageMetadataRepository
+				.findByNameAndVersion(packageIdentifier.getPackageName(), packageIdentifier.getPackageVersion());
+		Release newRelease = createNewRelease(packageMetadata, oldRelease.getVersion() + 1, updateProperties);
 		Map<String, Object> model = ConfigValueUtils.mergeConfigValues(newRelease.getPkg(),
 				newRelease.getConfigValues());
 		String manifest = createManifest(newRelease.getPkg(), model);
@@ -167,9 +172,9 @@ public class ReleaseService {
 		return update(oldRelease, newRelease);
 	}
 
-	public Release createNewRelease(String packageId, Integer newVersion, DeployProperties deployProperties) {
+	public Release createNewRelease(PackageMetadata packageMetadata, Integer newVersion,
+			CommonDeploymentProperties deployProperties) {
 		Assert.notNull(deployProperties, "Deploy Properties can not be null");
-		PackageMetadata packageMetadata = this.packageMetadataRepository.findOne(packageId);
 		this.packageService.downloadPackage(packageMetadata);
 		Package packageToInstall = this.packageService.loadPackage(packageMetadata);
 		packageToInstall.getMetadata().setId(packageMetadata.getId());
@@ -205,7 +210,8 @@ public class ReleaseService {
 	}
 
 	/**
-	 * Rollback the release name to the specified version.  If the version is 0, then rollback to the previous release.
+	 * Rollback the release name to the specified version. If the version is 0, then
+	 * rollback to the previous release.
 	 *
 	 * @param releaseName the name of the release
 	 * @param rollbackVersion the version of the release to rollback to
@@ -229,7 +235,6 @@ public class ReleaseService {
 		Assert.notNull(releaseToRollback, "Could not find Release to rollback to [releaseName,releaseVersion] = ["
 				+ releaseName + "," + rollbackVersionToUse + "]");
 
-
 		logger.info("Rolling back releaseName={}.  Current version={}, Target version={}", releaseName,
 				currentRelease.getVersion(), rollbackVersionToUse);
 
@@ -239,7 +244,8 @@ public class ReleaseService {
 		newRelease.setManifest(releaseToRollback.getManifest());
 		newRelease.setVersion(currentRelease.getVersion() + 1);
 		newRelease.setPlatformName(releaseToRollback.getPlatformName());
-		// Do not set ConfigValues since the manifest from the previous release has already
+		// Do not set ConfigValues since the manifest from the previous release has
+		// already
 		// resolved those...
 		newRelease.setInfo(createNewInfo());
 
@@ -287,10 +293,11 @@ public class ReleaseService {
 	}
 
 	/**
-	 * Merge the properties, derived from YAML format, contained in commandLineConfigValues
-	 * and templateConfigValue, giving preference to commandLineConfigValues. Assumes that the
-	 * YAML is stored as "raw" data in the ConfigValues object. If the "raw" data is empty or
-	 * null, an empty property object is returned.
+	 * Merge the properties, derived from YAML format, contained in
+	 * commandLineConfigValues and templateConfigValue, giving preference to
+	 * commandLineConfigValues. Assumes that the YAML is stored as "raw" data in the
+	 * ConfigValues object. If the "raw" data is empty or null, an empty property object
+	 * is returned.
 	 *
 	 * @param templateConfigValue YAML data defined in the template.yaml file
 	 * @param commandLineConfigValues YAML data passed at the application runtime
@@ -320,10 +327,11 @@ public class ReleaseService {
 	}
 
 	/**
-	 * Return a Properties object given a String that contains YAML. The Properties created by
-	 * this factory have nested paths for hierarchical objects. All exposed values are of type
-	 * {@code String}</b> for access through the common {@link Properties#getProperty} method.
-	 * See YamlPropertiesFactoryBean for more information.
+	 * Return a Properties object given a String that contains YAML. The Properties
+	 * created by this factory have nested paths for hierarchical objects. All exposed
+	 * values are of type {@code String}</b> for access through the common
+	 * {@link Properties#getProperty} method. See YamlPropertiesFactoryBean for more
+	 * information.
 	 * @param yamlString String that contains YAML
 	 * @return properties object containing contents of YAML file
 	 */
