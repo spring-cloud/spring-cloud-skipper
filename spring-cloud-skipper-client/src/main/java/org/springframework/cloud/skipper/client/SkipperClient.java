@@ -16,8 +16,10 @@
 package org.springframework.cloud.skipper.client;
 
 import org.springframework.cloud.skipper.domain.AboutInfo;
+import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.skipperpackage.DeployProperties;
+import org.springframework.hateoas.Resources;
 
 /**
  * The main client side interface to communicate with the Skipper Server.
@@ -37,11 +39,11 @@ public interface SkipperClient {
 	AboutInfo getAboutInfo();
 
 	/**
-	 *
+	 * @param name wildcard expression for the package name to search
 	 * @param details boolean flag to fetch all the metadata.
 	 * @return the package metadata with the projection set to summary
 	 */
-	String getPackageMetadata(boolean details);
+	Resources<PackageMetadata> getPackageMetadata(String name, boolean details) throws Exception;
 
 	/**
 	 * Deploy the package.

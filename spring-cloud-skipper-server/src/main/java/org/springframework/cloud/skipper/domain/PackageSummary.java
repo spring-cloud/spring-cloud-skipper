@@ -26,6 +26,7 @@ import org.springframework.data.rest.core.config.Projection;
  * NOTE: Projection interfaces need to be in the same Java package as the core domain
  * model entity.
  * @author Mark Pollack
+ * @author Ilayaperumal Gopinathan
  */
 @Projection(name = "summary", types = { PackageMetadata.class })
 public interface PackageSummary {
@@ -37,4 +38,6 @@ public interface PackageSummary {
 	String getVersion();
 
 	String getIconUrl();
+
+	String getDescription();
 }
