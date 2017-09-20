@@ -91,6 +91,7 @@ public class DefaultSkipperClient implements SkipperClient {
 		};
 		Traverson.TraversalBuilder traversalBuilder = this.traverson.follow("packageMetadata");
 		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("size", 2000);
 		if (StringUtils.hasText(name)) {
 			parameters.put("name", name);
 			traversalBuilder.follow("search", "findByNameLike");
@@ -154,8 +155,12 @@ public class DefaultSkipperClient implements SkipperClient {
 
 	@Override
 	public Resources<Repository> listRepositories() {
-		String url = String.format("%s/%s", baseUrl, "repositories?size=2000");
-		return this.restTemplate.getForObject(url, RepositoryResources.class);
+		ParameterizedTypeReference<Resources<Repository>> typeReference = new ParameterizedTypeReference<Resources<Repository>>() {
+		};
+		Traverson.TraversalBuilder traversalBuilder = this.traverson.follow("repositories");
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("size", 2000);
+		return traversalBuilder.withTemplateParameters(parameters).toObject(typeReference);
 	}
 
 	protected Traverson createTraverson(String baseUrl) {
@@ -165,10 +170,6 @@ public class DefaultSkipperClient implements SkipperClient {
 		catch (URISyntaxException e) {
 			throw new IllegalStateException("Bad URI syntax: " + baseUrl);
 		}
-	}
-
-	public static class RepositoryResources extends Resources<Repository> {
-
 	}
 
 }
