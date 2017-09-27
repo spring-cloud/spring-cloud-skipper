@@ -22,7 +22,7 @@ import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.cloud.skipper.index.PackageException;
+import org.springframework.cloud.skipper.SkipperException;
 
 /**
  * @author Mark Pollack
@@ -39,7 +39,7 @@ public class TempFileUtils {
 			return pathToReturn;
 		}
 		catch (IOException e) {
-			throw new PackageException("Could not create temp directory", e);
+			throw new SkipperException("Could not create temp directory", e);
 		}
 	}
 

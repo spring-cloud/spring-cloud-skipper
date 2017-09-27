@@ -19,8 +19,8 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.AbstractIntegrationTest;
+import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.domain.InstallProperties;
-import org.springframework.cloud.skipper.index.PackageException;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,7 +37,7 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 	@Test
 	public void testBadArguments() {
 		assertThatThrownBy(() -> releaseService.install("badId", new InstallProperties()))
-				.isInstanceOf(PackageException.class)
+				.isInstanceOf(SkipperException.class)
 				.hasMessageContaining("can not be found");
 
 		assertThatThrownBy(() -> releaseService.install("badId", null))
@@ -53,7 +53,7 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 				.hasMessageContaining("less than zero");
 
 		assertThatThrownBy(() -> releaseService.rollback("badId", 1))
-				.isInstanceOf(PackageException.class)
+				.isInstanceOf(SkipperException.class)
 				.hasMessageContaining("Can not find a latest release named 'badId'");
 
 		assertThatThrownBy(() -> releaseService.delete(null))

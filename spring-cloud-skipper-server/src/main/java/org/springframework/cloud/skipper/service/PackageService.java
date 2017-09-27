@@ -34,13 +34,13 @@ import org.zeroturnaround.zip.ZipUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.bind.YamlConfigurationFactory;
+import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.domain.ConfigValues;
 import org.springframework.cloud.skipper.domain.Package;
 import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.Repository;
 import org.springframework.cloud.skipper.domain.Template;
 import org.springframework.cloud.skipper.domain.UploadRequest;
-import org.springframework.cloud.skipper.index.PackageException;
 import org.springframework.cloud.skipper.repository.PackageMetadataRepository;
 import org.springframework.cloud.skipper.repository.RepositoryRepository;
 import org.springframework.context.ResourceLoaderAware;
@@ -110,7 +110,7 @@ public class PackageService implements ResourceLoaderAware {
 				StreamUtils.copy(sourceResource.getInputStream(), new FileOutputStream(targetFile));
 			}
 			catch (IOException e) {
-				throw new PackageException("Could not copy package file for " + packageMetadata.getName() + "-"
+				throw new SkipperException("Could not copy package file for " + packageMetadata.getName() + "-"
 						+ packageMetadata.getVersion() +
 						" from " + sourceResource.getDescription() + " to target file " + targetFile, e);
 			}
@@ -124,18 +124,18 @@ public class PackageService implements ResourceLoaderAware {
 			return pkgToReturn;
 		}
 		catch (IOException ex) {
-			throw new PackageException("Exception while downloading package zip file for "
+			throw new SkipperException("Exception while downloading package zip file for "
 					+ packageMetadata.getName() + "-" + packageMetadata.getVersion() +
 					". PackageMetadata origin = " + packageMetadata.getOrigin(), ex);
 		}
 		catch (InvalidDataAccessApiUsageException ex) {
-			throw new PackageException("Exception while downloading package zip file for "
+			throw new SkipperException("Exception while downloading package zip file for "
 					+ packageMetadata.getName() + "-" + packageMetadata.getVersion() +
 					". PackageMetadata origin = " + packageMetadata.getOrigin() + "No repository found.", ex);
 		}
 		catch (Exception ex) {
 			logger.error("This is a catch all debug statement.", ex);
-			throw new PackageException("Catch all", ex);
+			throw new SkipperException("Catch all", ex);
 		}
 		finally {
 			if (targetPath != null && !FileSystemUtils.deleteRecursively(targetPath.toFile())) {
@@ -148,7 +148,7 @@ public class PackageService implements ResourceLoaderAware {
 		List<Repository> list = StreamSupport
 				.stream(repositoryRepository.findAll().spliterator(), false)
 				.collect(Collectors.toList());
-		throw new PackageException("Can not find packageRepository for origin = "
+		throw new SkipperException("Can not find packageRepository for origin = "
 				+ packageMetadata.getOrigin() + ". Known repositories are " + Arrays.toString(list.toArray()));
 	}
 
@@ -164,7 +164,7 @@ public class PackageService implements ResourceLoaderAware {
 				StreamUtils.copy(packageMetadata.getPackageFileBytes(), new FileOutputStream(targetFile));
 			}
 			catch (IOException e) {
-				throw new PackageException(
+				throw new SkipperException(
 						"Could not copy package file for " + packageMetadata.getName() + "-"
 								+ packageMetadata.getVersion() +
 								" from database to target file " + targetFile,
@@ -193,7 +193,7 @@ public class PackageService implements ResourceLoaderAware {
 		if (resource.exists()) {
 			return resource;
 		}
-		throw new PackageException("Resource " + name + "-" + version + " in package repository "
+		throw new SkipperException("Resource " + name + "-" + version + " in package repository "
 				+ packageRepository.getName() + " does not exist.");
 	}
 
@@ -223,7 +223,7 @@ public class PackageService implements ResourceLoaderAware {
 			return this.packageMetadataRepository.save(packageMetadata);
 		}
 		catch (IOException e) {
-			throw new PackageException("Failed to upload the package " + e.getCause());
+			throw new SkipperException("Failed to upload the package " + e.getCause());
 		}
 		finally {
 			if (packageDirPath != null && !FileSystemUtils.deleteRecursively(packageDirPath.toFile())) {
@@ -260,7 +260,7 @@ public class PackageService implements ResourceLoaderAware {
 			files = paths.map(i -> i.toAbsolutePath().toFile()).collect(Collectors.toList());
 		}
 		catch (IOException e) {
-			throw new PackageException("Could not process files in path " + unpackedPackage.getPath(), e);
+			throw new SkipperException("Could not process files in path " + unpackedPackage.getPath(), e);
 		}
 		Package pkg = new Package();
 		// Iterate over all files and "deserialize" the package.
@@ -307,7 +307,7 @@ public class PackageService implements ResourceLoaderAware {
 			packageMetadata = factory.getObject();
 		}
 		catch (Exception e) {
-			throw new PackageException("Exception processing yaml file " + file.getName(), e);
+			throw new SkipperException("Exception processing yaml file " + file.getName(), e);
 		}
 		return packageMetadata;
 	}
@@ -318,7 +318,7 @@ public class PackageService implements ResourceLoaderAware {
 			configValues.setRaw(new String(Files.readAllBytes(file.toPath()), "UTF-8"));
 		}
 		catch (IOException e) {
-			throw new PackageException("Could read values file " + file.getAbsoluteFile(), e);
+			throw new SkipperException("Could read values file " + file.getAbsoluteFile(), e);
 		}
 
 		return configValues;
@@ -330,7 +330,7 @@ public class PackageService implements ResourceLoaderAware {
 			files = paths.map(i -> i.toAbsolutePath().toFile()).collect(Collectors.toList());
 		}
 		catch (IOException e) {
-			throw new PackageException("Could not process files in template path " + templatePath, e);
+			throw new SkipperException("Could not process files in template path " + templatePath, e);
 		}
 
 		List<Template> templates = new ArrayList<>();
@@ -342,7 +342,7 @@ public class PackageService implements ResourceLoaderAware {
 					template.setData(new String(Files.readAllBytes(file.toPath()), "UTF-8"));
 				}
 				catch (IOException e) {
-					throw new PackageException("Could read template file " + file.getAbsoluteFile(), e);
+					throw new SkipperException("Could read template file " + file.getAbsoluteFile(), e);
 				}
 				templates.add(template);
 			}
