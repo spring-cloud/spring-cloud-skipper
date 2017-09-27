@@ -7,6 +7,13 @@ server:
 spring:
   main:
     banner-mode: "off"
+  cloud:
+    skipper:
+      server:
+        package-repositories:
+          -
+            name: test
+            url: "file:////Users/igopinatha/workspace/git/spring-cloud/spring-cloud-skipper/spring-cloud-skipper-server/src/test/resources/repositories/binaries/test"
 
 # TODO - remove, pre M1 development simplicity
 maven:
