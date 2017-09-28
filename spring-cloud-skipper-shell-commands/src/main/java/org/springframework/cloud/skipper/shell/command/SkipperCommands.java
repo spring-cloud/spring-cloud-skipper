@@ -273,16 +273,7 @@ public class SkipperCommands extends AbstractSkipperCommand {
 	public Table listReleases(
 			@ShellOption(help = "wildcard expression to search by release name", defaultValue = NULL) String releaseName) {
 		List<Release> releases = this.skipperClient.getReleases(releaseName);
-		LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
-		headers.put("name", "Name");
-		headers.put("version", "Version");
-		headers.put("info.status.statusCode", "Status");
-		headers.put("platformName", "Platform Name");
-		headers.put("info.status.platformStatus", "Platform Status");
-		headers.put("pkg.metadata.name", "Package Name");
-		headers.put("pkg.metadata.version", "Package Version");
-		headers.put("pkg.metadata.appVersion", "Application Version");
-		TableModel model = new BeanListTableModel<>(releases, headers);
+		TableModel model = new BeanListTableModel<>(releases, getHeadersForReleaseList());
 		TableBuilder tableBuilder = new TableBuilder(model);
 		TableUtils.applyStyle(tableBuilder);
 		return tableBuilder.build();
@@ -308,9 +299,22 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		headers.put("pkg.metadata.name", "Package Name");
 		headers.put("pkg.metadata.version", "Package Version");
 		headers.put("pkg.metadata.appVersion", "Application Version");
-		TableModel model = new BeanListTableModel<>(releases, headers);
+		TableModel model = new BeanListTableModel<>(releases, getHeadersForReleaseList());
 		TableBuilder tableBuilder = new TableBuilder(model);
 		TableUtils.applyStyle(tableBuilder);
 		return tableBuilder.build();
+	}
+
+	private static LinkedHashMap<String, Object> getHeadersForReleaseList() {
+		LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
+		headers.put("name", "Name");
+		headers.put("version", "Version");
+		headers.put("info.lastDeployed", "Last updated");
+		headers.put("info.status.statusCode", "Status");
+		headers.put("platformName", "Platform Name");
+		headers.put("info.status.platformStatus", "Platform Status");
+		headers.put("pkg.metadata.name", "Package Name");
+		headers.put("pkg.metadata.version", "Package Version");
+		return headers;
 	}
 }
