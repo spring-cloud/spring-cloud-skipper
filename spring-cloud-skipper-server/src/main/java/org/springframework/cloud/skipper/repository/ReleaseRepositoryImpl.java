@@ -16,8 +16,8 @@
 package org.springframework.cloud.skipper.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.cloud.skipper.index.PackageException;
 
 /**
  * @author Mark Pollack
@@ -44,7 +44,7 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 			}
 		}
 		if (latestRelease == null) {
-			throw new PackageException(String.format("Can not find a latest release named '%s'", releaseName));
+			throw new ReleaseNotFoundException(releaseName);
 		}
 		return latestRelease;
 	}
@@ -52,7 +52,6 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	@Override
 	public Release findByNameAndVersion(String releaseName, int version) {
 		Iterable<Release> releases = releaseRepository.findAll();
-
 		Release matchingRelease = null;
 		for (Release release : releases) {
 			if (release.getName().equals(releaseName) && release.getVersion() == version) {
@@ -61,7 +60,7 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 			}
 		}
 		if (matchingRelease == null) {
-			throw new PackageException(String.format("Can not find release '%s', version '%s'", releaseName, version));
+			throw new ReleaseNotFoundException(releaseName, version);
 		}
 		return matchingRelease;
 	}
