@@ -15,6 +15,8 @@
  */
 package org.springframework.cloud.skipper.client;
 
+import java.util.List;
+
 import org.springframework.cloud.skipper.domain.AboutInfo;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
@@ -97,6 +99,31 @@ public interface SkipperClient {
 	 * @return the rolled back {@link Release}
 	 */
 	Release rollback(String releaseName, int releaseVersion);
+
+	/**
+	 * List all releases.
+	 *
+	 * @param  releaseNameLike the wildcard name of the release to search for
+	 * @return the list of all releases
+	 */
+	List<Release> getReleases(String releaseNameLike);
+
+	/**
+	 * List all releases by the given release name with maximum revisions set.
+	 *
+	 * @param  releaseName the release name of the release to search for
+	 * @param  maxRevisions the maximum number of revisions to get
+	 * @return the list of all releases by the given name and revisions max.
+	 */
+	List<Release> getRevisions(String releaseName, String maxRevisions);
+
+	/**
+	 * List all releases for the given release name.
+	 *
+	 * @param  releaseName the release name of the release to search for
+	 * @return the list of all releases by the given name.
+	 */
+	Resources<Release> getRevisions(String releaseName);
 
 	/**
 	 * Add a new Package Repository.

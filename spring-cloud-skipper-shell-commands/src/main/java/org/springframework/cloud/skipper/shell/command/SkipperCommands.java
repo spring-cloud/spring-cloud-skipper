@@ -21,10 +21,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -264,5 +267,54 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		}
 		PackageMetadata packageMetadata = skipperClient.upload(properties);
 		return "Package uploaded successfully:[" + packageMetadata.getName() + ":" + packageMetadata.getVersion() + "]";
+	}
+
+	@ShellMethod(key = "list", value = "List of releases with the latest revision on state deployed or failed")
+	public Table listReleases(
+			@ShellOption(help = "wildcard expression to search by release name", defaultValue = NULL) String releaseName) {
+		List<Release> releases = this.skipperClient.getReleases(releaseName);
+		TableModel model = new BeanListTableModel<>(releases, getHeadersForReleaseList());
+		TableBuilder tableBuilder = new TableBuilder(model);
+		TableUtils.applyStyle(tableBuilder);
+		return tableBuilder.build();
+	}
+
+	@ShellMethod(key = "history", value = "List the history of releases for the given release name and max revisions")
+	public Table history(
+			@ShellOption(help = "wildcard expression to search by release name") @NotNull String releaseName,
+			@ShellOption(help = "maximum number of revisions to include in the history", defaultValue = NULL) String max) {
+		Collection<Release> releases = null;
+		if (StringUtils.hasText(max)) {
+			releases = this.skipperClient.getRevisions(releaseName, max);
+		}
+		else {
+			releases = this.skipperClient.getRevisions(releaseName).getContent();
+		}
+		LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
+		headers.put("name", "Name");
+		headers.put("version", "Version");
+		headers.put("info.status.statusCode", "Status");
+		headers.put("platformName", "Platform Name");
+		headers.put("info.status.platformStatus", "Platform Status");
+		headers.put("pkg.metadata.name", "Package Name");
+		headers.put("pkg.metadata.version", "Package Version");
+		headers.put("pkg.metadata.appVersion", "Application Version");
+		TableModel model = new BeanListTableModel<>(releases, getHeadersForReleaseList());
+		TableBuilder tableBuilder = new TableBuilder(model);
+		TableUtils.applyStyle(tableBuilder);
+		return tableBuilder.build();
+	}
+
+	private static LinkedHashMap<String, Object> getHeadersForReleaseList() {
+		LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
+		headers.put("name", "Name");
+		headers.put("version", "Version");
+		headers.put("info.lastDeployed", "Last updated");
+		headers.put("info.status.statusCode", "Status");
+		headers.put("platformName", "Platform Name");
+		headers.put("info.status.platformStatus", "Platform Status");
+		headers.put("pkg.metadata.name", "Package Name");
+		headers.put("pkg.metadata.version", "Package Version");
+		return headers;
 	}
 }
