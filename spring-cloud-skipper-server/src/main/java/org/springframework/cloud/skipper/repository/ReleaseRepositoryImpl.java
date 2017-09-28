@@ -52,7 +52,6 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	@Override
 	public Release findByNameAndVersion(String releaseName, int version) {
 		Iterable<Release> releases = releaseRepository.findAll();
-
 		Release matchingRelease = null;
 		for (Release release : releases) {
 			if (release.getName().equals(releaseName) && release.getVersion() == version) {
