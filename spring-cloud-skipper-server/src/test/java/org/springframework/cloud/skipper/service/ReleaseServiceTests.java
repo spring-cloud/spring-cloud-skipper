@@ -81,10 +81,9 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		assertThat(release).isNotNull();
 	}
 
-	@Test
+	@Test(expected = ReleaseNotFoundException.class)
 	public void testStatusReleaseDoesNotExist() {
-		Info info = releaseService.status("notexist");
-		assertThat(info).isNull();
+		releaseService.status("notexist");
 	}
 
 	@Test

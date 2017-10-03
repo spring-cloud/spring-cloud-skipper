@@ -180,11 +180,14 @@ public class ReleaseService {
 
 	public Info status(String releaseName) {
 		Release release = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
-		if (release != null) {
-			release = status(release);
-			return release != null ? release.getInfo() : null;
+		if (release == null) {
+			throw new ReleaseNotFoundException(releaseName);
 		}
-		return null;
+		release = status(release);
+		if (release == null) {
+			throw new ReleaseNotFoundException(releaseName);
+		}
+		return release.getInfo();
 	}
 
 	public Release status(String releaseName, Integer version) {

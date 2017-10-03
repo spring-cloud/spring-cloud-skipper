@@ -27,9 +27,11 @@ import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.domain.UploadRequest;
+import org.springframework.cloud.skipper.repository.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.service.PackageService;
 import org.springframework.cloud.skipper.service.ReleaseService;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -136,5 +138,11 @@ public class SkipperController {
 	@ResponseStatus(HttpStatus.OK)
 	public List<Release> list(@PathVariable("name") String releaseName) {
 		return this.releaseService.list(releaseName);
+	}
+
+	@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Release doesn't exist")
+	@ExceptionHandler(ReleaseNotFoundException.class)
+	public void releaseNotExist() {
+		// handle ReleaseNotFoundException by returning 404
 	}
 }
