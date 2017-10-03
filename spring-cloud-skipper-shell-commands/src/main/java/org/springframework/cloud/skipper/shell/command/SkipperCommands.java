@@ -37,6 +37,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.client.SkipperClient;
 import org.springframework.cloud.skipper.domain.ConfigValues;
+import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
@@ -51,6 +52,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.table.ArrayTableModel;
 import org.springframework.shell.table.BeanListTableModel;
 import org.springframework.shell.table.Table;
 import org.springframework.shell.table.TableBuilder;
@@ -311,6 +313,25 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		TableBuilder tableBuilder = new TableBuilder(model);
 		TableUtils.applyStyle(tableBuilder);
 		return tableBuilder.build();
+	}
+
+	@ShellMethod(key = "status", value = "Status for a last known release version.")
+	public Object status(
+			@ShellOption(help = "release name") @NotNull String releaseName) {
+		Info info = this.skipperClient.status(releaseName);
+		if (info != null) {
+			Object[][] data = new Object[3][];
+			data[0] = new Object[]{"Last Deployed", info.getFirstDeployed()};
+			data[1] = new Object[]{"Status", info.getStatus().getStatusCode().toString()};
+			data[2] = new Object[]{"Platform Status", info.getStatus().getPlatformStatus()};
+			TableModel model = new ArrayTableModel(data);
+			TableBuilder tableBuilder = new TableBuilder(model);
+			TableUtils.applyStyleNoHeader(tableBuilder);
+			return tableBuilder.build();
+		}
+		else {
+			return "Release with name '" + releaseName + "' not found";
+		}
 	}
 
 	private void assertMaxIsIntegerAndGreaterThanZero(String max) {

@@ -20,6 +20,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.skipper.domain.AboutInfo;
+import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageMetadata;
@@ -85,6 +86,12 @@ public class SkipperController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public Release deploy(@PathVariable("id") String id, @RequestBody InstallProperties installProperties) {
 		return this.releaseService.install(id, installProperties);
+	}
+
+	@RequestMapping(path = "/status/{name}", method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	public Info status(@PathVariable("name") String name) {
+		return this.releaseService.status(name);
 	}
 
 	@RequestMapping(path = "/status/{name}/{version}", method = RequestMethod.GET)
