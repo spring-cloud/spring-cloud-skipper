@@ -16,27 +16,18 @@
 package org.springframework.cloud.skipper.service;
 
 import org.springframework.cloud.skipper.domain.Release;
-
-import java.util.List;
+import org.springframework.stereotype.Service;
 
 /**
- * Manages the lifecycle of a releases.
- *
- * The current implementation is a simple sequence of AppDeployer commands, but more
- * sophisticated implementations based on Spring Cloud State Machine or Concourse are
- * possible.
- *
+ * Analyze the new release manifest and the previous one to determine the minimum number
+ * of releases to install and delete when upgrading.
  * @author Mark Pollack
- * @author Ilayaperumal Gopinathan
  */
-public interface ReleaseManager {
+@Service
+public class ReleaseAnalysisService {
 
-	Release install(Release release);
-
-	Release upgrade(Release release, List<String> applicationNamesToUpgrade);
-
-	Release delete(Release release);
-
-	Release status(Release release);
-
+	public ReleaseAnalysisReport analyze(Release existingRelease, Release replacingRelease) {
+		System.out.println("Analayze this!");
+		return null;
+	}
 }

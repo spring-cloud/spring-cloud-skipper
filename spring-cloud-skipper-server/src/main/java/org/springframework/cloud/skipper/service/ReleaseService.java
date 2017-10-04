@@ -68,6 +68,8 @@ public class ReleaseService {
 
 	private final DeployerRepository deployerRepository;
 
+	private ReleaseAnalysisService releaseAnalysisService;
+
 	@Autowired
 	public ReleaseService(PackageMetadataRepository packageMetadataRepository,
 			ReleaseRepository releaseRepository,
@@ -169,7 +171,8 @@ public class ReleaseService {
 		String manifest = createManifest(release.getPkg(), mergedMap);
 		release.setManifest(manifest);
 		// Deployment
-		return this.releaseManager.install(release);
+		Release releaseToReturn = this.releaseManager.install(release);
+		return releaseToReturn;
 	}
 
 	public Release delete(String releaseName) {
@@ -251,6 +254,9 @@ public class ReleaseService {
 	public Release upgrade(Release existingRelease, Release replacingRelease) {
 		Assert.notNull(existingRelease, "Existing Release must not be null");
 		Assert.notNull(replacingRelease, "Replacing Release must not be null");
+		// ReleaseAnalysisReport releaseAnalysisReport =
+		// this.releaseAnalysisService.analyze(existingRelease, replacingRelease);
+
 		Release release = this.releaseManager.install(replacingRelease);
 		// TODO UpgradeStrategy (manfiestSave, healthCheck)
 		this.releaseManager.delete(existingRelease);

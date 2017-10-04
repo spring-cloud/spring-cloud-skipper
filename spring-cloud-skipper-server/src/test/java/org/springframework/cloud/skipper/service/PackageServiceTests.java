@@ -197,7 +197,7 @@ public class PackageServiceTests extends AbstractIntegrationTest {
 	}
 
 	protected void assertConfigValues(Package pkg) {
-		//Note same config values for both time and log
+		// Note same config values for both time and log
 		ConfigValues configValues = pkg.getConfigValues();
 		Yaml yaml = new Yaml();
 		Map<String, Object> logConfigValueMap = (Map<String, Object>) yaml.load(configValues.getRaw());

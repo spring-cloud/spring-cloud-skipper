@@ -15,12 +15,15 @@
  */
 package org.springframework.cloud.skipper.deployer;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
@@ -44,7 +47,6 @@ import org.springframework.cloud.skipper.service.ReleaseManager;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * A ReleaseManager implementation that uses the AppDeployer.
@@ -83,17 +85,19 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		List<SpringBootAppKind> springBootAppKindList = springBootAppKindReader.read(release.getManifest());
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
 				.getAppDeployer();
-		List<String> deploymentIds = new ArrayList<>();
+		// List<String> deploymentIds = new ArrayList<>();
+		Map<String, String> appNameDeploymentIdMap = new HashMap<>();
 		for (SpringBootAppKind springBootAppKind : springBootAppKindList) {
-			deploymentIds.add(appDeployer.deploy(
+			String deploymentId = appDeployer.deploy(
 					createAppDeploymentRequest(springBootAppKind, release.getName(),
-							String.valueOf(release.getVersion()))));
+							String.valueOf(release.getVersion())));
+			appNameDeploymentIdMap.put(getApplicationName(springBootAppKind), deploymentId);
 		}
 
 		AppDeployerData appDeployerData = new AppDeployerData();
 		appDeployerData.setReleaseName(release.getName());
 		appDeployerData.setReleaseVersion(release.getVersion());
-		appDeployerData.setDeploymentData(StringUtils.collectionToCommaDelimitedString(deploymentIds));
+		appDeployerData.setDeploymentData(serializeMap(appNameDeploymentIdMap));
 
 		this.appDeployerDataRepository.save(appDeployerData);
 
@@ -107,13 +111,40 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		return status(this.releaseRepository.save(release));
 	}
 
+	@Override
+	public Release upgrade(Release release, List<String> applicationNamesToUpgrade) {
+		return null;
+	}
+
+	private String serializeMap(Map<String, String> appNameDeploymentIdMap) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			return objectMapper.writeValueAsString(appNameDeploymentIdMap);
+		}
+		catch (JsonProcessingException e) {
+			throw new SkipperException("Could not serialize appNameDeploymentIdMap", e);
+		}
+	}
+
+	private Map<String, String> deserializeMap(String json) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {
+			};
+			HashMap<String, String> result = mapper.readValue(json, typeRef);
+			return result;
+		}
+		catch (Exception e) {
+			throw new SkipperException("Could not parse appNameDeploymentIdMap JSON:" + json, e);
+		}
+	}
+
 	public Release status(Release release) {
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
 				.getAppDeployer();
-		Set<String> deploymentIds = new HashSet<>();
 		AppDeployerData appDeployerData = this.appDeployerDataRepository
 				.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
-		deploymentIds.addAll(StringUtils.commaDelimitedListToSet(appDeployerData.getDeploymentData()));
+		List<String> deploymentIds = getDeploymentIds(appDeployerData);
 		if (!deploymentIds.isEmpty()) {
 			boolean allDeployed = true;
 			StringBuffer releaseStatusMsg = new StringBuffer();
@@ -140,13 +171,18 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		return release;
 	}
 
+	private List<String> getDeploymentIds(AppDeployerData appDeployerData) {
+		Map<String, String> appNameDeploymentIdMap = deserializeMap(appDeployerData.getDeploymentData());
+		return appNameDeploymentIdMap.values().stream().collect(Collectors.toList());
+	}
+
 	public Release delete(Release release) {
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
 				.getAppDeployer();
-		Set<String> deploymentIds = new HashSet<>();
+
 		AppDeployerData appDeployerData = this.appDeployerDataRepository
 				.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
-		deploymentIds.addAll(StringUtils.commaDelimitedListToSet(appDeployerData.getDeploymentData()));
+		List<String> deploymentIds = getDeploymentIds(appDeployerData);
 		if (!deploymentIds.isEmpty()) {
 			Status deletingStatus = new Status();
 			deletingStatus.setStatusCode(StatusCode.DELETING);
@@ -164,21 +200,23 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		return release;
 	}
 
-	private AppDeploymentRequest createAppDeploymentRequest(SpringBootAppKind springBootAppKind, String releaseName,
-			String version) {
-
+	private String getApplicationName(SpringBootAppKind springBootAppKind) {
 		Map<String, String> metadata = springBootAppKind.getMetadata();
-		SpringBootAppSpec spec = springBootAppKind.getSpec();
-
 		if (!metadata.containsKey("name")) {
 			throw new SkipperException("Package template must define a 'name' property in the metadata");
 		}
+		return metadata.get("name");
+	}
 
+	private AppDeploymentRequest createAppDeploymentRequest(SpringBootAppKind springBootAppKind, String releaseName,
+			String version) {
+
+		SpringBootAppSpec spec = springBootAppKind.getSpec();
 		Map<String, String> applicationProperties = new TreeMap<>();
 		if (spec.getApplicationProperties() != null) {
 			applicationProperties.putAll(spec.getApplicationProperties());
 		}
-		AppDefinition appDefinition = new AppDefinition(metadata.get("name"), applicationProperties);
+		AppDefinition appDefinition = new AppDefinition(getApplicationName(springBootAppKind), applicationProperties);
 
 		Assert.hasText(spec.getResource(), "Package template must define a resource uri");
 		Resource resource = delegatingResourceLoader.getResource(spec.getResource());
@@ -187,7 +225,7 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		if (spec.getDeploymentProperties() != null) {
 			deploymentProperties.putAll(spec.getDeploymentProperties());
 		}
-
+		Map<String, String> metadata = springBootAppKind.getMetadata();
 		if (metadata.containsKey("count")) {
 			deploymentProperties.put(AppDeployer.COUNT_PROPERTY_KEY, String.valueOf(metadata.get("count")));
 		}
