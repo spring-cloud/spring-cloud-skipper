@@ -323,7 +323,12 @@ public class SkipperCommands extends AbstractSkipperCommand {
 			@ShellOption(help = "the specific release version.", defaultValue = NULL) Integer releaseVersion) {
 		Info info;
 		try {
-			info = this.skipperClient.status(releaseName, releaseVersion);
+			if (releaseVersion == null) {
+				info = this.skipperClient.status(releaseName);
+			}
+			else {
+				info = this.skipperClient.status(releaseName, releaseVersion);
+			}
 		}
 		catch (HttpStatusCodeException e) {
 			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {

@@ -158,12 +158,19 @@ public interface SkipperClient {
 	Resources<Repository> listRepositories();
 
 	/**
-	 * Return a status info of a last known release version if optional version
-	 * is not given. Otherwise return status of a specific version.
+	 * Return a status info of a last known release.
 	 *
 	 * @param releaseName the release name
-	 * @param releaseVersion the optional release version.
-	 * @return the status info of a release or {@code NULL} if release not found
+	 * @return the status info of a release
 	 */
-	Info status(String releaseName, Integer releaseVersion);
+	Info status(String releaseName);
+
+	/**
+	 * Return a status info of a release version.
+	 *
+	 * @param releaseName the release name
+	 * @param releaseVersion the release version.
+	 * @return the status info of a release
+	 */
+	Info status(String releaseName, int releaseVersion);
 }
