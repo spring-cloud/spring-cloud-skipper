@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
@@ -54,6 +57,8 @@ import org.springframework.util.StringUtils;
  */
 @Service
 public class AppDeployerReleaseManager implements ReleaseManager {
+
+	private static final Logger log = LoggerFactory.getLogger(AppDeployerReleaseManager.class);
 
 	private final ReleaseRepository releaseRepository;
 
@@ -107,6 +112,7 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		return status(this.releaseRepository.save(release));
 	}
 
+
 	public Release status(Release release) {
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
 				.getAppDeployer();
@@ -114,27 +120,59 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		AppDeployerData appDeployerData = this.appDeployerDataRepository
 				.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
 		deploymentIds.addAll(StringUtils.commaDelimitedListToSet(appDeployerData.getDeploymentData()));
+		log.debug("Getting status for {} using deploymentIds {}", release,
+				StringUtils.collectionToCommaDelimitedString(deploymentIds));
+
 		if (!deploymentIds.isEmpty()) {
-			boolean allDeployed = true;
-			StringBuffer releaseStatusMsg = new StringBuffer();
+			// mainly track deployed and unknown statuses. for any other
+			// combination, get more details from instances.
+			int deployedCount = 0;
+			int unknownCount = 0;
+			List<String> platformStatusMessages = new ArrayList<>();
 			for (String deploymentId : deploymentIds) {
 				AppStatus appStatus = appDeployer.status(deploymentId);
-				if (appStatus.getState() != DeploymentState.deployed) {
+				log.debug("App Deployer for deploymentId {} gives status {}", deploymentId, appStatus);
+
+				switch (appStatus.getState()) {
+				case deployed:
+					deployedCount++;
+					break;
+				case unknown:
+					unknownCount++;
+					break;
+				case deploying:
+				case undeployed:
+				case partial:
+				case failed:
+				case error:
 					StringBuffer statusMsg = new StringBuffer(deploymentId + "=[");
-					allDeployed = false;
 					for (AppInstanceStatus appInstanceStatus : appStatus.getInstances().values()) {
 						statusMsg.append(appInstanceStatus.getId() + "=" + appInstanceStatus.getState());
 					}
 					statusMsg.append("]");
-					releaseStatusMsg.append(statusMsg);
+					platformStatusMessages.add(statusMsg.toString());
+					break;
+				default:
+					break;
+				}
+
+				if (appStatus.getState() != DeploymentState.deployed) {
+					StringBuffer statusMsg = new StringBuffer(deploymentId + "=[");
+					for (AppInstanceStatus appInstanceStatus : appStatus.getInstances().values()) {
+						statusMsg.append(appInstanceStatus.getId() + "=" + appInstanceStatus.getState());
+					}
+					statusMsg.append("]");
 				}
 			}
-			if (allDeployed) {
+			if (deployedCount == deploymentIds.size()) {
 				release.getInfo().getStatus().setPlatformStatus("All the applications are deployed successfully.");
 			}
+			else if (unknownCount == deploymentIds.size()) {
+				release.getInfo().getStatus().setPlatformStatus("All applications unknown to system.");
+			}
 			else {
-				release.getInfo().getStatus().setPlatformStatus(
-						"Applications deploying... " + releaseStatusMsg.toString());
+				release.getInfo().getStatus().setPlatformStatus("State of applications: "
+						+ StringUtils.collectionToCommaDelimitedString(platformStatusMessages));
 			}
 		}
 		return release;

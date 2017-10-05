@@ -117,10 +117,18 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public Info status(String releaseName) {
+	public Info status(String releaseName, Integer releaseVersion) {
 		Map<String, String> uriVariables = new HashMap<String, String>();
 		uriVariables.put("releaseName", releaseName);
-		return this.restTemplate.getForObject(baseUri + "/status/{releaseName}", Info.class, uriVariables);
+		if (releaseVersion == null) {
+			return this.restTemplate.getForObject(baseUri + "/status/{releaseName}", Info.class, uriVariables);
+		}
+		else {
+			uriVariables.put("releaseVersion", Integer.toString(releaseVersion));
+			Release release = this.restTemplate.getForObject(baseUri + "/status/{releaseName}/{releaseVersion}",
+					Release.class, uriVariables);
+			return release.getInfo();
+		}
 	}
 
 	@Override
