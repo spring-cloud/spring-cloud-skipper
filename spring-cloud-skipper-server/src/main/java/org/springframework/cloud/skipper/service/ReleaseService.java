@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.SkipperException;
+import org.springframework.cloud.skipper.deployer.ReleaseAnalysisService;
 import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
@@ -75,12 +76,14 @@ public class ReleaseService {
 			ReleaseRepository releaseRepository,
 			PackageService packageService,
 			ReleaseManager releaseManager,
-			DeployerRepository deployerRepository) {
+			DeployerRepository deployerRepository,
+			ReleaseAnalysisService releaseAnalysisService) {
 		this.packageMetadataRepository = packageMetadataRepository;
 		this.releaseRepository = releaseRepository;
 		this.packageService = packageService;
 		this.releaseManager = releaseManager;
 		this.deployerRepository = deployerRepository;
+		this.releaseAnalysisService = releaseAnalysisService;
 	}
 
 	/**
@@ -201,13 +204,9 @@ public class ReleaseService {
 		return this.releaseManager.status(release);
 	}
 
-	public Release getLatestRelease(String releaseName) {
-		return this.releaseRepository.findLatestRelease(releaseName);
-	}
-
 	public Release upgrade(UpgradeRequest upgradeRequest) {
 		UpgradeProperties upgradeProperties = upgradeRequest.getUpgradeProperties();
-		Release oldRelease = getLatestRelease(upgradeProperties.getReleaseName());
+		Release oldRelease = this.releaseRepository.findLatestRelease(upgradeProperties.getReleaseName());
 		PackageIdentifier packageIdentifier = upgradeRequest.getPackageIdentifier();
 		// todo: search multi repository
 		PackageMetadata packageMetadata = this.packageMetadataRepository
@@ -254,12 +253,9 @@ public class ReleaseService {
 	public Release upgrade(Release existingRelease, Release replacingRelease) {
 		Assert.notNull(existingRelease, "Existing Release must not be null");
 		Assert.notNull(replacingRelease, "Replacing Release must not be null");
-		// ReleaseAnalysisReport releaseAnalysisReport =
-		// this.releaseAnalysisService.analyze(existingRelease, replacingRelease);
 
-		Release release = this.releaseManager.install(replacingRelease);
-		// TODO UpgradeStrategy (manfiestSave, healthCheck)
-		this.releaseManager.delete(existingRelease);
+		Release release = this.releaseManager.upgrade(existingRelease, replacingRelease, "simple");
+
 		return status(release);
 	}
 
@@ -292,17 +288,17 @@ public class ReleaseService {
 		logger.info("Rolling back releaseName={}.  Current version={}, Target version={}", releaseName,
 				currentRelease.getVersion(), rollbackVersionToUse);
 
-		Release newRelease = new Release();
-		newRelease.setName(releaseName);
-		newRelease.setPkg(releaseToRollback.getPkg());
-		newRelease.setManifest(releaseToRollback.getManifest());
-		newRelease.setVersion(currentRelease.getVersion() + 1);
-		newRelease.setPlatformName(releaseToRollback.getPlatformName());
+		Release newRollbackRelease = new Release();
+		newRollbackRelease.setName(releaseName);
+		newRollbackRelease.setPkg(releaseToRollback.getPkg());
+		newRollbackRelease.setManifest(releaseToRollback.getManifest());
+		newRollbackRelease.setVersion(currentRelease.getVersion() + 1);
+		newRollbackRelease.setPlatformName(releaseToRollback.getPlatformName());
 		// Do not set ConfigValues since the manifest from the previous release has already
 		// resolved those...
-		newRelease.setInfo(createNewInfo());
+		newRollbackRelease.setInfo(createNewInfo());
 
-		return upgrade(currentRelease, newRelease);
+		return upgrade(currentRelease, newRollbackRelease);
 	}
 
 	/**

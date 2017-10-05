@@ -18,38 +18,31 @@ package org.springframework.cloud.skipper.deployer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.app.AppInstanceStatus;
 import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.app.DeploymentState;
-import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.skipper.SkipperException;
+import org.springframework.cloud.skipper.deployer.strategies.SimpleRedBlackUpgradeStrategy;
 import org.springframework.cloud.skipper.domain.AppDeployerData;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.SpringBootAppKind;
 import org.springframework.cloud.skipper.domain.SpringBootAppKindReader;
-import org.springframework.cloud.skipper.domain.SpringBootAppSpec;
 import org.springframework.cloud.skipper.domain.Status;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.repository.DeployerRepository;
 import org.springframework.cloud.skipper.repository.ReleaseRepository;
 import org.springframework.cloud.skipper.service.ReleaseManager;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 /**
- * A ReleaseManager implementation that uses the AppDeployer.
+ * A ReleaseManager implementation that uses an AppDeployer.
  *
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
@@ -57,23 +50,29 @@ import org.springframework.util.Assert;
 @Service
 public class AppDeployerReleaseManager implements ReleaseManager {
 
-	private final ReleaseRepository releaseRepository;
+	private final Logger logger = LoggerFactory.getLogger(ReleaseAnalysisService.class);
 
-	private final DelegatingResourceLoader delegatingResourceLoader;
+	private final ReleaseRepository releaseRepository;
 
 	private final AppDeployerDataRepository appDeployerDataRepository;
 
 	private final DeployerRepository deployerRepository;
 
+	private final ReleaseAnalysisService releaseAnalysisService;
+
+	private final AppDeploymentRequestFactory appDeploymentRequestFactory;
+
 	@Autowired
 	public AppDeployerReleaseManager(ReleaseRepository releaseRepository,
 			AppDeployerDataRepository appDeployerDataRepository,
-			DelegatingResourceLoader delegatingResourceLoader,
-			DeployerRepository deployerRepository) {
+			DeployerRepository deployerRepository,
+			ReleaseAnalysisService releaseAnalysisService,
+			AppDeploymentRequestFactory appDeploymentRequestFactory) {
 		this.releaseRepository = releaseRepository;
 		this.appDeployerDataRepository = appDeployerDataRepository;
-		this.delegatingResourceLoader = delegatingResourceLoader;
 		this.deployerRepository = deployerRepository;
+		this.releaseAnalysisService = releaseAnalysisService;
+		this.appDeploymentRequestFactory = appDeploymentRequestFactory;
 	}
 
 	public Release install(Release releaseInput) {
@@ -81,23 +80,23 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		Release release = this.releaseRepository.save(releaseInput);
 
 		// Deploy the application
-		SpringBootAppKindReader springBootAppKindReader = new SpringBootAppKindReader();
-		List<SpringBootAppKind> springBootAppKindList = springBootAppKindReader.read(release.getManifest());
+		List<SpringBootAppKind> springBootAppKindList = SpringBootAppKindReader.read(release.getManifest());
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
 				.getAppDeployer();
-		// List<String> deploymentIds = new ArrayList<>();
 		Map<String, String> appNameDeploymentIdMap = new HashMap<>();
 		for (SpringBootAppKind springBootAppKind : springBootAppKindList) {
-			String deploymentId = appDeployer.deploy(
-					createAppDeploymentRequest(springBootAppKind, release.getName(),
-							String.valueOf(release.getVersion())));
-			appNameDeploymentIdMap.put(getApplicationName(springBootAppKind), deploymentId);
+			AppDeploymentRequest appDeploymentRequest = appDeploymentRequestFactory.createAppDeploymentRequest(
+					springBootAppKind,
+					release.getName(),
+					String.valueOf(release.getVersion()));
+			String deploymentId = appDeployer.deploy(appDeploymentRequest);
+			appNameDeploymentIdMap.put(springBootAppKind.getApplicationName(), deploymentId);
 		}
 
 		AppDeployerData appDeployerData = new AppDeployerData();
 		appDeployerData.setReleaseName(release.getName());
 		appDeployerData.setReleaseVersion(release.getVersion());
-		appDeployerData.setDeploymentData(serializeMap(appNameDeploymentIdMap));
+		appDeployerData.setDeploymentDataUsingMap(appNameDeploymentIdMap);
 
 		this.appDeployerDataRepository.save(appDeployerData);
 
@@ -112,31 +111,40 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 	}
 
 	@Override
-	public Release upgrade(Release release, List<String> applicationNamesToUpgrade) {
-		return null;
+	public Release upgrade(Release existingRelease, Release replacingRelease, String upgradeStrategyName) {
+
+		Release release = this.releaseRepository.save(replacingRelease);
+
+		ReleaseAnalysisReport releaseAnalysisReport = this.releaseAnalysisService.analyze(existingRelease,
+				replacingRelease);
+
+		if (!releaseAnalysisReport.getReleaseDifference().areEqual()) {
+
+			logger.info("Difference report for upgrade of release " + replacingRelease.getName());
+			logger.info(releaseAnalysisReport.getReleaseDifference().getDifferenceSummary());
+			// Do upgrades
+			if (upgradeStrategyName.equals("simple")) {
+				SimpleRedBlackUpgradeStrategy simpleRedBlackUpdateStrategy = createRedBlackUpdateStrategy();
+				release = simpleRedBlackUpdateStrategy.upgrade(existingRelease, release, releaseAnalysisReport);
+			}
+			else {
+				throw new SkipperException("Unsupported Upgrade Strategy Name [" + upgradeStrategyName + "]");
+			}
+		}
+		else {
+			throw new SkipperException(
+					"Package to upgrade has not difference than existing deployed package. Not upgrading.");
+		}
+
+		return status(release);
 	}
 
-	private String serializeMap(Map<String, String> appNameDeploymentIdMap) {
-		ObjectMapper objectMapper = new ObjectMapper();
-		try {
-			return objectMapper.writeValueAsString(appNameDeploymentIdMap);
-		}
-		catch (JsonProcessingException e) {
-			throw new SkipperException("Could not serialize appNameDeploymentIdMap", e);
-		}
-	}
-
-	private Map<String, String> deserializeMap(String json) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {
-			};
-			HashMap<String, String> result = mapper.readValue(json, typeRef);
-			return result;
-		}
-		catch (Exception e) {
-			throw new SkipperException("Could not parse appNameDeploymentIdMap JSON:" + json, e);
-		}
+	private SimpleRedBlackUpgradeStrategy createRedBlackUpdateStrategy() {
+		return new SimpleRedBlackUpgradeStrategy(
+				this.releaseRepository,
+				this.deployerRepository,
+				this.appDeployerDataRepository,
+				this.appDeploymentRequestFactory);
 	}
 
 	public Release status(Release release) {
@@ -144,7 +152,7 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 				.getAppDeployer();
 		AppDeployerData appDeployerData = this.appDeployerDataRepository
 				.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
-		List<String> deploymentIds = getDeploymentIds(appDeployerData);
+		List<String> deploymentIds = appDeployerData.getDeploymentIds();
 		if (!deploymentIds.isEmpty()) {
 			boolean allDeployed = true;
 			StringBuffer releaseStatusMsg = new StringBuffer();
@@ -171,18 +179,13 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		return release;
 	}
 
-	private List<String> getDeploymentIds(AppDeployerData appDeployerData) {
-		Map<String, String> appNameDeploymentIdMap = deserializeMap(appDeployerData.getDeploymentData());
-		return appNameDeploymentIdMap.values().stream().collect(Collectors.toList());
-	}
-
 	public Release delete(Release release) {
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
 				.getAppDeployer();
 
 		AppDeployerData appDeployerData = this.appDeployerDataRepository
 				.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
-		List<String> deploymentIds = getDeploymentIds(appDeployerData);
+		List<String> deploymentIds = appDeployerData.getDeploymentIds();
 		if (!deploymentIds.isEmpty()) {
 			Status deletingStatus = new Status();
 			deletingStatus.setStatusCode(StatusCode.DELETING);
@@ -194,47 +197,10 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 			Status deletedStatus = new Status();
 			deletedStatus.setStatusCode(StatusCode.DELETED);
 			release.getInfo().setStatus(deletedStatus);
-			release.getInfo().setDescription("Undeployment complete");
+			release.getInfo().setDescription("Delete complete");
 			this.releaseRepository.save(release);
 		}
 		return release;
-	}
-
-	private String getApplicationName(SpringBootAppKind springBootAppKind) {
-		Map<String, String> metadata = springBootAppKind.getMetadata();
-		if (!metadata.containsKey("name")) {
-			throw new SkipperException("Package template must define a 'name' property in the metadata");
-		}
-		return metadata.get("name");
-	}
-
-	private AppDeploymentRequest createAppDeploymentRequest(SpringBootAppKind springBootAppKind, String releaseName,
-			String version) {
-
-		SpringBootAppSpec spec = springBootAppKind.getSpec();
-		Map<String, String> applicationProperties = new TreeMap<>();
-		if (spec.getApplicationProperties() != null) {
-			applicationProperties.putAll(spec.getApplicationProperties());
-		}
-		AppDefinition appDefinition = new AppDefinition(getApplicationName(springBootAppKind), applicationProperties);
-
-		Assert.hasText(spec.getResource(), "Package template must define a resource uri");
-		Resource resource = delegatingResourceLoader.getResource(spec.getResource());
-
-		Map<String, String> deploymentProperties = new TreeMap<>();
-		if (spec.getDeploymentProperties() != null) {
-			deploymentProperties.putAll(spec.getDeploymentProperties());
-		}
-		Map<String, String> metadata = springBootAppKind.getMetadata();
-		if (metadata.containsKey("count")) {
-			deploymentProperties.put(AppDeployer.COUNT_PROPERTY_KEY, String.valueOf(metadata.get("count")));
-		}
-
-		deploymentProperties.put(AppDeployer.GROUP_PROPERTY_KEY, releaseName + "-v" + version);
-
-		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(appDefinition, resource,
-				deploymentProperties);
-		return appDeploymentRequest;
 	}
 
 }

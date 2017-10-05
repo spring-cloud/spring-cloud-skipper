@@ -202,7 +202,12 @@ public class PackageServiceTests extends AbstractIntegrationTest {
 		Yaml yaml = new Yaml();
 		Map<String, Object> logConfigValueMap = (Map<String, Object>) yaml.load(configValues.getRaw());
 		assertThat(logConfigValueMap).containsKeys("version", "metadata", "spec");
-		assertThat(logConfigValueMap.get("version")).isEqualTo("1.2.0.RELEASE");
+		if (pkg.getMetadata().getName().equals("log")) {
+			assertThat(logConfigValueMap.get("version")).isEqualTo("1.1.0.RELEASE");
+		}
+		if (pkg.getMetadata().getName().equals("time")) {
+			assertThat(logConfigValueMap.get("version")).isEqualTo("1.2.0.RELEASE");
+		}
 		Map<String, Object> metadataMap = (Map<String, Object>) logConfigValueMap.get("metadata");
 		assertThat(metadataMap).hasSize(1);
 		assertThat(metadataMap).contains(entry("count", 1));

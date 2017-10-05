@@ -13,21 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.skipper.service;
+package org.springframework.cloud.skipper.deployer;
 
-import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 /**
- * Analyze the new release manifest and the previous one to determine the minimum number
- * of releases to install and delete when upgrading.
  * @author Mark Pollack
  */
-@Service
-public class ReleaseAnalysisService {
+public class ReleaseDifference {
 
-	public ReleaseAnalysisReport analyze(Release existingRelease, Release replacingRelease) {
-		System.out.println("Analayze this!");
-		return null;
+	private final boolean areEqual;
+
+	private final String differenceSummary;
+
+	public ReleaseDifference(boolean areEqual) {
+		this(areEqual, "No difference.");
+	}
+
+	public ReleaseDifference(boolean areEqual, String differenceSummary) {
+		Assert.hasText(differenceSummary, "Difference Summary can not be null.");
+		this.areEqual = areEqual;
+		this.differenceSummary = differenceSummary;
+	}
+
+	boolean areEqual() {
+		return this.areEqual;
+	}
+
+	public String getDifferenceSummary() {
+		return differenceSummary;
 	}
 }

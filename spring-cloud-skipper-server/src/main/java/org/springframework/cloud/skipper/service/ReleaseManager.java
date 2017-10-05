@@ -17,14 +17,11 @@ package org.springframework.cloud.skipper.service;
 
 import org.springframework.cloud.skipper.domain.Release;
 
-import java.util.List;
-
 /**
  * Manages the lifecycle of a releases.
  *
  * The current implementation is a simple sequence of AppDeployer commands, but more
- * sophisticated implementations based on Spring Cloud State Machine or Concourse are
- * possible.
+ * sophisticated implementations based on Spring Cloud State Machine are possible.
  *
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
@@ -33,7 +30,9 @@ public interface ReleaseManager {
 
 	Release install(Release release);
 
-	Release upgrade(Release release, List<String> applicationNamesToUpgrade);
+	Release upgrade(Release existingRelease, Release replacingRelease, String upgradeStrategyName);
+
+	// Release rollback(Release existingRelease, Release replacingRelease);
 
 	Release delete(Release release);
 
