@@ -17,6 +17,8 @@ package org.springframework.cloud.skipper;
 
 import org.junit.After;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public abstract class AbstractIntegrationTest {
 
+	private final Logger logger = LoggerFactory.getLogger(AbstractIntegrationTest.class);
+
 	@Autowired
 	protected ReleaseRepository releaseRepository;
 
@@ -59,8 +63,7 @@ public abstract class AbstractIntegrationTest {
 			}
 		}
 		catch (Exception e) {
-			System.out.println("error cleaning up resource in integration test");
-			e.printStackTrace();
+			logger.error("error cleaning up resource in integration test");
 		}
 	}
 }

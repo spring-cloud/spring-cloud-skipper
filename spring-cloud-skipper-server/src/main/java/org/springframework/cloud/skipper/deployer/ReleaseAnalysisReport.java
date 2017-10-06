@@ -17,7 +17,7 @@ package org.springframework.cloud.skipper.deployer;
 
 import java.util.List;
 
-import io.jsonwebtoken.lang.Assert;
+import org.springframework.util.Assert;
 
 /**
  * Report returned from the {@link ReleaseAnalysisService} that gives the

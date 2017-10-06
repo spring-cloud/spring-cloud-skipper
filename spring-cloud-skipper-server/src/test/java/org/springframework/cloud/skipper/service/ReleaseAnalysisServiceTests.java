@@ -58,9 +58,6 @@ public class ReleaseAnalysisServiceTests extends AbstractIntegrationTest {
 	public void test() throws InterruptedException {
 
 		String platformName = "default";
-		// String platformName = "noopPlatform";
-		// Deployer deployer = new Deployer(platformName, "noop", new NoOpAppDeployer());
-		// deployerRepository.save(deployer);
 
 		String releaseName = "logrelease";
 		String packageName = "ticktock";
@@ -87,7 +84,7 @@ public class ReleaseAnalysisServiceTests extends AbstractIntegrationTest {
 		ConfigValues configValues = new ConfigValues();
 		// TODO must be a release that exists in a maven repo....
 		configValues.setRaw("log:\n  spec:\n    applicationProperties:\n      log.level: error\n");
-		//configValues.setRaw("log:\n  version: 1.2.0.RELEASE\n");
+		// configValues.setRaw("log:\n version: 1.2.0.RELEASE\n");
 		upgradeProperties.setConfigValues(configValues);
 		upgradeProperties.setReleaseName(releaseName);
 		UpgradeRequest upgradeRequest = new UpgradeRequest();
