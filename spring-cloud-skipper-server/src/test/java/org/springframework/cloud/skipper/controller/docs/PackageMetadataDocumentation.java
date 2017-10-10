@@ -16,6 +16,11 @@
 
 package org.springframework.cloud.skipper.controller.docs;
 
+import org.junit.Test;
+
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -23,10 +28,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.junit.Test;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
 /**
  * @author Gunnar Hillert
@@ -53,7 +54,6 @@ public class PackageMetadataDocumentation extends BaseDocumentation {
 					fieldWithPath("_embedded.packageMetadata[].kind").description("What type of package system is being used"),
 					fieldWithPath("_embedded.packageMetadata[].name").description("The name of the package"),
 					fieldWithPath("_embedded.packageMetadata[].version").description("The version of the package"),
-					fieldWithPath("_embedded.packageMetadata[].appVersion").description("The version of the application in the package (assuming package maps to one app)"),
 					fieldWithPath("_embedded.packageMetadata[].packageSourceUrl").description("Location to source code for this package"),
 					fieldWithPath("_embedded.packageMetadata[].packageHomeUrl").description("The home page of the package"),
 					fieldWithPath("_embedded.packageMetadata[].tags").description("A comma separated list of tags to use for searching"),
@@ -90,7 +90,6 @@ public class PackageMetadataDocumentation extends BaseDocumentation {
 					fieldWithPath("kind").description("What type of package system is being used"),
 					fieldWithPath("name").description("The name of the package"),
 					fieldWithPath("version").description("The version of the package"),
-					fieldWithPath("appVersion").description("The version of the application in the package (assuming package maps to one app)"),
 					fieldWithPath("packageSourceUrl").description("Location to source code for this package"),
 					fieldWithPath("packageHomeUrl").description("The home page of the package"),
 					fieldWithPath("tags").description("A comma separated list of tags to use for searching"),
