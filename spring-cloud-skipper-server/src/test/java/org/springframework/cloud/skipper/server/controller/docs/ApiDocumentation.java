@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
@@ -73,7 +72,17 @@ public class ApiDocumentation extends BaseDocumentation {
 			linkWithRel("deployers").description("Exposes deployer"),
 			linkWithRel("releases").description("Exposes release information"),
 			linkWithRel("packageMetadata").description("Provides details for Package Metadata"),
-			linkWithRel("profile").description("Entrypoint to provide ALPS metadata defining simple descriptions of application-level semantics.")
+			linkWithRel("profile").description("Entrypoint to provide ALPS metadata defining simple descriptions of application-level semantics"),
+			linkWithRel("about").description("Provides meta information of the server"),
+			linkWithRel("upload").description("Upload a package"),
+			linkWithRel("install").description("Install a package"),
+			linkWithRel("status").description("Status for a last known release version"),
+			linkWithRel("manifest").description("Get a release's manifest"),
+			linkWithRel("upgrade").description("Upgrade a release"),
+			linkWithRel("rollback").description("Rollback the release to a previous or a specific release"),
+			linkWithRel("delete").description("Delete the release"),
+			linkWithRel("history").description("List the history of versions for a given release"),
+			linkWithRel("list").description("List the latest version of releases with status of deployed or failed")
 		)));
 	}
 }
