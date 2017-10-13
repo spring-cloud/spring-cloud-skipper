@@ -20,12 +20,18 @@ import java.io.File;
 import org.springframework.cloud.skipper.domain.PackageMetadata;
 
 /**
+ * Utility methods used by Skipper.
+ *
  * @author Ilayaperumal Gopinathan
  */
 public class SkipperUtils {
 
 	public static File calculatePackageZipFile(PackageMetadata packageMetadata, File targetPath) {
 		return new File(targetPath, packageMetadata.getName() + "-" + packageMetadata.getVersion() + ".zip");
+	}
+
+	public static int getNumberedVersion(String version) {
+		return Integer.valueOf(version.replaceAll("\\.", ""));
 	}
 
 }
