@@ -56,9 +56,9 @@ public class PackageMetadataRepositoryTests extends AbstractIntegrationTest {
 		Iterable<PackageMetadata> packages = packageMetadataRepository.findAll();
 		assertThat(packages).isNotEmpty();
 		assertThat(packages).hasSize(4);
-		PackageMetadata latestPackage1 = packageMetadataRepository.findLatestPackage("package1");
+		PackageMetadata latestPackage1 = packageMetadataRepository.findFirstByNameOrderByVersionDesc("package1");
 		assertThat(latestPackage1.getVersion()).isEqualTo("2.0.0");
-		PackageMetadata latestPackage2 = packageMetadataRepository.findLatestPackage("package2");
+		PackageMetadata latestPackage2 = packageMetadataRepository.findFirstByNameOrderByVersionDesc("package2");
 		assertThat(latestPackage2.getVersion()).isEqualTo("1.1.0");
 	}
 

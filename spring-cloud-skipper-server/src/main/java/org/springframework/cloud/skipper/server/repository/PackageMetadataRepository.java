@@ -25,15 +25,17 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 /**
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
+ * @author Janne Valkealahti
  */
 @RepositoryRestResource(path = "packageMetadata", collectionResourceRel = "packageMetadata")
-public interface PackageMetadataRepository extends PagingAndSortingRepository<PackageMetadata, String>,
-		PackageMetadataRepositoryCustom {
+public interface PackageMetadataRepository extends PagingAndSortingRepository<PackageMetadata, String> {
 
 	List<PackageMetadata> findByName(@Param("name") String name);
 
 	List<PackageMetadata> findByNameLike(@Param("name") String name);
 
 	PackageMetadata findByNameAndVersion(@Param("name") String name, @Param("version") String version);
+
+	PackageMetadata findFirstByNameOrderByVersionDesc(@Param("name") String name);
 
 }

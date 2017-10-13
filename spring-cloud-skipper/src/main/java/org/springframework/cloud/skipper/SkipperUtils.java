@@ -29,9 +29,4 @@ public class SkipperUtils {
 	public static File calculatePackageZipFile(PackageMetadata packageMetadata, File targetPath) {
 		return new File(targetPath, packageMetadata.getName() + "-" + packageMetadata.getVersion() + ".zip");
 	}
-
-	public static int getNumberedVersion(String version) {
-		return Integer.valueOf(version.replaceAll("\\.", ""));
-	}
-
 }

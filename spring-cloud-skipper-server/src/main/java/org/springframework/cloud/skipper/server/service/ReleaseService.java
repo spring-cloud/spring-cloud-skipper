@@ -127,7 +127,7 @@ public class ReleaseService {
 				throw new SkipperException("Can not find a package named " + packageName);
 			}
 			else {
-				packageMetadata = this.packageMetadataRepository.findLatestPackage(packageName);
+				packageMetadata = this.packageMetadataRepository.findFirstByNameOrderByVersionDesc(packageName);
 			}
 		}
 		else {
