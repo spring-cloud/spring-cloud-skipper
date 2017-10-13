@@ -109,9 +109,8 @@ public class SkipperController {
 	}
 
 	@RequestMapping(path = "/manifest/{name}/{version}", method = RequestMethod.GET)
-	@ResponseStatus(HttpStatus.OK)
-	public String manifest(@PathVariable("name") String name, @PathVariable("version") int version) {
-		return this.releaseService.manifest(name, version);
+	public ResponseEntity<String> manifest(@PathVariable("name") String name, @PathVariable("version") int version) {
+		return new ResponseEntity<String>(this.releaseService.manifest(name, version), HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/upgrade", method = RequestMethod.POST)
