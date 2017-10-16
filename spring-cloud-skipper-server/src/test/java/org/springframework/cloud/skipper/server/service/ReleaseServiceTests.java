@@ -126,9 +126,52 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		packageIdentifier.setPackageName("log");
 		packageIdentifier.setPackageVersion("1.0.0");
 		installRequest.setPackageIdentifier(packageIdentifier);
-		releaseService.install(installRequest);
-		Info info = releaseService.status("testexists");
+		this.releaseService.install(installRequest);
+		Info info = this.releaseService.status("testexists");
 		assertThat(info).isNotNull();
+	}
+
+	@Test
+	public void testInstallReleaseThatIsNotDeleted() {
+		InstallProperties installProperties = new InstallProperties();
+		String releaseName = "installDeployedRelease";
+		installProperties.setReleaseName(releaseName);
+		installProperties.setPlatformName("default");
+		InstallRequest installRequest = new InstallRequest();
+		installRequest.setInstallProperties(installProperties);
+		PackageIdentifier packageIdentifier = new PackageIdentifier();
+		packageIdentifier.setPackageName("log");
+		packageIdentifier.setPackageVersion("1.0.0");
+		installRequest.setPackageIdentifier(packageIdentifier);
+		Release release = this.releaseService.install(installRequest);
+		assertThat(release).isNotNull();
+		try {
+			this.releaseService.install(installRequest);
+			fail("Expected to fail when installin already deployed release.");
+		}
+		catch (SkipperException e) {
+			assertThat(e.getMessage()).isEqualTo("Release with the name [" + releaseName + "] already exists "
+					+ "and it is not deleted.");
+		}
+	}
+
+	@Test
+	public void testInstallDeletedRelease() {
+		InstallProperties installProperties = new InstallProperties();
+		String releaseName = "deletedRelease";
+		installProperties.setReleaseName(releaseName);
+		installProperties.setPlatformName("default");
+		InstallRequest installRequest = new InstallRequest();
+		installRequest.setInstallProperties(installProperties);
+		PackageIdentifier packageIdentifier = new PackageIdentifier();
+		packageIdentifier.setPackageName("log");
+		packageIdentifier.setPackageVersion("1.0.0");
+		installRequest.setPackageIdentifier(packageIdentifier);
+		Release release = releaseService.install(installRequest);
+		assertThat(release).isNotNull();
+		this.releaseService.delete(releaseName);
+		Release release2 = releaseService.install(installRequest);
+		assertThat(release2.getVersion()).isEqualTo(2);
 	}
 
 	@Test

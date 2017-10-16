@@ -85,8 +85,7 @@ public class SimpleRedBlackUpgradeStrategy implements UpgradeStrategy {
 
 		// Carry over the applicationDeployment information for apps that were not updated.
 		AppDeployerData existingAppDeployerData = this.appDeployerDataRepository.findByReleaseNameAndReleaseVersion(
-				existingRelease.getName(),
-				existingRelease.getVersion());
+				existingRelease.getName(), existingRelease.getVersion());
 		Map<String, String> existingAppNamesAndDeploymentIds = existingAppDeployerData.getDeploymentDataAsMap();
 
 		for (Map.Entry<String, String> existingEntry : existingAppNamesAndDeploymentIds.entrySet()) {
