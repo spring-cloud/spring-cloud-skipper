@@ -87,7 +87,7 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 				.getAppDeployer();
 		Map<String, String> appNameDeploymentIdMap = new HashMap<>();
 		for (SpringBootAppKind springBootAppKind : springBootAppKindList) {
-			AppDeploymentRequest appDeploymentRequest = appDeploymentRequestFactory.createAppDeploymentRequest(
+			AppDeploymentRequest appDeploymentRequest = this.appDeploymentRequestFactory.createAppDeploymentRequest(
 					springBootAppKind,
 					release.getName(),
 					String.valueOf(release.getVersion()));

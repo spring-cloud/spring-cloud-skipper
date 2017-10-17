@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
+import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.skipper.server.domain.SpringBootAppKind;
@@ -77,6 +78,10 @@ public class AppDeploymentRequestFactory {
 		Map<String, String> deploymentProperties = new TreeMap<>();
 		if (spec.getDeploymentProperties() != null) {
 			deploymentProperties.putAll(spec.getDeploymentProperties());
+		}
+		if (!deploymentProperties.containsKey(AppDeployer.GROUP_PROPERTY_KEY)) {
+			logger.debug("Defaulting spring.cloud.deployer.group=" + releaseName);
+			deploymentProperties.put(AppDeployer.GROUP_PROPERTY_KEY, releaseName);
 		}
 		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(appDefinition, resource,
 				deploymentProperties);
