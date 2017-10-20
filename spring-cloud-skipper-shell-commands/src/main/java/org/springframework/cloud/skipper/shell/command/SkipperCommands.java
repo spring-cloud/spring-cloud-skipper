@@ -16,7 +16,6 @@
 package org.springframework.cloud.skipper.shell.command;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,11 +31,9 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.codearte.props2yaml.Props2YAML;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.deployer.spi.app.DeploymentState;
@@ -54,6 +51,7 @@ import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.domain.UploadRequest;
 import org.springframework.cloud.skipper.shell.command.support.DeploymentStateDisplay;
 import org.springframework.cloud.skipper.shell.command.support.TableUtils;
+import org.springframework.cloud.skipper.shell.command.support.YmlUtils;
 import org.springframework.hateoas.Resources;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -78,18 +76,6 @@ import static org.springframework.shell.standard.ShellOption.NULL;
 public class SkipperCommands extends AbstractSkipperCommand {
 
 	private static final Logger logger = LoggerFactory.getLogger(SkipperCommands.class);
-
-	public static final String APPLICATION_PROPERTIES_PREFIX = "spec.applicationProperties.";
-
-	public static final String DEPLOYMENT_PROPERTIES_PREFIX = "spec.deploymentProperties.";
-
-	private static final String SPEC_APPLICATION_PROPERTIES_REPLACEMENT = "REPLACE_APPLICATION_PROPERTIES";
-
-	private static final String SPEC_DEPLOYMENT_PROPERTIES_REPLACEMENT = "REPLACE_DEPLOYMENT_PROPERTIES";
-
-	private static final String DOT_CHAR = "\\.";
-
-	private static final String DOT_CHAR_REPLACEMENT = "-";
 
 	@Autowired
 	public SkipperCommands(SkipperClient skipperClient) {
@@ -226,40 +212,13 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		}
 		// There is a 'default' value for platformName
 		installProperties.setPlatformName(platformName);
-		String configValuesYML = getYamlConfigValues(yamlFile, propertiesToOverride);
+		String configValuesYML = YmlUtils.getYamlConfigValues(yamlFile, propertiesToOverride);
 		if (StringUtils.hasText(configValuesYML)) {
 			ConfigValues configValues = new ConfigValues();
 			configValues.setRaw(configValuesYML);
 			installProperties.setConfigValues(configValues);
 		}
 		return installProperties;
-	}
-
-	private String getYamlConfigValues(File yamlFile, String propertiesAsCsvString) throws IOException {
-		String configValuesYML = null;
-		if (yamlFile != null) {
-			Yaml yaml = new Yaml();
-			// Validate it is yaml formatted.
-			configValuesYML = yaml.dump(yaml.load(new FileInputStream(yamlFile)));
-		}
-		else if (StringUtils.hasText(propertiesAsCsvString)) {
-			String propertyValues = propertiesAsCsvString.replaceAll(APPLICATION_PROPERTIES_PREFIX,
-					SPEC_APPLICATION_PROPERTIES_REPLACEMENT);
-			propertyValues = propertyValues.replaceAll(DEPLOYMENT_PROPERTIES_PREFIX,
-					SPEC_DEPLOYMENT_PROPERTIES_REPLACEMENT);
-			// Replace the original property keys' dots to avoid type errors when using Props2YML
-			propertyValues = propertyValues.replaceAll(DOT_CHAR, DOT_CHAR_REPLACEMENT);
-			propertyValues = propertyValues.replaceAll(SPEC_APPLICATION_PROPERTIES_REPLACEMENT,
-					APPLICATION_PROPERTIES_PREFIX);
-			propertyValues = propertyValues.replaceAll(SPEC_DEPLOYMENT_PROPERTIES_REPLACEMENT,
-					DEPLOYMENT_PROPERTIES_PREFIX);
-			String ymlString = Props2YAML.fromContent(propertyValues.replaceAll(",", "\n")).convert();
-			// Revert original property keys' dots
-			ymlString = ymlString.replaceAll(DOT_CHAR_REPLACEMENT, DOT_CHAR);
-			Yaml yaml = new Yaml();
-			configValuesYML = yaml.dump(yaml.load(ymlString));
-		}
-		return configValuesYML;
 	}
 
 	@ShellMethod(key = "upgrade", value = "Upgrade a release.")
@@ -295,7 +254,7 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		UpgradeRequest upgradeRequest = new UpgradeRequest();
 		UpgradeProperties upgradeProperties = new UpgradeProperties();
 		upgradeProperties.setReleaseName(releaseName);
-		String configValuesYML = getYamlConfigValues(propertiesFile, propertiesToOverride);
+		String configValuesYML = YmlUtils.getYamlConfigValues(propertiesFile, propertiesToOverride);
 		if (StringUtils.hasText(configValuesYML)) {
 			ConfigValues configValues = new ConfigValues();
 			configValues.setRaw(configValuesYML);
