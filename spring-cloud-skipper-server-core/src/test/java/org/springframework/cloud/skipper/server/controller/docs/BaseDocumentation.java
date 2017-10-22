@@ -20,14 +20,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Rule;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.cloud.skipper.server.controller.AbstractControllerTests;
-import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation;
 import org.springframework.restdocs.hypermedia.LinkDescriptor;
 import org.springframework.restdocs.hypermedia.LinksSnippet;
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.payload.ResponseFieldsSnippet;
@@ -38,7 +38,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
@@ -53,13 +52,14 @@ import static org.springframework.restdocs.request.RequestDocumentation.requestP
  *
  * @author Gunnar Hillert
  */
+@AutoConfigureRestDocs("target/generated-snippets")
 public abstract class BaseDocumentation extends AbstractControllerTests {
 
 	@Autowired
 	WebApplicationContext context;
 
-	@Rule
-	public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
+	@Autowired
+	private MockMvcRestDocumentationConfigurer restDocumentationConfigurer;
 
 	protected RestDocumentationResultHandler documentationHandler;
 
@@ -76,7 +76,7 @@ public abstract class BaseDocumentation extends AbstractControllerTests {
 				preprocessResponse(prettyPrint()));
 
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
-				.apply(documentationConfiguration(this.restDocumentation).uris()
+				.apply(this.restDocumentationConfigurer.uris()
 				.withScheme("http")
 				.withHost("localhost")
 				.withPort(7577))
