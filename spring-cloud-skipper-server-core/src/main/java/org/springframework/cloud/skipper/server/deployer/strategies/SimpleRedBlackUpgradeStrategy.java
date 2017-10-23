@@ -23,12 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
-import org.springframework.cloud.deployer.spi.app.AppStatus;
-import org.springframework.cloud.deployer.spi.app.DeploymentState;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.cloud.skipper.domain.Status;
-import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.server.deployer.AppDeploymentRequestFactory;
 import org.springframework.cloud.skipper.server.deployer.ReleaseAnalysisReport;
 import org.springframework.cloud.skipper.server.domain.AppDeployerData;
@@ -56,14 +52,18 @@ public class SimpleRedBlackUpgradeStrategy implements UpgradeStrategy {
 
 	private final AppDeploymentRequestFactory appDeploymentRequestFactory;
 
+	private final HealthCheckAndDeleteStep healthCheckAndDeleteStep;
+
 	public SimpleRedBlackUpgradeStrategy(ReleaseRepository releaseRepository,
 			DeployerRepository deployerRepository,
 			AppDeployerDataRepository appDeployerDataRepository,
-			AppDeploymentRequestFactory appDeploymentRequestFactory) {
+			AppDeploymentRequestFactory appDeploymentRequestFactory,
+			HealthCheckAndDeleteStep healthCheckAndDeleteStep) {
 		this.releaseRepository = releaseRepository;
 		this.deployerRepository = deployerRepository;
 		this.appDeployerDataRepository = appDeployerDataRepository;
 		this.appDeploymentRequestFactory = appDeploymentRequestFactory;
+		this.healthCheckAndDeleteStep = healthCheckAndDeleteStep;
 	}
 
 	@Override
@@ -91,8 +91,9 @@ public class SimpleRedBlackUpgradeStrategy implements UpgradeStrategy {
 		}
 
 		// Carry over the applicationDeployment information for apps that were not updated.
-		AppDeployerData existingAppDeployerData = this.appDeployerDataRepository.findByReleaseNameAndReleaseVersion(
-				existingRelease.getName(), existingRelease.getVersion());
+		AppDeployerData existingAppDeployerData = this.appDeployerDataRepository
+				.findByReleaseNameAndReleaseVersionRequired(
+						existingRelease.getName(), existingRelease.getVersion());
 		Map<String, String> existingAppNamesAndDeploymentIds = existingAppDeployerData.getDeploymentDataAsMap();
 
 		for (Map.Entry<String, String> existingEntry : existingAppNamesAndDeploymentIds.entrySet()) {
@@ -108,50 +109,16 @@ public class SimpleRedBlackUpgradeStrategy implements UpgradeStrategy {
 		appDeployerData.setDeploymentDataUsingMap(appNameDeploymentIdMap);
 		this.appDeployerDataRepository.save(appDeployerData);
 
-		// TODO update status in DB that the other apps are being deleted.
+		AppDeployerData replacingAppDeployerData = this.appDeployerDataRepository
+				.findByReleaseNameAndReleaseVersionRequired(
+						replacingRelease.getName(), replacingRelease.getVersion());
 
-		this.delete(existingRelease, applicationNamesToUpgrade);
+		// Executes on another thread.
+		// TODO Investigate why lookups in appDeployerDataRepository do not return expected results
+		this.healthCheckAndDeleteStep.waitForNewAppsToDeploy(existingRelease, existingAppDeployerData,
+				applicationNamesToUpgrade, replacingRelease, replacingAppDeployerData);
 
-		// Update Status in DB
-		Status status = new Status();
-		status.setStatusCode(StatusCode.DEPLOYED);
-		replacingRelease.getInfo().setStatus(status);
-		replacingRelease.getInfo().setDescription("Upgrade complete");
-
-		this.releaseRepository.save(replacingRelease);
 		return replacingRelease;
-	}
-
-	public Release delete(Release release, List<String> applicationNamesToDelete) {
-
-		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
-				.getAppDeployer();
-
-		AppDeployerData appDeployerData = this.appDeployerDataRepository
-				.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
-
-		Map<String, String> appNamesAndDeploymentIds = appDeployerData.getDeploymentDataAsMap();
-
-		for (Map.Entry<String, String> appNameAndDeploymentId : appNamesAndDeploymentIds.entrySet()) {
-			if (applicationNamesToDelete.contains(appNameAndDeploymentId.getKey())) {
-				AppStatus appStatus = appDeployer.status(appNameAndDeploymentId.getValue());
-				if (appStatus.getState().equals(DeploymentState.deployed)) {
-					appDeployer.undeploy(appNameAndDeploymentId.getValue());
-				}
-				else {
-					logger.warn("For Release name {}, did not undeploy existing app {} as it status is not 'deployed'.",
-							release.getName(),
-							appNameAndDeploymentId.getKey());
-				}
-			}
-		}
-
-		Status deletedStatus = new Status();
-		deletedStatus.setStatusCode(StatusCode.DELETED);
-		release.getInfo().setStatus(deletedStatus);
-		release.getInfo().setDescription("Delete complete");
-		this.releaseRepository.save(release);
-		return release;
 	}
 
 }

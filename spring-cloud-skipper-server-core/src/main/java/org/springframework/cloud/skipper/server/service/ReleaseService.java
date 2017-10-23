@@ -303,7 +303,8 @@ public class ReleaseService {
 	 * to the previous release.
 	 *
 	 * @param releaseName the name of the release
-	 * @param rollbackVersion the version of the release to rollback to
+	 * @param rollbackVersion the version of the release to rollback to.  If the version is 0, then rollback
+	 *                        to the previous release.
 	 * @return the Release
 	 */
 	public Release rollback(final String releaseName, final int rollbackVersion) {
