@@ -16,6 +16,7 @@
 package org.springframework.cloud.skipper.server;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,24 @@ public abstract class AbstractIntegrationTest {
 	@Autowired
 	protected ReleaseService releaseService;
 
+	protected void sleep() {
+		try {
+			Thread.sleep(20000);
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Before
+	public void cleanupReleasesBefore() {
+		/**
+		 * the async behavior of updating releases is resulting in some test crosstalk despite
+		 * transactional test support.
+		 */
+		releaseRepository.deleteAll();
+	}
+
 	@After
 	public void cleanupReleases() {
 		// Add a sleep for now to give the local deployer a chance to install the app. This
@@ -71,12 +90,20 @@ public abstract class AbstractIntegrationTest {
 			Thread.sleep(5000);
 			for (Release release : releaseRepository.findAll()) {
 				if (release.getInfo().getStatus().getStatusCode() != StatusCode.DELETED) {
-					releaseService.delete(release.getName());
+					try {
+						releaseService.delete(release.getName());
+					}
+					catch (Exception e) {
+						logger.error(
+								"Error cleaning up resource in integration test for Release {}-v{}. Status = {}.  Message = {}",
+								release.getName(), release.getVersion(), release.getInfo().getStatus().getStatusCode(),
+								e.getMessage());
+					}
 				}
 			}
 		}
-		catch (Exception e) {
-			logger.error("error cleaning up resource in integration test");
+		catch (InterruptedException e) {
+			logger.error("Exception while cleaning up resources", e);
 		}
 	}
 
