@@ -1,0 +1,76 @@
+---
+# The name of your project
+title: Spring Cloud Skipper
+
+badges:
+
+  # Customize your project's badges. Delete any entries that do not apply.
+  custom:
+    - name: Source (GitHub)
+      url:  https://github.com/spring-cloud/spring-cloud-skipper
+      icon: github
+
+    - name: Issues (Waffle)
+      url:  https://waffle.io/spring-cloud/spring-cloud-skipper
+      icon: tracking
+
+    - name: CI (Bamboo)
+      url:  https://build.spring.io/browse/SCSKIP
+      icon: ci
+
+    - name: Forum
+      url:  http://forum.spring.io/forum/spring-projects/data
+      icon: forum
+
+    - name: StackOverflow
+      url:  http://stackoverflow.com/questions/tagged/spring-cloud-skipper
+      icon: stackoverflow
+
+---
+<!DOCTYPE HTML>
+<html lang="en-US">
+
+<!-- Specify the parent of this project (or delete if none) to influence the rendering of the breadcrumb -->
+{% capture parent_link %}
+[Spring Cloud]({{ site.projects_site_url }}/spring-cloud)
+{% endcapture %}
+
+
+{% capture billboard_description %}
+
+Spring Cloud Skipper is a package manager that installs, upgrades, and rolls back applications on multiple Cloud Platforms.
+
+{% endcapture %}
+
+{% capture main_content %}
+
+<span id="overview"></span>
+
+## Overview
+
+A package manager that installs, upgrades, and rolls back applications on multiple Cloud Platforms.
+
+Supported application types are Spring Boot applications and those defined by Cloud Foundry application manifests.
+Supported Cloud Platforms are local, Cloud Foundry and Kubernetes.
+
+Skipper can be used as part of implementing the practice of Continuous Deployment. It provides a
+versioned "single source of truth" that defines what applications were deployed to the cloud. This
+enables easy rollbacks and upgrades without having to rebuild applications from source code.
+
+{% endcapture %}
+
+{% capture related_resources %}
+
+### Related Projects
+
+* [Spring Cloud Data Flow](http://cloud.spring.io/spring-cloud-dataflow/)
+* [Spring Cloud Stream](http://cloud.spring.io/spring-cloud-stream/)
+* [Spring Cloud Stream Applications](http://cloud.spring.io/spring-cloud-stream-app-starters/)
+* [Spring Cloud Task](http://cloud.spring.io/spring-cloud-task/)
+* [Spring Cloud Task Applications](http://cloud.spring.io/spring-cloud-task-app-starters/)
+
+{% endcapture %}
+
+
+{% include project_page.html %}
+</html>
