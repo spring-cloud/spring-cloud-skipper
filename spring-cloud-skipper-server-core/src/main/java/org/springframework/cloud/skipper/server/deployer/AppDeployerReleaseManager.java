@@ -163,6 +163,15 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 	@Override
 	public ReleaseAnalysisReport createReport(Release existingRelease, Release replacingRelease) {
 		ReleaseAnalysisReport releaseAnalysisReport = this.releaseAnalyzer.analyze(existingRelease, replacingRelease);
+		if (releaseAnalysisReport.getReleaseDifference().areEqual()) {
+			Status status = new Status();
+			status.setStatusCode(StatusCode.FAILED);
+			replacingRelease.getInfo().setStatus(status);
+			replacingRelease.getInfo().setDescription("No difference from the existing release");
+			this.releaseRepository.save(replacingRelease);
+			throw new SkipperException(
+					"Package to upgrade has no difference than existing deployed/deleted package. Not upgrading.");
+		}
 		AppDeployerData existingAppDeployerData = this.appDeployerDataRepository
 				.findByReleaseNameAndReleaseVersionRequired(
 						existingRelease.getName(), existingRelease.getVersion());
@@ -176,10 +185,6 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		String manifest = ManifestUtils.createManifest(replacingRelease.getPkg(), model);
 		replacingRelease.setManifest(manifest);
 		this.releaseRepository.save(replacingRelease);
-		if (releaseAnalysisReport.getReleaseDifference().areEqual()) {
-			throw new SkipperException(
-					"Package to upgrade has no difference than existing deployed package. Not upgrading.");
-		}
 		return releaseAnalysisReport;
 	}
 
