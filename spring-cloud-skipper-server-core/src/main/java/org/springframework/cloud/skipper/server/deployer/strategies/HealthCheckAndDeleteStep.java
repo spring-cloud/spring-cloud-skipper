@@ -111,7 +111,6 @@ public class HealthCheckAndDeleteStep {
 				Status status = new Status();
 				status.setStatusCode(StatusCode.FAILED);
 				replacingRelease.getInfo().setStatus(status);
-				replacingRelease.getInfo().setStatus(status);
 				replacingRelease.getInfo().setDescription("Did not detect apps in repalcing release as healthy after " +
 						this.healthCheckProperties.getSleepInMillis() + " ms.");
 				this.releaseRepository.save(replacingRelease);
