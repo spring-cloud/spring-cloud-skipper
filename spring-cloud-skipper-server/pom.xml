@@ -12,7 +12,7 @@
     </parent>
 
     <properties>
-        <docker.image.prefix>spring-io</docker.image.prefix>
+        <docker.image.prefix>springcloud</docker.image.prefix>
     </properties>
 
     <dependencies>

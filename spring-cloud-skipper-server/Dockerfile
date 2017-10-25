@@ -1,4 +1,4 @@
-FROM openjdk:8u141
+FROM java:8-alpine
 
 ARG JAR_FILE
 
