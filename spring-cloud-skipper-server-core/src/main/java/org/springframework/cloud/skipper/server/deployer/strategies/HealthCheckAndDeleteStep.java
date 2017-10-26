@@ -34,6 +34,7 @@ import org.springframework.cloud.skipper.server.repository.AppDeployerDataReposi
 import org.springframework.cloud.skipper.server.repository.DeployerRepository;
 import org.springframework.cloud.skipper.server.repository.ReleaseRepository;
 import org.springframework.context.event.EventListener;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Responsible for checking the health of the latest deployed release, and then deleting
@@ -71,6 +72,7 @@ public class HealthCheckAndDeleteStep {
 		this.healthCheckProperties = healthCheckProperties;
 	}
 
+	@Transactional
 	public void waitForNewAppsToDeploy(Release existingRelease,
 			List<String> applicationNamesToUpgrade, Release replacingRelease) {
 		try {

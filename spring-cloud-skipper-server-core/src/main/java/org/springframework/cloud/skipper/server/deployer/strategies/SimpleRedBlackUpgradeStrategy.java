@@ -33,7 +33,6 @@ import org.springframework.cloud.skipper.server.domain.SpringBootAppKindReader;
 import org.springframework.cloud.skipper.server.repository.AppDeployerDataRepository;
 import org.springframework.cloud.skipper.server.repository.DeployerRepository;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.cloud.skipper.server.config.SkipperServerConfiguration.SKIPPER_THREAD_POOL_EXECUTOR;
 
@@ -67,10 +66,8 @@ public class SimpleRedBlackUpgradeStrategy implements UpgradeStrategy {
 
 	@Override
 	@Async(SKIPPER_THREAD_POOL_EXECUTOR)
-	@Transactional
 	public Release upgrade(Release existingRelease, Release replacingRelease,
 			ReleaseAnalysisReport releaseAnalysisReport) {
-
 		List<String> applicationNamesToUpgrade = releaseAnalysisReport.getApplicationNamesToUpgrade();
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(replacingRelease.getPlatformName())
 				.getAppDeployer();
