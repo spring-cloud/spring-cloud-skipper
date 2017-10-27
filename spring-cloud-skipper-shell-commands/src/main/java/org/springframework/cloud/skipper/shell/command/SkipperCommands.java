@@ -305,11 +305,11 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		UploadRequest uploadRequest = new UploadRequest();
 		try {
 			File file = ResourceUtils.getFile(path);
-			StringTokenizer tokenizer = new StringTokenizer(file.getName(), "-");
-			String fileName = (String) tokenizer.nextElement();
-			String versionAndExtension = (String) tokenizer.nextElement();
-			String extension = versionAndExtension.substring(versionAndExtension.lastIndexOf("."));
-			String version = versionAndExtension.replaceAll(extension, "");
+			String zipFileName = file.getName();
+			String fileName = zipFileName.substring(0, zipFileName.lastIndexOf("-"));
+			String versionAndExtension = zipFileName.substring(fileName.length() + 1);
+			String extension = versionAndExtension.substring(versionAndExtension.lastIndexOf(".") + 1);
+			String version = versionAndExtension.replaceAll("."+ extension, "");
 			uploadRequest.setName(fileName);
 			uploadRequest.setVersion(version);
 			uploadRequest.setExtension(extension);
