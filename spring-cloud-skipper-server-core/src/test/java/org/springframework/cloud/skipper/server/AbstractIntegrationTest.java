@@ -39,6 +39,7 @@ import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.server.config.SkipperServerConfiguration;
+import org.springframework.cloud.skipper.server.deployer.ReleaseManager;
 import org.springframework.cloud.skipper.server.repository.ReleaseRepository;
 import org.springframework.cloud.skipper.server.service.ReleaseService;
 import org.springframework.context.annotation.Configuration;
@@ -77,6 +78,9 @@ public abstract class AbstractIntegrationTest extends AbstractAssertReleaseDeplo
 
 	@Autowired
 	protected ReleaseService releaseService;
+
+	@Autowired
+	protected ReleaseManager releaseManager;
 
 	private File dbScriptFile;
 
@@ -125,6 +129,8 @@ public abstract class AbstractIntegrationTest extends AbstractAssertReleaseDeplo
 		try {
 			logger.info("Checking status of release={} version={}", releaseName, releaseVersion);
 			Release release = releaseRepository.findByNameAndVersion(releaseName, releaseVersion);
+			// update status (only for tests)
+			this.releaseManager.status(release);
 			Info info = release.getInfo();
 
 			logger.info("Status = " + info.getStatus());
