@@ -63,7 +63,7 @@ public class ReleaseStateUpdateService {
 
 	@Scheduled(initialDelay = 5000, fixedRate = 5000)
 	@Transactional
-	public void update() {
+	public synchronized void update() {
 		log.info("Scheduled update state method running...");
 		long now = System.currentTimeMillis();
 		boolean fullPoll = now > nextFullPoll;
