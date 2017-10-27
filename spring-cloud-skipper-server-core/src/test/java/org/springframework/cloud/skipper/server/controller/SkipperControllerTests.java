@@ -18,7 +18,6 @@ package org.springframework.cloud.skipper.server.controller;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.springframework.cloud.skipper.domain.InstallProperties;
@@ -52,7 +51,6 @@ public class SkipperControllerTests extends AbstractControllerTests {
 	}
 
 	@Test
-	@Ignore
 	public void packageDeployRequest() throws Exception {
 		String releaseName = "myLogRelease";
 		InstallRequest installRequest = new InstallRequest();
@@ -70,7 +68,6 @@ public class SkipperControllerTests extends AbstractControllerTests {
 	}
 
 	@Test
-	@Ignore
 	public void checkDeployStatus() throws Exception {
 
 		// Deploy
@@ -86,7 +83,6 @@ public class SkipperControllerTests extends AbstractControllerTests {
 	}
 
 	@Test
-	@Ignore
 	public void releaseRollbackAndUndeploy() throws Exception {
 
 		// Deploy
@@ -131,7 +127,6 @@ public class SkipperControllerTests extends AbstractControllerTests {
 	}
 
 	@Test
-	@Ignore
 	public void packageDeployAndUpgrade() throws Exception {
 		String releaseName = "myLog";
 		Release release = install("log", "1.0.0", releaseName);
@@ -144,7 +139,6 @@ public class SkipperControllerTests extends AbstractControllerTests {
 	}
 
 	@Test
-	@Ignore
 	public void testStatusReportsErrorForMissingRelease() throws Exception {
 		// In a real container the response is carried over into the error dispatcher, but
 		// in the mock a new one is created so we have to assert the status at this
