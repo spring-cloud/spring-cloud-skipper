@@ -1,0 +1,162 @@
+[[create-package]]
+= Creating a Package
+
+This section describes how to create a package that defines the recipe for installing the application.
+
+[[package-format]]
+== Package Format
+
+A package is a collection of YAML files that are zipped up into a file with the naming convention
+`PackageName-PackageVersion.zip` for example: `mypackage-1.0.0.zip`
+
+A package can define a single application or a group of applications.
+
+When unzipped, the package has the following format
+
+----
+mypackage-1.0.0
+├── package.yml
+├── templates
+│   └── <template>.yml
+└── values.yml
+----
+
+The YAML files can have either `.yml` or `.yaml` extensions.
+
+[[package-metadata]]
+== Package Metadata
+
+The `package.yml` inside the package specifies the package metadata.
+
+A sample package metadata would look like this:
+
+----
+apiVersion: v1
+kind: skipper
+name: mypackage
+version: 1.0.0
+packageSourceUrl: https://github.com/some-mypackage-project/v1.0.0.RELEASE
+packageHomeUrl: http://some-mypackage-project/
+tags: skipper, mypackage, sample
+maintainer: https://github.com/maintainer
+description: This is a mypackage sample.
+----
+
+[[package-template-files]]
+== Package Template files
+
+There can be multiple template YAML files inside the `templates` directory.
+A sample template file would look like this:
+
+----
+apiVersion: skipper/v1
+kind: SpringBootApp
+metadata:
+  name: mypackage
+  type: sample
+spec:
+  resource: maven://org.mysample:mypackage:{{version}}
+  applicationProperties:
+    {{#spec.applicationProperties.entrySet}}
+    {{key}}: {{value}}
+    {{/spec.applicationProperties.entrySet}}
+  deploymentProperties:
+    {{#spec.deploymentProperties.entrySet}}
+    {{key}}: {{value}}
+    {{/spec.deploymentProperties.entrySet}}
+----
+
+Currently, only `SpringBootApp` kind is supported. Hence, the kind needs to be `SpringBootApp`.
+The `spec` contains the resource specification and the properties for the package.
+The `resource` represents the resource URI to download the application from. This would typically be a maven
+co-ordinate or a docker image URL.
+The `SpringBootApp` kind of application can have `applicationProperties` and `deploymentProperties` as the
+configuration properties.
+The application properties correspond to the properties for the application itself.
+The deployment properties correspond to the properties for the deployment operation performed by Spring Cloud
+Deployer implementations.
+
+[[package-values]]
+== Package Values
+
+The `values` YAML file contains the default values for any of the keys specified in the template files.
+
+For instance,
+
+----
+version: 1.0.0.RELEASE
+spec:
+  applicationProperties:
+    server.port: 9090
+----
+
+[[package-with-multi-apps]]
+== Package with multiple applications
+
+A package can contain a group of applications bundled in it.
+In those cases, the structure of the package would look like this:
+
+----
+mypackagegroup-1.0.0
+├── package.yml
+├── packages
+│   ├── app1
+│   │   ├── package.yml
+│   │   ├── templates
+│   │   │   └── log.yml
+│   │   └── values.yml
+│   └── app2
+│       ├── package.yml
+│       ├── templates
+│       │   └── time.yml
+│       └── values.yml
+└── values.yml
+----
+
+In the above, the `mypackagegroup` would still have its own `package.yml`, `values.yml` to specify the package metadata
+ and the values to override.
+All the applications inside the `mypackagegroup`  are considered sub-packages and would follow the similar package
+structure as the individual packages.
+These sub packages need to be specified inside the `packages` directory of the root package `mypackagegroup`.
+
+[[package-upload]]
+== Package Upload
+
+After creating the package in the above structure, we can compress it in a zip file with the name
+[PackageName]-[PackageVersion].zip e.g. mypackage-1.0.0.zip
+
+For instance, the package directory would look like this before compression:
+
+----
+mypackage-1.0.0
+├── package.yml
+├── templates
+│   └── template.yml
+└── values.yml
+----
+This zip file can be uploaded into one of the local repositories of Skipper server.
+By default, Skipper server has the local repository with the name `local`.
+
+Using the Skipper Shell, we can upload the package zip into Skipper server's one of the local repositories.
+
+[source,bash,options="nowrap"]
+----
+skipper:>upload --path /path-to-package/mypackage-1.0.0.zip
+Package uploaded successfully:[mypackage:1.0.0]
+----
+
+If no `--repo-name` is set, the `upload` command will use `local` as the repository to upload.
+
+[source,bash,options="nowrap"]
+----
+skipper:>search
+╔═════════════════╤═══════╤════════════════════════════════════════════════════════════════════════════════╗
+║      Name       │Version│                                  Description                                   ║
+╠═════════════════╪═══════╪════════════════════════════════════════════════════════════════════════════════╣
+║helloworld       │1.0.0  │The app has two endpoints, /about and /greeting in English.  Maven resource.    ║
+║helloworld       │1.0.1  │The app has two endpoints, /about and /greeting in Portuguese.  Maven resource. ║
+║helloworld-docker│1.0.0  │The app has two endpoints, /about and /greeting in English.  Docker resource.   ║
+║helloworld-docker│1.0.1  │The app has two endpoints, /about and /greeting in Portuguese.  Docker resource.║
+║mypackage        │1.0.0  │This is a mypackage sample                                                      ║
+╚═════════════════╧═══════╧════════════════════════════════════════════════════════════════════════════════╝
+----
