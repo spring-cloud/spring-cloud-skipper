@@ -44,38 +44,34 @@ Skipper is a tool that allows you to discover applications and manage their life
 
 ## Overview
 
-Skipper is a tool that allows you to discover applications and manage their lifecycle on multiple Cloud Platforms.
+Skipper is a lightweight tool that allows you to discover Spring Boot applications and manage their lifecycle on multiple Cloud Platforms.
 
-Applications are bundled as packages which contain a templated configuration file and a default set of values that are used to fill in the template.
-You can override these defaults when installing or upgrading a package. Skipper provides a means to orchestrate the upgrade/rollback procedure of applications between different versions, taking the minimal set of actions to bring the system
-to the desired state.  One of the goals of Skipper is to be used as one tool to help implement the practice of Continuous Deployment.
+The system design is influenced by a large number of projects in the Kubernetes ecosystem that perform resource templating and/or orchestration, hence the nautically inspired project name Skipper.
 
-This approach is influenced by the large number of projects in the Kubernetes ecosystem that peform resource templating and/or orchestration, hence the nautically inspired project name Skipper.
-
-Skipper provides an interactive shell and web API.  It uses a relational database for persistence.
+Applications in Skipper are bundled as packages which contain a templated configuration file and a default set of values that are used to fill in the template. You can override these defaults when installing or upgrading a package. Skipper provides a means to orchestrate the upgrade/rollback procedure of applications between different versions, taking the minimal set of actions to bring the system to the desired state. One of the goals of Skipper is to be used as one tool to help promote the practice of Continuous Deployment.
 
 ## Features
 
 The main features in Skipper 1.0 M1 are:
 
-* Define multiple platform accounts (local, Cloud Foundry, Kubernetes)  where Spring Boot applications can be deployed.
+* Define multiple platform accounts (local, Cloud Foundry, Kubernetes) where Spring Boot applications can be deployed.
 * Search Package Repositories for existing applications.
 * Substitue variables in Mustasche templated files that describe how to deploy applications to a platform.
 * Install/Upgrade/Rollback a package based on a simple workflow.
-* Store the history of resolved template failes (aka 'application manifests') which represent the final description of what has been deployed to a platform for a specific release.
+* Store the history of resolved template files (aka 'application manifests') which represent the final description of what has been deployed to a platform for a specific release.
+* Use a standalone interactive shell or the web APIs to supplement a fully automated CI workflows.
 
 The means to deploy a Spring Boot application to multiple platforms is
 provided by [Spring Cloud Deployer implementations.](https://github.com/spring-cloud/spring-cloud-deployer#implementations)  The supported template file format are YAML based and describe the set of variables needed to create a Spring Cloud Deployer [AppDeploymentRequest](https://github.com/spring-cloud/spring-cloud-deployer/blob/master/spring-cloud-deployer-spi/src/main/java/org/springframework/cloud/deployer/spi/core/AppDeploymentRequest.java)
 
-The next version of Skipper will replace the simple hardcoded workflow of upgrading/rolling back applications versions to a more flexible approach basd on the [Spring Statemachine](https://projects.spring.io/spring-statemachine) project.
+The next version of Skipper will replace the simple hardcoded workflow of upgrading/rolling back applications versions to a more flexible approach based on the [Spring Statemachine](https://projects.spring.io/spring-statemachine) project.
 
 ## Getting Started
-The reference documentation is the best place to get started deploying a package hosted on a public Skipper package repository. 
+The [reference guide](https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/) is the best place to get started.
 
 ## History
 
-Skipper evolved out of a need to perform "Stream Edits" in Spring Cloud Data Flow.
-It was recognized that to provide that feature a more general purpose project, Skipper, should be created so that it can be used outside the context of Spring Cloud Data Flow.
+Skipper evolved out of a need to perform "Stream Edits" in Spring Cloud Data Flow. It was later recognized that to provide that feature a more general purpose project, Skipper, should be created so that it can also be a useful toolkit outside the context of Spring Cloud Data Flow.
 
 {% endcapture %}
 
