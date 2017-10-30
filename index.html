@@ -44,14 +44,37 @@ Spring Cloud Skipper is a package manager that installs, upgrades, and rolls bac
 
 ## Overview
 
-A package manager that installs, upgrades, and rolls back applications on multiple Cloud Platforms.
+Skipper is a tool that allows you to discover applications and install them on multiple Cloud Platforms.
+Applications are bundled as packages which contain a templated configuration file and a default set of values that are used to fill in the template.
+You can override these defaults when installing or upgrading a package. Skipper provides a means to orchestrate the upgrade/rollback procedure of applications between different versions, taking the minimal set of actions to bring the system
+to the desired state.  One of the goals of Skipper is to be used as one tool to help implement the practice of Continuous Deployment.
 
-Supported application types are Spring Boot applications and those defined by Cloud Foundry application manifests.
-Supported Cloud Platforms are local, Cloud Foundry and Kubernetes.
+This approach is influenced by the large number of projects in the Kubernetes ecosystem that peform application templating and/or resource orchestration, hence the nautically inspired project name Skipper.
 
-Skipper can be used as part of implementing the practice of Continuous Deployment. It provides a
-versioned "single source of truth" that defines what applications were deployed to the cloud. This
-enables easy rollbacks and upgrades without having to rebuild applications from source code.
+Skipper provides an interactive shell and web API to invoke it's features.
+
+## Features
+
+The main features in Skipper 1.0 M1 are:
+
+* Define multiple Cloud platform accounts where Spring Boot applications can be deployed.
+* Search Package Repositories for existing applications.
+* Substitue variables in Mustasche templated files that describe how to deploy applications to a platform.
+* Install/Upgrade/Rollback a package based on a simple workflow.
+* Store the history of finalized 'application manifests' that represent the final description of what has been deployed to a platform.
+
+The means to deploy a Spring Boot application to multiple platforms is
+provided by [Spring Cloud Deployer implementations.](https://github.com/spring-cloud/spring-cloud-deployer#implementations)  The supported template files are YAML based and describe the set of variables needed to create a Spring Cloud Deployer [AppDeploymentRequest](https://github.com/spring-cloud/spring-cloud-deployer/blob/master/spring-cloud-deployer-spi/src/main/java/org/springframework/cloud/deployer/spi/core/AppDeploymentRequest.java)
+
+The next version of Skipper will replace the simple hardcoded workflow of upgrading/rolling back applications versions to a more flexible approach basd on the [Spring Statemachine](https://projects.spring.io/spring-statemachine) project.
+
+## Getting Started
+The reference documentation is the best place to get started deploying a package hosted on a public Skipper package repository. 
+
+## History
+
+Skipper evolved out of a need to perform "Stream Edits" in Spring Cloud Data Flow.
+It was recognized that to provide that feature a more general purpose project, Skipper, should be created so that it can be used outside the context of Spring Cloud Data Flow.
 
 {% endcapture %}
 
@@ -60,10 +83,7 @@ enables easy rollbacks and upgrades without having to rebuild applications from 
 ### Related Projects
 
 * [Spring Cloud Data Flow](http://cloud.spring.io/spring-cloud-dataflow/)
-* [Spring Cloud Stream](http://cloud.spring.io/spring-cloud-stream/)
-* [Spring Cloud Stream Applications](http://cloud.spring.io/spring-cloud-stream-app-starters/)
-* [Spring Cloud Task](http://cloud.spring.io/spring-cloud-task/)
-* [Spring Cloud Task Applications](http://cloud.spring.io/spring-cloud-task-app-starters/)
+* [Spring Statemachine](http://cloud.spring.io/spring-statemachine/)
 
 {% endcapture %}
 
