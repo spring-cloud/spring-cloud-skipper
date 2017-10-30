@@ -44,7 +44,7 @@ Skipper is a tool that allows you to discover applications and manage their life
 
 ## Overview
 
-Skipper is a lightweight tool that allows you to discover Spring Boot applications and manage their lifecycle on multiple Cloud Platforms.
+Skipper is a tool that allows you to discover Spring Boot applications and manage their lifecycle on multiple Cloud Platforms.
 
 The system design is influenced by a large number of projects in the Kubernetes ecosystem that perform resource templating and/or orchestration, hence the nautically inspired project name Skipper.
 
@@ -56,10 +56,10 @@ The main features in Skipper 1.0 M1 are:
 
 * Define multiple platform accounts (local, Cloud Foundry, Kubernetes) where Spring Boot applications can be deployed.
 * Search Package Repositories for existing applications.
-* Substitue variables in Mustasche templated files that describe how to deploy applications to a platform.
+* Substitute variables in Mustache templated files that describe how to deploy applications to a platform.
 * Install/Upgrade/Rollback a package based on a simple workflow.
 * Store the history of resolved template files (aka 'application manifests') which represent the final description of what has been deployed to a platform for a specific release.
-* Use a standalone interactive shell or the web APIs to supplement a fully automated CI workflows.
+* Use via a standalone interactive shell or via the web APIs to supplement CI workflows.
 
 The means to deploy a Spring Boot application to multiple platforms is
 provided by [Spring Cloud Deployer implementations.](https://github.com/spring-cloud/spring-cloud-deployer#implementations)  The supported template file format are YAML based and describe the set of variables needed to create a Spring Cloud Deployer [AppDeploymentRequest](https://github.com/spring-cloud/spring-cloud-deployer/blob/master/spring-cloud-deployer-spi/src/main/java/org/springframework/cloud/deployer/spi/core/AppDeploymentRequest.java)
