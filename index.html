@@ -52,7 +52,7 @@ to the desired state.  One of the goals of Skipper is to be used as one tool to 
 
 This approach is influenced by the large number of projects in the Kubernetes ecosystem that peform resource templating and/or orchestration, hence the nautically inspired project name Skipper.
 
-Skipper provides an interactive shell and web API and uses a relational database for persistence.
+Skipper provides an interactive shell and web API.  It uses a relational database for persistence.
 
 ## Features
 
@@ -62,7 +62,7 @@ The main features in Skipper 1.0 M1 are:
 * Search Package Repositories for existing applications.
 * Substitue variables in Mustasche templated files that describe how to deploy applications to a platform.
 * Install/Upgrade/Rollback a package based on a simple workflow.
-* Store the history of finalized 'application manifests' that represent the final description of what has been deployed to a platform.
+* Store the history of resolved template failes (aka 'application manifests') which represent the final description of what has been deployed to a platform for a specific release.
 
 The means to deploy a Spring Boot application to multiple platforms is
 provided by [Spring Cloud Deployer implementations.](https://github.com/spring-cloud/spring-cloud-deployer#implementations)  The supported template file format are YAML based and describe the set of variables needed to create a Spring Cloud Deployer [AppDeploymentRequest](https://github.com/spring-cloud/spring-cloud-deployer/blob/master/spring-cloud-deployer-spi/src/main/java/org/springframework/cloud/deployer/spi/core/AppDeploymentRequest.java)
