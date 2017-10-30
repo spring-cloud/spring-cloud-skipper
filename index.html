@@ -45,6 +45,7 @@ Skipper is a tool that allows you to discover applications and manage their life
 ## Overview
 
 Skipper is a tool that allows you to discover Spring Boot applications and manage their lifecycle on multiple Cloud Platforms.
+You can use Skipper standalone or integrate it with Continuous Integration pipelines to help achieve Continuous Deployment of applications.
 
 The system design is influenced by a large number of projects in the Kubernetes ecosystem that perform resource templating and/or orchestration, hence the nautically inspired project name Skipper.
 
@@ -54,9 +55,9 @@ Applications in Skipper are bundled as packages which contain a templated config
 
 The main features in Skipper 1.0 M1 are:
 
-* Define multiple platform accounts (local, Cloud Foundry, Kubernetes) where Spring Boot applications can be deployed.
-* Search Package Repositories for existing applications.
+* Define multiple platform accounts where Spring Boot applications can be deployed.  Supported platforms are Local, Cloud Foundry, and Kubernetes.
 * Substitute variables in Mustache templated files that describe how to deploy applications to a platform.
+* Search Package Repositories for existing applications.
 * Install/Upgrade/Rollback a package based on a simple workflow.
 * Store the history of resolved template files (aka 'application manifests') which represent the final description of what has been deployed to a platform for a specific release.
 * Use via a standalone interactive shell or via the web APIs to supplement CI workflows.
