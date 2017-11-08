@@ -28,8 +28,8 @@ import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.server.deployer.AppDeploymentRequestFactory;
 import org.springframework.cloud.skipper.server.deployer.ReleaseAnalysisReport;
 import org.springframework.cloud.skipper.server.domain.AppDeployerData;
-import org.springframework.cloud.skipper.server.domain.SpringBootAppKind;
-import org.springframework.cloud.skipper.server.domain.SpringBootAppKindReader;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationKind;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationKindReader;
 import org.springframework.cloud.skipper.server.repository.AppDeployerDataRepository;
 import org.springframework.cloud.skipper.server.repository.DeployerRepository;
 import org.springframework.cloud.skipper.server.repository.ReleaseRepository;
@@ -113,20 +113,20 @@ public class DeployAppStep {
 
 	private Map<String, String> deploy(Release replacingRelease, List<String> applicationNamesToUpgrade,
 			AppDeployer appDeployer) {
-		List<SpringBootAppKind> springBootAppKindList = SpringBootAppKindReader
+		List<SpringCloudDeployerApplicationKind> springCloudDeployerApplicationKindList = SpringCloudDeployerApplicationKindReader
 				.read(replacingRelease.getManifest());
 
 		Map<String, String> appNameDeploymentIdMap = new HashMap<>();
-		for (SpringBootAppKind springBootAppKind : springBootAppKindList) {
-			if (applicationNamesToUpgrade.contains(springBootAppKind.getApplicationName())) {
+		for (SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind : springCloudDeployerApplicationKindList) {
+			if (applicationNamesToUpgrade.contains(springCloudDeployerApplicationKind.getApplicationName())) {
 				AppDeploymentRequest appDeploymentRequest = appDeploymentRequestFactory.createAppDeploymentRequest(
-						springBootAppKind, replacingRelease.getName(),
+						springCloudDeployerApplicationKind, replacingRelease.getName(),
 						String.valueOf(replacingRelease.getVersion()));
 				// =============
 				// DEPLOY DEPLOY
 				// =============
 				String deploymentId = appDeployer.deploy(appDeploymentRequest);
-				appNameDeploymentIdMap.put(springBootAppKind.getApplicationName(), deploymentId);
+				appNameDeploymentIdMap.put(springCloudDeployerApplicationKind.getApplicationName(), deploymentId);
 			}
 		}
 		return appNameDeploymentIdMap;

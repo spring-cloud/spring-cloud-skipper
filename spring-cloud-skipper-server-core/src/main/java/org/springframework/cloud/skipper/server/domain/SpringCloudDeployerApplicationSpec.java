@@ -18,13 +18,13 @@ package org.springframework.cloud.skipper.server.domain;
 import java.util.Map;
 
 /**
- * Specification to handle Spring Boot based application. Contained inside a
- * {@link SpringBootAppKind} instance.
+ * Specification to handle applications that can be deployed into target platforms based on their Spring
+ * Cloud Deployer implementations. Contained inside a {@link SpringCloudDeployerApplicationKind} instance.
  *
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
  */
-public class SpringBootAppSpec {
+public class SpringCloudDeployerApplicationSpec {
 
 	public static final String APPLICATION_PROPERTIES_STRING = "applicationProperties";
 
@@ -34,13 +34,11 @@ public class SpringBootAppSpec {
 
 	private String version;
 
-	private String resourceMetadata;
-
 	private Map<String, String> applicationProperties;
 
 	private Map<String, String> deploymentProperties;
 
-	public SpringBootAppSpec() {
+	public SpringCloudDeployerApplicationSpec() {
 	}
 
 	public String getResource() {
@@ -57,14 +55,6 @@ public class SpringBootAppSpec {
 
 	public void setVersion(String version) {
 		this.version = version;
-	}
-
-	public String getResourceMetadata() {
-		return resourceMetadata;
-	}
-
-	public void setResourceMetadata(String resourceMetadata) {
-		this.resourceMetadata = resourceMetadata;
 	}
 
 	public Map<String, String> getApplicationProperties() {

@@ -26,8 +26,8 @@ import org.springframework.cloud.skipper.SkipperException;
  * This class is commonly referred to as 'the manifest', meaning the complete list of the
  * application resource, properties, metadata and deployment properties. It is
  * serialized/deserialized from YAML. An example is: {@literal
- * apiVersion: skipper/v1
- * kind: SpringBootApp
+ * apiVersion: skipperPackageMetadata/v1
+ * kind: SpringCloudDeployerApplication
  * metadata:
  *   name: log-sink
  *   type: sink
@@ -45,7 +45,7 @@ import org.springframework.cloud.skipper.SkipperException;
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
  */
-public class SpringBootAppKind {
+public class SpringCloudDeployerApplicationKind {
 
 	public static final String API_VERSION_STRING = "apiVersion";
 
@@ -61,9 +61,9 @@ public class SpringBootAppKind {
 
 	private Map<String, String> metadata;
 
-	private SpringBootAppSpec spec;
+	private SpringCloudDeployerApplicationSpec spec;
 
-	public SpringBootAppKind() {
+	public SpringCloudDeployerApplicationKind() {
 	}
 
 	public String getApiVersion() {
@@ -90,11 +90,11 @@ public class SpringBootAppKind {
 		this.metadata = metadata;
 	}
 
-	public SpringBootAppSpec getSpec() {
+	public SpringCloudDeployerApplicationSpec getSpec() {
 		return spec;
 	}
 
-	public void setSpec(SpringBootAppSpec spec) {
+	public void setSpec(SpringCloudDeployerApplicationSpec spec) {
 		this.spec = spec;
 	}
 
@@ -105,7 +105,7 @@ public class SpringBootAppKind {
 	 */
 	public String getApplicationName() {
 		if (!this.metadata.containsKey("name")) {
-			throw new SkipperException("SpringBootAppKind must define a 'name' property in the metadata");
+			throw new SkipperException("SpringCloudDeployerApplicationKind must define a 'name' property in the metadata");
 		}
 		return this.metadata.get("name");
 	}

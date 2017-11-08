@@ -31,46 +31,45 @@ import static org.assertj.core.api.Assertions.fail;
 /**
  * @author Mark Pollack
  */
-public class SpringBootAppKindReaderTests {
+public class SpringCloudDeployerApplicationKindReaderTests {
 
 	@Test
 	public void readTests() throws IOException {
 		String manifestAyml = StreamUtils.copyToString(
 				TestResourceUtils.qualifiedResource(getClass(), "manifest.yml").getInputStream(),
 				Charset.defaultCharset());
-		List<SpringBootAppKind> springBootAppKindList = SpringBootAppKindReader.read(manifestAyml);
+		List<SpringCloudDeployerApplicationKind> springCloudDeployerApplicationKindList = SpringCloudDeployerApplicationKindReader
+				.read(manifestAyml);
 
-		assertThat(springBootAppKindList).hasSize(2);
-		assertTimeOrLogApp(springBootAppKindList.get(0));
-		assertTimeOrLogApp(springBootAppKindList.get(1));
+		assertThat(springCloudDeployerApplicationKindList).hasSize(2);
+		assertTimeOrLogApp(springCloudDeployerApplicationKindList.get(0));
+		assertTimeOrLogApp(springCloudDeployerApplicationKindList.get(1));
 	}
 
-	private void assertTimeOrLogApp(SpringBootAppKind springBootAppKind) {
-		if (springBootAppKind.getMetadata().containsKey("name")) {
-			String name = springBootAppKind.getMetadata().get("name");
+	private void assertTimeOrLogApp(SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind) {
+		if (springCloudDeployerApplicationKind.getMetadata().containsKey("name")) {
+			String name = springCloudDeployerApplicationKind.getMetadata().get("name");
 			if (name.equals("time-source")) {
-				assertTime(springBootAppKind);
+				assertTime(springCloudDeployerApplicationKind);
 			}
 			else if (name.equals("log-sink")) {
-				assertLog(springBootAppKind);
+				assertLog(springCloudDeployerApplicationKind);
 			}
 			else {
-				fail("Unknwon application name");
+				fail("Unknown application name");
 			}
 		}
 	}
 
-	private void assertTime(SpringBootAppKind springBootAppKind) {
-		assertApiAndKind(springBootAppKind);
-		Map<String, String> metadata = springBootAppKind.getMetadata();
+	private void assertTime(SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind) {
+		assertApiAndKind(springCloudDeployerApplicationKind);
+		Map<String, String> metadata = springCloudDeployerApplicationKind.getMetadata();
 		assertThat(metadata).containsEntry("name", "time-source")
 				.containsEntry("count", "5")
 				.containsEntry("type", "source");
-		SpringBootAppSpec spec = springBootAppKind.getSpec();
+		SpringCloudDeployerApplicationSpec spec = springCloudDeployerApplicationKind.getSpec();
 		assertThat(spec.getResource())
 				.isEqualTo("maven://org.springframework.cloud.stream.app:time-source-rabbit:1.2.0.RELEASE");
-		assertThat(spec.getResourceMetadata()).isEqualTo(
-				"maven://org.springframework.cloud.stream.app:time-source-rabbit:jar:metadata:1.2.0.RELEASE");
 		assertThat(spec.getApplicationProperties()).hasSize(1);
 		assertThat(spec.getApplicationProperties()).containsEntry("log.level", "DEBUG");
 
@@ -80,17 +79,15 @@ public class SpringBootAppKindReaderTests {
 
 	}
 
-	private void assertLog(SpringBootAppKind springBootAppKind) {
-		assertApiAndKind(springBootAppKind);
-		Map<String, String> metadata = springBootAppKind.getMetadata();
+	private void assertLog(SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind) {
+		assertApiAndKind(springCloudDeployerApplicationKind);
+		Map<String, String> metadata = springCloudDeployerApplicationKind.getMetadata();
 		assertThat(metadata).containsEntry("name", "log-sink")
 				.containsEntry("count", "2")
 				.containsEntry("type", "sink");
-		SpringBootAppSpec spec = springBootAppKind.getSpec();
+		SpringCloudDeployerApplicationSpec spec = springCloudDeployerApplicationKind.getSpec();
 		assertThat(spec.getResource())
 				.isEqualTo("maven://org.springframework.cloud.stream.app:log-sink-rabbit:1.2.0.RELEASE");
-		assertThat(spec.getResourceMetadata())
-				.isEqualTo("maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:1.2.0.RELEASE");
 		assertThat(spec.getApplicationProperties()).hasSize(2);
 		assertThat(spec.getApplicationProperties()).containsEntry("log.level", "INFO");
 		assertThat(spec.getApplicationProperties()).containsEntry("log.expression", "hellobaby");
@@ -100,9 +97,9 @@ public class SpringBootAppKindReaderTests {
 		assertThat(spec.getDeploymentProperties()).containsEntry("disk", "2");
 	}
 
-	private void assertApiAndKind(SpringBootAppKind springBootAppKind) {
-		assertThat(springBootAppKind.getApiVersion()).isEqualTo("skipper/v1");
-		assertThat(springBootAppKind.getKind()).isEqualTo("SpringBootApp");
+	private void assertApiAndKind(SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind) {
+		assertThat(springCloudDeployerApplicationKind.getApiVersion()).isEqualTo("skipperPackageMetadata/v1");
+		assertThat(springCloudDeployerApplicationKind.getKind()).isEqualTo("SpringCloudDeployerApplication");
 	}
 
 }

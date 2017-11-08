@@ -1,5 +1,5 @@
-apiVersion: skipper/v1
-kind: SpringBootApp
+apiVersion: skipperPackageMetadata/v1
+kind: SpringCloudDeployerApplication
 metadata:
   {{#metadata.entrySet}}
   {{key}}: {{value}}

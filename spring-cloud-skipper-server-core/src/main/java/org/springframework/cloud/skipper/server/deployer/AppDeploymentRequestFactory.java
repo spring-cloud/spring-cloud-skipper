@@ -26,8 +26,8 @@ import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.server.domain.SpringBootAppKind;
-import org.springframework.cloud.skipper.server.domain.SpringBootAppSpec;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationKind;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationSpec;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
@@ -57,14 +57,14 @@ public class AppDeploymentRequestFactory {
 	/**
 	 * Creates an {@link AppDeploymentRequest}.
 	 *
-	 * @param springBootAppKind the boot app kind
+	 * @param springCloudDeployerApplicationKind the boot app kind
 	 * @param releaseName the release name
 	 * @param version the release version
 	 * @return a created AppDeploymentRequest
 	 */
-	public AppDeploymentRequest createAppDeploymentRequest(SpringBootAppKind springBootAppKind, String releaseName,
+	public AppDeploymentRequest createAppDeploymentRequest(SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind, String releaseName,
 			String version) {
-		SpringBootAppSpec spec = springBootAppKind.getSpec();
+		SpringCloudDeployerApplicationSpec spec = springCloudDeployerApplicationKind.getSpec();
 		Map<String, String> applicationProperties = new TreeMap<>();
 		if (spec.getApplicationProperties() != null) {
 			applicationProperties.putAll(spec.getApplicationProperties());
@@ -72,7 +72,7 @@ public class AppDeploymentRequestFactory {
 		// we need to keep group name same for consumer groups not getting broken, but
 		// app name needs to differentiate as otherwise it may result same deployment id and
 		// failure on a deployer.
-		AppDefinition appDefinition = new AppDefinition(springBootAppKind.getApplicationName() + "-v" + version,
+		AppDefinition appDefinition = new AppDefinition(springCloudDeployerApplicationKind.getApplicationName() + "-v" + version,
 				applicationProperties);
 		Resource resource;
 		try {
@@ -96,7 +96,7 @@ public class AppDeploymentRequestFactory {
 		return appDeploymentRequest;
 	}
 
-	String getResourceLocation(SpringBootAppSpec spec) {
+	String getResourceLocation(SpringCloudDeployerApplicationSpec spec) {
 		Assert.hasText(spec.getResource(), "Package template must define a resource uri");
 		String specResource = spec.getResource();
 		return (specResource.startsWith("maven") || specResource.startsWith("docker")) ? String

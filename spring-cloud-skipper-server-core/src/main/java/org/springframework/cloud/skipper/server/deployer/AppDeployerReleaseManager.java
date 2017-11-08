@@ -36,9 +36,9 @@ import org.springframework.cloud.skipper.domain.Status;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.server.deployer.strategies.UpgradeStrategy;
 import org.springframework.cloud.skipper.server.domain.AppDeployerData;
-import org.springframework.cloud.skipper.server.domain.SpringBootAppKind;
-import org.springframework.cloud.skipper.server.domain.SpringBootAppKindReader;
-import org.springframework.cloud.skipper.server.domain.SpringBootAppSpec;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationKind;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationKindReader;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationSpec;
 import org.springframework.cloud.skipper.server.repository.AppDeployerDataRepository;
 import org.springframework.cloud.skipper.server.repository.DeployerRepository;
 import org.springframework.cloud.skipper.server.repository.ReleaseRepository;
@@ -89,18 +89,19 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		Release release = this.releaseRepository.save(releaseInput);
 		logger.debug("Manifest = " + releaseInput.getManifest());
 		// Deploy the application
-		List<SpringBootAppKind> springBootAppKindList = SpringBootAppKindReader.read(release.getManifest());
+		List<SpringCloudDeployerApplicationKind> springCloudDeployerApplicationKindList = SpringCloudDeployerApplicationKindReader
+				.read(release.getManifest());
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
 				.getAppDeployer();
 		Map<String, String> appNameDeploymentIdMap = new HashMap<>();
-		for (SpringBootAppKind springBootAppKind : springBootAppKindList) {
+		for (SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind : springCloudDeployerApplicationKindList) {
 			AppDeploymentRequest appDeploymentRequest = this.appDeploymentRequestFactory.createAppDeploymentRequest(
-					springBootAppKind,
+					springCloudDeployerApplicationKind,
 					release.getName(),
 					String.valueOf(release.getVersion()));
 			try {
 				String deploymentId = appDeployer.deploy(appDeploymentRequest);
-				appNameDeploymentIdMap.put(springBootAppKind.getApplicationName(), deploymentId);
+				appNameDeploymentIdMap.put(springCloudDeployerApplicationKind.getApplicationName(), deploymentId);
 			}
 			catch (Exception e) {
 				// Update Status in DB
@@ -138,11 +139,11 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		 * Do some AppDeployer specific checks. These should be pushed down into the
 		 * implementations to fail fast.
 		 */
-		List<SpringBootAppKind> springBootAppKinds = SpringBootAppKindReader
+		List<SpringCloudDeployerApplicationKind> springCloudDeployerApplicationKinds = SpringCloudDeployerApplicationKindReader
 				.read(releaseInput.getManifest());
-		for (SpringBootAppKind springBootAppKind : springBootAppKinds) {
-			if (hasRoutePathProperty(springBootAppKind)) {
-				String route = springBootAppKind.getSpec().getDeploymentProperties()
+		for (SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind : springCloudDeployerApplicationKinds) {
+			if (hasRoutePathProperty(springCloudDeployerApplicationKind)) {
+				String route = springCloudDeployerApplicationKind.getSpec().getDeploymentProperties()
 						.get(CloudFoundryDeploymentProperties.ROUTE_PATH_PROPERTY);
 				if (!route.startsWith("/")) {
 					throw new SkipperException(
@@ -152,9 +153,9 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		}
 	}
 
-	private boolean hasRoutePathProperty(SpringBootAppKind springBootAppKind) {
-		if (springBootAppKind.getSpec().getDeploymentProperties() != null) {
-			return springBootAppKind.getSpec().getDeploymentProperties()
+	private boolean hasRoutePathProperty(SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind) {
+		if (springCloudDeployerApplicationKind.getSpec().getDeploymentProperties() != null) {
+			return springCloudDeployerApplicationKind.getSpec().getDeploymentProperties()
 					.containsKey(CloudFoundryDeploymentProperties.ROUTE_PATH_PROPERTY);
 		}
 		else {
@@ -229,10 +230,10 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 	}
 
 	private void updateCountProperty(Map<String, Object> model, String appsCount) {
-		Map<String, Object> specMap = (Map<String, Object>) model.getOrDefault(SpringBootAppKind.SPEC_STRING,
+		Map<String, Object> specMap = (Map<String, Object>) model.getOrDefault(SpringCloudDeployerApplicationKind.SPEC_STRING,
 				new TreeMap<String, Object>());
 		Map<String, Object> deploymentPropertiesMap = (Map<String, Object>) specMap
-				.get(SpringBootAppSpec.DEPLOYMENT_PROPERTIES_STRING);
+				.get(SpringCloudDeployerApplicationSpec.DEPLOYMENT_PROPERTIES_STRING);
 		// explicit null check instead of getOrDefault is required as deploymentProperties could
 		// have been explicitly
 		// set to null.
