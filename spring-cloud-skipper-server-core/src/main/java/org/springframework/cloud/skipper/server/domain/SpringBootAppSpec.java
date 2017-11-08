@@ -32,6 +32,8 @@ public class SpringBootAppSpec {
 
 	private String resource;
 
+	private String version;
+
 	private String resourceMetadata;
 
 	private Map<String, String> applicationProperties;
@@ -47,6 +49,14 @@ public class SpringBootAppSpec {
 
 	public void setResource(String resource) {
 		this.resource = resource;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public String getResourceMetadata() {

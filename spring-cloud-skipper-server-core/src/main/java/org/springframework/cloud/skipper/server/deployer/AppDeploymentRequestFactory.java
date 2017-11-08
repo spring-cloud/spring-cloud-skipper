@@ -36,6 +36,7 @@ import org.springframework.util.Assert;
  *
  * @author Mark Pollack
  * @author Janne Valkealahti
+ * @author Ilayaperumal Gopinathan
  */
 public class AppDeploymentRequestFactory {
 
@@ -73,11 +74,9 @@ public class AppDeploymentRequestFactory {
 		// failure on a deployer.
 		AppDefinition appDefinition = new AppDefinition(springBootAppKind.getApplicationName() + "-v" + version,
 				applicationProperties);
-
-		Assert.hasText(spec.getResource(), "Package template must define a resource uri");
 		Resource resource;
 		try {
-			resource = delegatingResourceLoader.getResource(spec.getResource());
+			resource = delegatingResourceLoader.getResource(getResourceLocation(spec));
 		}
 		catch (Exception e) {
 			throw new SkipperException(
@@ -95,6 +94,13 @@ public class AppDeploymentRequestFactory {
 		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(appDefinition, resource,
 				deploymentProperties);
 		return appDeploymentRequest;
+	}
+
+	String getResourceLocation(SpringBootAppSpec spec) {
+		Assert.hasText(spec.getResource(), "Package template must define a resource uri");
+		String specResource = spec.getResource();
+		return (specResource.startsWith("maven") || specResource.startsWith("docker")) ? String
+				.format("%s:%s", specResource, spec.getVersion()) : specResource;
 	}
 
 }
