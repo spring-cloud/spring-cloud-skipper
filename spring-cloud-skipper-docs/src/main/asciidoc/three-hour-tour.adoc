@@ -182,7 +182,7 @@ mypackage-1.0.0
 will commonly have the following content:
 
 ----
-apiVersion: skipperPackageMetadata/v1
+apiVersion: skipper/v1
 kind: SpringCloudDeployerApplication
 metadata:
   name: mypackage

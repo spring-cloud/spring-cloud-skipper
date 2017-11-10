@@ -69,7 +69,7 @@ packageSourceUrl: https://github.com/spring-cloud-stream-app-starters/log/tree/v
 packageHomeUrl: http://cloud.spring.io/spring-cloud-stream-app-starters/
 tags: logging, sink
 maintainer: https://github.com/sobychacko
-description: Docker version of the log sink application version
+description: Docker version of the log sink application
 
 ---
 apiVersion: v1

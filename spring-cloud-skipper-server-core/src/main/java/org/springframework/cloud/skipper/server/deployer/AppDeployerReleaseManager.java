@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +37,9 @@ import org.springframework.cloud.skipper.domain.Status;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.server.deployer.strategies.UpgradeStrategy;
 import org.springframework.cloud.skipper.server.domain.AppDeployerData;
-import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationKind;
-import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationKindReader;
+import org.springframework.cloud.skipper.server.domain.ApplicationManifest;
+import org.springframework.cloud.skipper.server.domain.ApplicationManifestReader;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationManifest;
 import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationSpec;
 import org.springframework.cloud.skipper.server.repository.AppDeployerDataRepository;
 import org.springframework.cloud.skipper.server.repository.DeployerRepository;
@@ -70,18 +72,22 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 
 	private final UpgradeStrategy upgradeStrategy;
 
+	private final ApplicationManifestReader applicationManifestReader;
+
 	public AppDeployerReleaseManager(ReleaseRepository releaseRepository,
 			AppDeployerDataRepository appDeployerDataRepository,
 			DeployerRepository deployerRepository,
 			ReleaseAnalyzer releaseAnalyzer,
 			AppDeploymentRequestFactory appDeploymentRequestFactory,
-			UpgradeStrategy updateStrategy) {
+			UpgradeStrategy updateStrategy,
+			ApplicationManifestReader applicationManifestReader) {
 		this.releaseRepository = releaseRepository;
 		this.appDeployerDataRepository = appDeployerDataRepository;
 		this.deployerRepository = deployerRepository;
 		this.releaseAnalyzer = releaseAnalyzer;
 		this.appDeploymentRequestFactory = appDeploymentRequestFactory;
 		this.upgradeStrategy = updateStrategy;
+		this.applicationManifestReader = applicationManifestReader;
 	}
 
 	public Release install(Release releaseInput) {
@@ -89,19 +95,20 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		Release release = this.releaseRepository.save(releaseInput);
 		logger.debug("Manifest = " + releaseInput.getManifest());
 		// Deploy the application
-		List<SpringCloudDeployerApplicationKind> springCloudDeployerApplicationKindList = SpringCloudDeployerApplicationKindReader
-				.read(release.getManifest());
+		List<? extends ApplicationManifest> applicationSpecList = this.applicationManifestReader.read(release.getManifest());
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
 				.getAppDeployer();
 		Map<String, String> appNameDeploymentIdMap = new HashMap<>();
-		for (SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind : springCloudDeployerApplicationKindList) {
+		for (ApplicationManifest applicationManifest : applicationSpecList) {
+			Assert.isTrue(applicationManifest instanceof SpringCloudDeployerApplicationManifest, "ApplicationManifest spec must use "
+					+ "Spring Cloud Deployer ApplicationManifest kind");
 			AppDeploymentRequest appDeploymentRequest = this.appDeploymentRequestFactory.createAppDeploymentRequest(
-					springCloudDeployerApplicationKind,
+					(SpringCloudDeployerApplicationManifest) applicationManifest,
 					release.getName(),
 					String.valueOf(release.getVersion()));
 			try {
 				String deploymentId = appDeployer.deploy(appDeploymentRequest);
-				appNameDeploymentIdMap.put(springCloudDeployerApplicationKind.getApplicationName(), deploymentId);
+				appNameDeploymentIdMap.put(applicationManifest.getApplicationName(), deploymentId);
 			}
 			catch (Exception e) {
 				// Update Status in DB
@@ -139,23 +146,25 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		 * Do some AppDeployer specific checks. These should be pushed down into the
 		 * implementations to fail fast.
 		 */
-		List<SpringCloudDeployerApplicationKind> springCloudDeployerApplicationKinds = SpringCloudDeployerApplicationKindReader
-				.read(releaseInput.getManifest());
-		for (SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind : springCloudDeployerApplicationKinds) {
-			if (hasRoutePathProperty(springCloudDeployerApplicationKind)) {
-				String route = springCloudDeployerApplicationKind.getSpec().getDeploymentProperties()
-						.get(CloudFoundryDeploymentProperties.ROUTE_PATH_PROPERTY);
-				if (!route.startsWith("/")) {
-					throw new SkipperException(
-							"Cloud Foundry routes must start with \"/\". Route passed = [" + route + "].");
+		List<? extends ApplicationManifest> applicationSpecs = this.applicationManifestReader.read(releaseInput.getManifest());
+		for (ApplicationManifest applicationManifest : applicationSpecs) {
+			if (applicationManifest instanceof SpringCloudDeployerApplicationManifest) {
+				SpringCloudDeployerApplicationManifest spec = (SpringCloudDeployerApplicationManifest) applicationManifest;
+				if (hasRoutePathProperty(spec)) {
+					String route = spec.getSpec().getDeploymentProperties()
+							.get(CloudFoundryDeploymentProperties.ROUTE_PATH_PROPERTY);
+					if (!route.startsWith("/")) {
+						throw new SkipperException(
+								"Cloud Foundry routes must start with \"/\". Route passed = [" + route + "].");
+					}
+				}
 				}
 			}
-		}
 	}
 
-	private boolean hasRoutePathProperty(SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind) {
-		if (springCloudDeployerApplicationKind.getSpec().getDeploymentProperties() != null) {
-			return springCloudDeployerApplicationKind.getSpec().getDeploymentProperties()
+	private boolean hasRoutePathProperty(SpringCloudDeployerApplicationManifest applicationSpec) {
+		if (applicationSpec.getSpec().getDeploymentProperties() != null) {
+			return applicationSpec.getSpec().getDeploymentProperties()
 					.containsKey(CloudFoundryDeploymentProperties.ROUTE_PATH_PROPERTY);
 		}
 		else {
@@ -230,7 +239,7 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 	}
 
 	private void updateCountProperty(Map<String, Object> model, String appsCount) {
-		Map<String, Object> specMap = (Map<String, Object>) model.getOrDefault(SpringCloudDeployerApplicationKind.SPEC_STRING,
+		Map<String, Object> specMap = (Map<String, Object>) model.getOrDefault(ApplicationManifest.SPEC_STRING,
 				new TreeMap<String, Object>());
 		Map<String, Object> deploymentPropertiesMap = (Map<String, Object>) specMap
 				.get(SpringCloudDeployerApplicationSpec.DEPLOYMENT_PROPERTIES_STRING);

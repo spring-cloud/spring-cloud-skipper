@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationKind;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationManifest;
 import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationSpec;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,14 +39,14 @@ public class AppDeploymentRequestFactoryTests {
 		DelegatingResourceLoader resourceLoader = mock(DelegatingResourceLoader.class);
 		AppDeploymentRequestFactory appDeploymentRequestFactory = new AppDeploymentRequestFactory(resourceLoader);
 		when(resourceLoader.getResource(anyString())).thenThrow(Exception.class);
-		SpringCloudDeployerApplicationKind springCloudDeployerApplicationKind = mock(SpringCloudDeployerApplicationKind.class);
+		SpringCloudDeployerApplicationManifest applicationSpec = mock(SpringCloudDeployerApplicationManifest.class);
 		SpringCloudDeployerApplicationSpec springCloudDeployerApplicationSpec = mock(SpringCloudDeployerApplicationSpec.class);
-		when(springCloudDeployerApplicationKind.getSpec()).thenReturn(springCloudDeployerApplicationSpec);
+		when(applicationSpec.getSpec()).thenReturn(springCloudDeployerApplicationSpec);
 		String specResource = "http://test";
 		when(springCloudDeployerApplicationSpec.getResource()).thenReturn(specResource);
 		when(springCloudDeployerApplicationSpec.getApplicationProperties()).thenReturn(null);
 		try {
-			appDeploymentRequestFactory.createAppDeploymentRequest(springCloudDeployerApplicationKind, "release1", "1.0.0");
+			appDeploymentRequestFactory.createAppDeploymentRequest(applicationSpec, "release1", "1.0.0");
 			fail("SkipperException is expected to be thrown.");
 		}
 		catch (SkipperException e) {

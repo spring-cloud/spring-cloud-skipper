@@ -15,7 +15,9 @@
  */
 package org.springframework.cloud.skipper.server.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -48,6 +50,9 @@ import org.springframework.cloud.skipper.server.deployer.strategies.HealthCheckP
 import org.springframework.cloud.skipper.server.deployer.strategies.HealthCheckStep;
 import org.springframework.cloud.skipper.server.deployer.strategies.SimpleRedBlackUpgradeStrategy;
 import org.springframework.cloud.skipper.server.deployer.strategies.UpgradeStrategy;
+import org.springframework.cloud.skipper.server.domain.ApplicationManifestReader;
+import org.springframework.cloud.skipper.server.domain.DelegatingApplicationManifestReader;
+import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationManifestReader;
 import org.springframework.cloud.skipper.server.index.PackageMetadataResourceProcessor;
 import org.springframework.cloud.skipper.server.index.PackageSummaryResourceProcessor;
 import org.springframework.cloud.skipper.server.index.SkipperControllerResourceProcessor;
@@ -206,9 +211,17 @@ public class SkipperServerConfiguration implements AsyncConfigurer {
 			DeployerRepository deployerRepository,
 			ReleaseAnalyzer releaseAnalyzer,
 			AppDeploymentRequestFactory appDeploymentRequestFactory,
-			UpgradeStrategy updateStrategy) {
+			UpgradeStrategy updateStrategy,
+			ApplicationManifestReader applicationManifestReader) {
 		return new AppDeployerReleaseManager(releaseRepository, appDeployerDataRepository, deployerRepository,
-				releaseAnalyzer, appDeploymentRequestFactory, updateStrategy);
+				releaseAnalyzer, appDeploymentRequestFactory, updateStrategy, applicationManifestReader);
+	}
+
+	@Bean
+	public ApplicationManifestReader applicationSpecReader() {
+		List<ApplicationManifestReader> applicationManifestReaders = new ArrayList();
+		applicationManifestReaders.add(new SpringCloudDeployerApplicationManifestReader());
+		return new DelegatingApplicationManifestReader(applicationManifestReaders);
 	}
 
 	@Bean
@@ -235,9 +248,10 @@ public class SkipperServerConfiguration implements AsyncConfigurer {
 	@Bean
 	public DeployAppStep DeployAppStep(DeployerRepository deployerRepository,
 			AppDeploymentRequestFactory appDeploymentRequestFactory,
-			AppDeployerDataRepository appDeployerDataRepository, ReleaseRepository releaseRepository) {
+			AppDeployerDataRepository appDeployerDataRepository, ReleaseRepository releaseRepository,
+			ApplicationManifestReader applicationManifestReader) {
 		return new DeployAppStep(deployerRepository, appDeploymentRequestFactory, appDeployerDataRepository,
-				releaseRepository);
+				releaseRepository, applicationManifestReader);
 	}
 
 	@Bean
@@ -268,8 +282,8 @@ public class SkipperServerConfiguration implements AsyncConfigurer {
 	}
 
 	@Bean
-	public ReleaseAnalyzer releaseAnalysisService() {
-		return new ReleaseAnalyzer();
+	public ReleaseAnalyzer releaseAnalysisService(ApplicationManifestReader applicationManifestReader) {
+		return new ReleaseAnalyzer(applicationManifestReader);
 	}
 
 	@Bean

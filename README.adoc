@@ -128,8 +128,8 @@ skipper:>manifest get --release-name mylog
 
 ---
 # Source: log.yml
-apiVersion: skipperPackageMetadata/v1
-kind: SpringCloudDeployerApplication
+apiVersion: skipper/v1
+kind: SpringBootApp
 metadata:
   name: log
   count: 1

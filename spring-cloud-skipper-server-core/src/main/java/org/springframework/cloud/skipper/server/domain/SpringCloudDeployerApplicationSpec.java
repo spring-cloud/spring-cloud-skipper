@@ -19,42 +19,22 @@ import java.util.Map;
 
 /**
  * Specification to handle applications that can be deployed into target platforms based on their Spring
- * Cloud Deployer implementations. Contained inside a {@link SpringCloudDeployerApplicationKind} instance.
+ * Cloud Deployer implementations. Contained inside a {@link SpringCloudDeployerApplicationManifest} instance.
  *
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
  */
-public class SpringCloudDeployerApplicationSpec {
+public class SpringCloudDeployerApplicationSpec extends ApplicationSpec {
 
 	public static final String APPLICATION_PROPERTIES_STRING = "applicationProperties";
 
 	public static final String DEPLOYMENT_PROPERTIES_STRING = "deploymentProperties";
-
-	private String resource;
-
-	private String version;
 
 	private Map<String, String> applicationProperties;
 
 	private Map<String, String> deploymentProperties;
 
 	public SpringCloudDeployerApplicationSpec() {
-	}
-
-	public String getResource() {
-		return resource;
-	}
-
-	public void setResource(String resource) {
-		this.resource = resource;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
 	}
 
 	public Map<String, String> getApplicationProperties() {

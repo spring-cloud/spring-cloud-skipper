@@ -1,6 +1,6 @@
 ---
 apiVersion: skipperPackageMetadata/v1
-kind: SpringCloudDeployerApplication
+kind: SpringBootApp1
 metadata:
   name: log-sink
   count: 2
