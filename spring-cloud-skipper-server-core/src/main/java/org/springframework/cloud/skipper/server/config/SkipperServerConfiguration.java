@@ -15,6 +15,7 @@
  */
 package org.springframework.cloud.skipper.server.config;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +31,10 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.deployer.resource.docker.DockerResourceLoader;
+import org.springframework.cloud.deployer.resource.maven.MavenProperties;
 import org.springframework.cloud.deployer.resource.maven.MavenResourceLoader;
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
+import org.springframework.cloud.deployer.resource.support.LRUCleaningResourceLoaderBeanPostProcessor;
 import org.springframework.cloud.skipper.io.DefaultPackageReader;
 import org.springframework.cloud.skipper.io.DefaultPackageWriter;
 import org.springframework.cloud.skipper.io.PackageReader;
@@ -165,6 +168,13 @@ public class SkipperServerConfiguration implements AsyncConfigurer {
 		loaders.put("docker", dockerLoader);
 		loaders.put("maven", mavenResourceLoader);
 		return new DelegatingResourceLoader(loaders);
+	}
+
+	@Bean
+	public LRUCleaningResourceLoaderBeanPostProcessor lruCleaningResourceLoaderBeanPostProcessor(
+			SkipperServerProperties skipperServerProperties, MavenProperties mavenProperties) {
+		return new LRUCleaningResourceLoaderBeanPostProcessor(skipperServerProperties.getFreeDiskSpacePercentage() / 100F,
+				new File(mavenProperties.getLocalRepository()));
 	}
 
 	@Bean

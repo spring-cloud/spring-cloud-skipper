@@ -99,8 +99,13 @@ public class AppDeploymentRequestFactory {
 	String getResourceLocation(SpringCloudDeployerApplicationSpec spec) {
 		Assert.hasText(spec.getResource(), "Package template must define a resource uri");
 		String specResource = spec.getResource();
-		return (specResource.startsWith("maven") || specResource.startsWith("docker")) ? String
-				.format("%s:%s", specResource, spec.getVersion()) : specResource;
+		if ((!specResource.startsWith("maven") && !specResource.startsWith("docker")) || spec.getVersion() == null) {
+			return specResource;
+		}
+		else {
+			return specResource.contains(":" + spec.getVersion()) ? specResource : String.format("%s:%s", specResource,
+					spec.getVersion());
+		}
 	}
 
 }
