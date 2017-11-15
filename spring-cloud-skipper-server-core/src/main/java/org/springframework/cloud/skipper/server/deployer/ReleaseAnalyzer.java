@@ -160,10 +160,13 @@ public class ReleaseAnalyzer {
 
 		String existingResource = existingApplicationManifest.getSpec().getResource().trim();
 		String replacingResource = replacingApplicationManifest.getSpec().getResource().trim();
-		String existingResourceWithVersion = String.format("%s:%s", existingResource,
-				existingApplicationManifest.getSpec().getVersion());
-		String replacingResourceWithVersion = String.format("%s:%s", replacingResource,
-				replacingApplicationManifest.getSpec().getVersion());
+		String existingResourceVersion = existingApplicationManifest.getSpec().getVersion();
+		String replacingResourceVersion = replacingApplicationManifest.getSpec().getVersion();
+
+		String existingResourceWithVersion = ResourceUtils.getResourceLocation(existingResource,
+				existingResourceVersion);
+		String replacingResourceWithVersion = ResourceUtils.getResourceLocation(replacingResource,
+				replacingResourceVersion);
 		if (!existingResourceWithVersion.equals(replacingResourceWithVersion)) {
 			String difference = String.format("Existing resource =[%s], Replacing name=[%s]", existingResource,
 					replacingResource);

@@ -31,6 +31,8 @@ import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplic
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
+import static org.springframework.cloud.skipper.server.deployer.ResourceUtils.getResourceLocation;
+
 /**
  * Factory managing {@link AppDeploymentRequest}s.
  *
@@ -76,7 +78,7 @@ public class AppDeploymentRequestFactory {
 				applicationProperties);
 		Resource resource;
 		try {
-			resource = delegatingResourceLoader.getResource(getResourceLocation(spec));
+			resource = delegatingResourceLoader.getResource(getResourceLocation(spec.getResource(), spec.getVersion()));
 		}
 		catch (Exception e) {
 			throw new SkipperException(
@@ -94,18 +96,6 @@ public class AppDeploymentRequestFactory {
 		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(appDefinition, resource,
 				deploymentProperties);
 		return appDeploymentRequest;
-	}
-
-	String getResourceLocation(SpringCloudDeployerApplicationSpec spec) {
-		Assert.hasText(spec.getResource(), "Package template must define a resource uri");
-		String specResource = spec.getResource();
-		if ((!specResource.startsWith("maven") && !specResource.startsWith("docker")) || spec.getVersion() == null) {
-			return specResource;
-		}
-		else {
-			return specResource.contains(":" + spec.getVersion()) ? specResource : String.format("%s:%s", specResource,
-					spec.getVersion());
-		}
 	}
 
 }

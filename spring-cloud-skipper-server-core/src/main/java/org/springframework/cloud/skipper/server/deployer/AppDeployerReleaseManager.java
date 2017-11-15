@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import io.jsonwebtoken.lang.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +45,7 @@ import org.springframework.cloud.skipper.server.repository.DeployerRepository;
 import org.springframework.cloud.skipper.server.repository.ReleaseRepository;
 import org.springframework.cloud.skipper.server.service.ConfigValueUtils;
 import org.springframework.cloud.skipper.server.service.ManifestUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
