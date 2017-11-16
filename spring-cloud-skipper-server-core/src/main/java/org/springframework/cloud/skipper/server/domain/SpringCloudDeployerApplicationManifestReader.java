@@ -29,25 +29,34 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.skipper.SkipperException;
 
 /**
- * Deserializes using Jackson a String to a {@link SpringBootAppKind} class. Sets
+ * Deserializes using Jackson a String to a given ApplicationManifest Kind class. Sets
  * {@literal DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES} to {@literal false} so
- * values in the YAML that are not represented in the SpringBootAppKind class will not
- * throw an exception in the deserialization process.
+ * values in the YAML that are not represented in the appKind class will not throw an
+ * exception in the deserialization process.
+ *
  * @author Mark Pollack
+ * @author Ilayaperumal Gopinathan
  */
-public abstract class SpringBootAppKindReader {
+public class SpringCloudDeployerApplicationManifestReader implements ApplicationManifestReader {
 
-	private final static Logger logger = LoggerFactory.getLogger(SpringBootAppKindReader.class);
+	private final static Logger logger = LoggerFactory.getLogger(SpringCloudDeployerApplicationManifestReader.class);
 
-	public static List<SpringBootAppKind> read(String manifest) {
-		List<SpringBootAppKind> springBootAppKindList = new ArrayList<>();
+	@Override
+	public String[] getSupportedKinds() {
+		return new String[] {"SpringCloudDeployerApplication", "SpringBootApp"};
+	}
+
+	@Override
+	public List<SpringCloudDeployerApplicationManifest> read(String manifest) {
+		List<SpringCloudDeployerApplicationManifest> applicationSpecs = new ArrayList<>();
 		YAMLMapper mapper = new YAMLMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
-			MappingIterator<SpringBootAppKind> it = mapper.readerFor(SpringBootAppKind.class).readValues(manifest);
+			MappingIterator<SpringCloudDeployerApplicationManifest> it = mapper
+					.readerFor(SpringCloudDeployerApplicationManifest.class).readValues(manifest);
 			while (it.hasNextValue()) {
-				SpringBootAppKind springBootAppKind = it.next();
-				springBootAppKindList.add(springBootAppKind);
+				SpringCloudDeployerApplicationManifest appKind = it.next();
+				applicationSpecs.add(appKind);
 			}
 		}
 		catch (JsonMappingException e) {
@@ -58,6 +67,6 @@ public abstract class SpringBootAppKindReader {
 			logger.error("Can't parse Package's manifest YAML = " + manifest);
 			throw new SkipperException("IOException - Can't parse Package's manifest YAML = " + manifest, e);
 		}
-		return springBootAppKindList;
+		return applicationSpecs;
 	}
 }

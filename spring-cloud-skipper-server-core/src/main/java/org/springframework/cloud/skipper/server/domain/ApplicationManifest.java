@@ -20,20 +20,20 @@ import java.util.Map;
 import org.springframework.cloud.skipper.SkipperException;
 
 /**
- * A kubernetes resource style representation of a Spring Boot application that will be
- * deployed using the Spring Cloud Deployer API.
+ * A kubernetes resource style representation of an application that will conform to the specification
+ * based on the application `kind`.
  *
  * This class is commonly referred to as 'the manifest', meaning the complete list of the
  * application resource, properties, metadata and deployment properties. It is
  * serialized/deserialized from YAML. An example is: {@literal
- * apiVersion: skipper/v1
- * kind: SpringBootApp
+ * apiVersion: skipperPackageMetadata/v1
+ * kind: SpringCloudDeployerApplication
  * metadata:
  *   name: log-sink
  *   type: sink
  * spec:
- * resource: maven://org.springframework.cloud.stream.app:log-sink-rabbit:1.2.0.RELEASE
- * resourceMetadata: maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:1.2.0.RELEASE
+ * resource: maven://org.springframework.cloud.stream.app:log-sink-rabbit
+ * version: 1.2.0.RELEASE
  * applicationProperties:
  *  log.level: INFO
  *  log.expression: hellobaby
@@ -45,7 +45,7 @@ import org.springframework.cloud.skipper.SkipperException;
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
  */
-public class SpringBootAppKind {
+public class ApplicationManifest {
 
 	public static final String API_VERSION_STRING = "apiVersion";
 
@@ -61,9 +61,9 @@ public class SpringBootAppKind {
 
 	private Map<String, String> metadata;
 
-	private SpringBootAppSpec spec;
+	protected ApplicationSpec spec;
 
-	public SpringBootAppKind() {
+	public ApplicationManifest() {
 	}
 
 	public String getApiVersion() {
@@ -90,11 +90,11 @@ public class SpringBootAppKind {
 		this.metadata = metadata;
 	}
 
-	public SpringBootAppSpec getSpec() {
+	public ApplicationSpec getSpec() {
 		return spec;
 	}
 
-	public void setSpec(SpringBootAppSpec spec) {
+	public void setSpec(ApplicationSpec spec) {
 		this.spec = spec;
 	}
 
@@ -105,7 +105,7 @@ public class SpringBootAppKind {
 	 */
 	public String getApplicationName() {
 		if (!this.metadata.containsKey("name")) {
-			throw new SkipperException("SpringBootAppKind must define a 'name' property in the metadata");
+			throw new SkipperException("ApplicationManifest must define a 'name' property in the metadata");
 		}
 		return this.metadata.get("name");
 	}
