@@ -30,6 +30,7 @@ import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.oauth2.authserver.AuthorizationServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.authserver.OAuth2AuthorizationServerConfiguration;
+import org.springframework.boot.autoconfigure.session.SessionAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.deployer.spi.cloudfoundry.CloudFoundryDeployerAutoConfiguration;
 import org.springframework.cloud.deployer.spi.kubernetes.KubernetesAutoConfiguration;
@@ -61,7 +62,8 @@ import org.springframework.web.bind.annotation.RestController;
 		LocalDeployerAutoConfiguration.class,
 		IntegrationAutoConfiguration.class,
 		CloudFoundryDeployerAutoConfiguration.class,
-		KubernetesAutoConfiguration.class
+		KubernetesAutoConfiguration.class,
+		SessionAutoConfiguration.class
 })
 public class OAuth2TestServer {
 

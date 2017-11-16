@@ -1,8 +1,11 @@
+
 info:
   app:
     name: "@project.artifactId@"
     version: "@project.version@"
 management:
+  security:
+    roles: MANAGE
   context-path: /actuator
 server:
   port: 7577
@@ -100,7 +103,7 @@ spring:
 
             # Boot Endpoints
 
-            - GET  /actuator/**                     => hasRole('ROLE_ACTUATOR')
+            - GET  /actuator/**                     => hasRole('ROLE_MANAGE')
 
   mustache:
     check-template-location: false

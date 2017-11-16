@@ -16,7 +16,6 @@
 package org.springframework.cloud.skipper.server.config.security;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -27,13 +26,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
+import org.springframework.cloud.common.security.AuthorizationProperties;
+import org.springframework.cloud.common.security.ManualOAuthAuthenticationProvider;
+import org.springframework.cloud.common.security.support.DefaultAuthoritiesExtractor;
+import org.springframework.cloud.common.security.support.OnSecurityEnabledAndOAuth2Enabled;
+import org.springframework.cloud.common.security.support.SecurityConfigUtils;
+import org.springframework.cloud.common.security.support.SecurityStateBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -52,12 +55,8 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
-import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
-import org.springframework.web.accept.HeaderContentNegotiationStrategy;
-import org.springframework.web.context.request.NativeWebRequest;
 
 /**
  * Setup Spring Security OAuth for the Rest Endpoints of Spring Cloud Data Flow.
@@ -97,9 +96,6 @@ public class OAuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
-		final RequestMatcher textHtmlMatcher = new MediaTypeRequestMatcher(
-				new BrowserDetectingContentNegotiationStrategy(),
-				MediaType.TEXT_HTML);
 		final BasicAuthenticationEntryPoint basicAuthenticationEntryPoint = new BasicAuthenticationEntryPoint();
 		basicAuthenticationEntryPoint.setRealmName(securityProperties.getBasic().getRealm());
 		basicAuthenticationEntryPoint.afterPropertiesSet();
@@ -134,10 +130,11 @@ public class OAuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.logoutSuccessUrl(dashboard("/logout-success-oauth.html"))
 				.and().csrf().disable()
 				.exceptionHandling()
+				.defaultAuthenticationEntryPointFor(basicAuthenticationEntryPoint, new AntPathRequestMatcher("/api/**"))
+				.defaultAuthenticationEntryPointFor(basicAuthenticationEntryPoint, new AntPathRequestMatcher("/actuator/**"))
 				.defaultAuthenticationEntryPointFor(
 						new LoginUrlAuthenticationEntryPoint(this.authorizationProperties.getLoginProcessingUrl()),
-						textHtmlMatcher)
-				.defaultAuthenticationEntryPointFor(basicAuthenticationEntryPoint, AnyRequestMatcher.INSTANCE);
+						AnyRequestMatcher.INSTANCE);
 		this.securityStateBean.setAuthenticationEnabled(true);
 	}
 
@@ -204,20 +201,4 @@ public class OAuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return this.authorizationProperties.getDashboardUrl() + path;
 	}
 
-	private static class BrowserDetectingContentNegotiationStrategy extends HeaderContentNegotiationStrategy {
-
-		@Override
-		public List<MediaType> resolveMediaTypes(NativeWebRequest request)
-				throws HttpMediaTypeNotAcceptableException {
-			final List<MediaType> supportedMediaTypes = super.resolveMediaTypes(request);
-
-			final String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
-			if (userAgent != null && userAgent.contains("Mozilla/5.0")
-					&& !supportedMediaTypes.contains(MediaType.APPLICATION_JSON)) {
-
-				return Collections.singletonList(MediaType.TEXT_HTML);
-			}
-			return Collections.singletonList(MediaType.APPLICATION_JSON);
-		}
-	}
 }
