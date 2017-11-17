@@ -17,7 +17,7 @@ package org.springframework.cloud.skipper;
 
 import java.io.File;
 
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
 
 /**
  * Utility methods used by Skipper.
@@ -26,7 +26,7 @@ import org.springframework.cloud.skipper.domain.PackageMetadata;
  */
 public class SkipperUtils {
 
-	public static File calculatePackageZipFile(PackageMetadata packageMetadata, File targetPath) {
+	public static File calculatePackageZipFile(SkipperPackageMetadata packageMetadata, File targetPath) {
 		return new File(targetPath, packageMetadata.getName() + "-" + packageMetadata.getVersion() + ".zip");
 	}
 }

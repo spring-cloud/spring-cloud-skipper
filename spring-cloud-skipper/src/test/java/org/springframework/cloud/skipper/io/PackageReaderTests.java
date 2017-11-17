@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
 import org.springframework.cloud.skipper.domain.Package;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
@@ -48,7 +48,7 @@ public class PackageReaderTests {
 
 	@SuppressWarnings("unchecked")
 	private void assertTickTockPackage(Package pkg) {
-		PackageMetadata metadata = pkg.getMetadata();
+		SkipperPackageMetadata metadata = pkg.getMetadata();
 		assertThat(metadata.getApiVersion()).isEqualTo("v1");
 		assertThat(metadata.getKind()).isEqualTo("skipper");
 		assertThat(metadata.getName()).isEqualTo("ticktock");
@@ -80,7 +80,7 @@ public class PackageReaderTests {
 	}
 
 	private void assertLogPackage(Package pkg) {
-		PackageMetadata metadata = pkg.getMetadata();
+		SkipperPackageMetadata metadata = pkg.getMetadata();
 		assertThat(metadata.getApiVersion()).isEqualTo("v1");
 		assertThat(metadata.getKind()).isEqualTo("skipper");
 		assertThat(metadata.getName()).isEqualTo("log");
@@ -96,7 +96,7 @@ public class PackageReaderTests {
 	}
 
 	private void assertTimePackage(Package pkg) {
-		PackageMetadata metadata = pkg.getMetadata();
+		SkipperPackageMetadata metadata = pkg.getMetadata();
 		assertThat(metadata.getApiVersion()).isEqualTo("v1");
 		assertThat(metadata.getKind()).isEqualTo("skipper");
 		assertThat(metadata.getName()).isEqualTo("time");

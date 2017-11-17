@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 
 /**
  * @author Mark Pollack
@@ -33,7 +33,7 @@ public interface ReleaseRepositoryCustom {
 	 * @return the Release object
 	 * @throws {@link ReleaseNotFoundException} if no Release for the given name can be found.
 	 */
-	Release findLatestRelease(String releaseName);
+	SkipperRelease findLatestRelease(String releaseName);
 
 	/**
 	 * Find the latest in time, release object, by name and with the deployed status.
@@ -41,7 +41,7 @@ public interface ReleaseRepositoryCustom {
 	 * @return the Release object
 	 * @throws {@link ReleaseNotFoundException} if no deployed Release for the given name can be found.
 	 */
-	Release findLatestDeployedRelease(String releaseName);
+	SkipperRelease findLatestDeployedRelease(String releaseName);
 
 	/**
 	 * Find the latest in time, release object, by name whose status is neither unknown nor failed.
@@ -51,7 +51,7 @@ public interface ReleaseRepositoryCustom {
 	 * @throws {@link ReleaseNotFoundException} if no latest Release (with the deployed/deleted status) for the given
 	 * name can be found.
 	 */
-	Release findLatestReleaseForUpdate(String releaseName);
+	SkipperRelease findLatestReleaseForUpdate(String releaseName);
 
 	/**
 	 * Find the release to rollback from the existing version.
@@ -60,7 +60,7 @@ public interface ReleaseRepositoryCustom {
 	 * @return the Release object to rollback to
 	 * @throws {@link ReleaseNotFoundException} if no latest Release found to rollback to.
 	 */
-	Release findReleaseToRollback(String releaseName);
+	SkipperRelease findReleaseToRollback(String releaseName);
 
 	/**
 	 * Find the release for the given release name and version
@@ -69,7 +69,7 @@ public interface ReleaseRepositoryCustom {
 	 * @return {@link ReleaseNotFoundException} if no Release for the given name and version
 	 * can be found.
 	 */
-	Release findByNameAndVersion(String releaseName, int version);
+	SkipperRelease findByNameAndVersion(String releaseName, int version);
 
 	/**
 	 * Find the revisions of the release, by name.
@@ -78,7 +78,7 @@ public interface ReleaseRepositoryCustom {
 	 * @return the list of Releases with their revisions as history
 	 * @throws SkipperException if no Release for the given name can be found.
 	 */
-	List<Release> findReleaseRevisions(String releaseName, int revisions);
+	List<SkipperRelease> findReleaseRevisions(String releaseName, int revisions);
 
 	/**
 	 * Find the latest status (deployed or failed) of the release, by the name.
@@ -86,7 +86,7 @@ public interface ReleaseRepositoryCustom {
 	 * @return list of releases (by the given name) that has the latest revision with the
 	 * state either deployed or failed.
 	 */
-	List<Release> findLatestDeployedOrFailed(String releaseName);
+	List<SkipperRelease> findLatestDeployedOrFailed(String releaseName);
 
 	/**
 	 * Find the latest status (deployed or failed) of all the releases.
@@ -94,7 +94,7 @@ public interface ReleaseRepositoryCustom {
 	 * @return list of releases that has the latest revision with the state either deployed or
 	 * failed.
 	 */
-	List<Release> findLatestDeployedOrFailed();
+	List<SkipperRelease> findLatestDeployedOrFailed();
 
 	/**
 	 * Return the release by the given name if the most recent status of the release is
@@ -104,6 +104,6 @@ public interface ReleaseRepositoryCustom {
 	 * @return if the latest status of the release is deleted then the release is returned,
 	 * otherwise null.
 	 */
-	Release findLatestReleaseIfDeleted(String releaseName);
+	SkipperRelease findLatestReleaseIfDeleted(String releaseName);
 
 }

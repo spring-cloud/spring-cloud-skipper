@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -50,7 +50,7 @@ public class ManifestDocumentation extends BaseDocumentation {
 		installRequest.setPackageIdentifier(packageIdentifier);
 		installRequest.setInstallProperties(createInstallProperties(releaseName));
 
-		final Release release = installPackage(installRequest);
+		final SkipperRelease release = installPackage(installRequest);
 
 		final MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
 				MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
@@ -75,7 +75,7 @@ public class ManifestDocumentation extends BaseDocumentation {
 		installRequest.setPackageIdentifier(packageIdentifier);
 		installRequest.setInstallProperties(createInstallProperties(releaseName));
 
-		final Release release = installPackage(installRequest);
+		final SkipperRelease release = installPackage(installRequest);
 
 		this.mockMvc.perform(
 				get("/api/manifest/{releaseName}/{releaseVersion}",

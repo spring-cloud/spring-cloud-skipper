@@ -19,8 +19,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -38,8 +38,8 @@ public class PackageMetadataRepositoryImpl implements PackageMetadataRepositoryC
 	private RepositoryRepository repositoryRepository;
 
 	@Override
-	public PackageMetadata findByNameAndVersionByMaxRepoOrder(String packageName, String packageVersion) {
-		List<PackageMetadata> packageMetadataList = this.packageMetadataRepository
+	public SkipperPackageMetadata findByNameAndVersionByMaxRepoOrder(String packageName, String packageVersion) {
+		List<SkipperPackageMetadata> packageMetadataList = this.packageMetadataRepository
 				.findByNameAndVersionOrderByApiVersionDesc(packageName,
 						packageVersion);
 		if (packageMetadataList.size() == 0) {
@@ -48,10 +48,10 @@ public class PackageMetadataRepositoryImpl implements PackageMetadataRepositoryC
 		if (packageMetadataList.size() == 1) {
 			return packageMetadataList.get(0);
 		}
-		List<Repository> repositoriesByRepoOrder = this.repositoryRepository.findAllByOrderByRepoOrderDesc();
-		for (Repository repository : repositoriesByRepoOrder) {
+		List<SkipperRepository> repositoriesByRepoOrder = this.repositoryRepository.findAllByOrderByRepoOrderDesc();
+		for (SkipperRepository repository : repositoriesByRepoOrder) {
 			Long repoId = repository.getId();
-			for (PackageMetadata packageMetadata : packageMetadataList) {
+			for (SkipperPackageMetadata packageMetadata : packageMetadataList) {
 				if ((packageMetadata.getRepositoryId() != null) && packageMetadata.getRepositoryId().equals(repoId)) {
 					return packageMetadata;
 				}
@@ -63,8 +63,8 @@ public class PackageMetadataRepositoryImpl implements PackageMetadataRepositoryC
 	}
 
 	@Override
-	public List<PackageMetadata> findByNameRequired(String packageName) {
-		List<PackageMetadata> packageMetadata = this.packageMetadataRepository.findByName(packageName);
+	public List<SkipperPackageMetadata> findByNameRequired(String packageName) {
+		List<SkipperPackageMetadata> packageMetadata = this.packageMetadataRepository.findByName(packageName);
 		if (packageMetadata.isEmpty()) {
 			throw new SkipperException(String.format("Can not find a package named '%s'", packageName));
 		}
@@ -72,9 +72,9 @@ public class PackageMetadataRepositoryImpl implements PackageMetadataRepositoryC
 	}
 
 	@Override
-	public PackageMetadata findByNameAndOptionalVersionRequired(String packageName, String packageVersion) {
+	public SkipperPackageMetadata findByNameAndOptionalVersionRequired(String packageName, String packageVersion) {
 		Assert.isTrue(StringUtils.hasText(packageName), "Package name must not be empty");
-		PackageMetadata packageMetadata;
+		SkipperPackageMetadata packageMetadata;
 		if (StringUtils.hasText(packageVersion)) {
 			packageMetadata = this.packageMetadataRepository.findByNameAndVersionByMaxRepoOrder(packageName,
 					packageVersion);

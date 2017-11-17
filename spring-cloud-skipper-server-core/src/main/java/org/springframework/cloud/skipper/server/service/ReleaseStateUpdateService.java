@@ -20,8 +20,8 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.cloud.skipper.domain.Info;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.server.deployer.ReleaseManager;
 import org.springframework.cloud.skipper.server.repository.ReleaseRepository;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -72,9 +72,9 @@ public class ReleaseStateUpdateService {
 			this.nextFullPoll = getNextFullPoll();
 			log.debug("Setup next full poll at {}", new Date(this.nextFullPoll));
 		}
-		Iterable<Release> releases = this.releaseRepository.findLatestDeployedOrFailed();
-		for (Release release : releases) {
-			Info info = release.getInfo();
+		Iterable<SkipperRelease> releases = this.releaseRepository.findLatestDeployedOrFailed();
+		for (SkipperRelease release : releases) {
+			SkipperInfo info = release.getInfo();
 			if (checkInfo(info)) {
 				// poll new apps every time or we do full poll anyway
 				boolean isNewApp = (info.getLastDeployed().getTime() > (now - 120000));
@@ -102,7 +102,7 @@ public class ReleaseStateUpdateService {
 		}
 	}
 
-	private boolean checkInfo(Info info) {
+	private boolean checkInfo(SkipperInfo info) {
 		if (info == null) {
 			throw new IllegalStateException("Info can not be null.");
 		}

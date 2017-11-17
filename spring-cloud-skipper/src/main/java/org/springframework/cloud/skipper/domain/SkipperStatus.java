@@ -45,7 +45,7 @@ import org.springframework.cloud.deployer.spi.app.DeploymentState;
  * @author Mark Pollack
  */
 @Entity
-public class Status extends AbstractEntity {
+public class SkipperStatus extends AbstractEntity {
 
 	// Status from the Release managment platform
 	@Enumerated(EnumType.STRING)
@@ -55,7 +55,7 @@ public class Status extends AbstractEntity {
 	@Lob
 	private String platformStatus;
 
-	public Status() {
+	public SkipperStatus() {
 	}
 
 	public StatusCode getStatusCode() {

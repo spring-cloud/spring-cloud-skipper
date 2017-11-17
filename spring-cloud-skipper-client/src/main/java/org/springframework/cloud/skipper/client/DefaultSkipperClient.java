@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.cloud.skipper.domain.AboutInfo;
 import org.springframework.cloud.skipper.domain.Deployer;
-import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallRequest;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.cloud.skipper.domain.Template;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.domain.UploadRequest;
@@ -118,19 +118,19 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public Info status(String releaseName) {
+	public SkipperInfo status(String releaseName) {
 		Map<String, String> uriVariables = new HashMap<String, String>();
 		uriVariables.put("releaseName", releaseName);
-		return this.restTemplate.getForObject(baseUri + "/status/{releaseName}", Info.class, uriVariables);
+		return this.restTemplate.getForObject(baseUri + "/status/{releaseName}", SkipperInfo.class, uriVariables);
 	}
 
 	@Override
-	public Info status(String releaseName, int releaseVersion) {
+	public SkipperInfo status(String releaseName, int releaseVersion) {
 		Map<String, String> uriVariables = new HashMap<String, String>();
 		uriVariables.put("releaseName", releaseName);
 		uriVariables.put("releaseVersion", Integer.toString(releaseVersion));
 		return this.restTemplate.getForObject(baseUri + "/status/{releaseName}/{releaseVersion}",
-				Info.class, uriVariables);
+				SkipperInfo.class, uriVariables);
 	}
 
 	@Override
@@ -150,8 +150,8 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public Resources<PackageMetadata> search(String name, boolean details) {
-		ParameterizedTypeReference<Resources<PackageMetadata>> typeReference = new ParameterizedTypeReference<Resources<PackageMetadata>>() {
+	public Resources<SkipperPackageMetadata> search(String name, boolean details) {
+		ParameterizedTypeReference<Resources<SkipperPackageMetadata>> typeReference = new ParameterizedTypeReference<Resources<SkipperPackageMetadata>>() {
 		};
 		Traverson.TraversalBuilder traversalBuilder = this.traverson.follow("packageMetadata");
 		Map<String, Object> parameters = new HashMap<>();
@@ -168,33 +168,33 @@ public class DefaultSkipperClient implements SkipperClient {
 		return traversalBuilder.withTemplateParameters(parameters).toObject(typeReference);
 	}
 
-	public Release install(InstallRequest installRequest) {
+	public SkipperRelease install(InstallRequest installRequest) {
 		String url = String.format("%s/%s", baseUri, "install");
-		return this.restTemplate.postForObject(url, installRequest, Release.class);
+		return this.restTemplate.postForObject(url, installRequest, SkipperRelease.class);
 	}
 
 	@Override
-	public Release upgrade(UpgradeRequest upgradeRequest) {
+	public SkipperRelease upgrade(UpgradeRequest upgradeRequest) {
 		String url = String.format("%s/%s", baseUri, "upgrade");
 		log.debug("Posting UpgradeRequest to " + url + ". UpgradeRequest = " + upgradeRequest);
-		return this.restTemplate.postForObject(url, upgradeRequest, Release.class);
+		return this.restTemplate.postForObject(url, upgradeRequest, SkipperRelease.class);
 	}
 
 	@Override
-	public Release delete(String releaseName) {
+	public SkipperRelease delete(String releaseName) {
 		String url = String.format("%s/%s/%s", baseUri, "delete", releaseName);
-		return this.restTemplate.postForObject(url, null, Release.class);
+		return this.restTemplate.postForObject(url, null, SkipperRelease.class);
 	}
 
 	@Override
-	public Release rollback(String releaseName, int releaseVersion) {
+	public SkipperRelease rollback(String releaseName, int releaseVersion) {
 		String url = String.format("%s/%s/%s/%s", baseUri, "rollback", releaseName, releaseVersion);
-		return this.restTemplate.postForObject(url, null, Release.class);
+		return this.restTemplate.postForObject(url, null, SkipperRelease.class);
 	}
 
 	@Override
-	public List<Release> list(String releaseNameLike) {
-		ParameterizedTypeReference<List<Release>> typeReference = new ParameterizedTypeReference<List<Release>>() {
+	public List<SkipperRelease> list(String releaseNameLike) {
+		ParameterizedTypeReference<List<SkipperRelease>> typeReference = new ParameterizedTypeReference<List<SkipperRelease>>() {
 		};
 		String url;
 		if (StringUtils.hasText(releaseNameLike)) {
@@ -207,8 +207,8 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public List<Release> history(String releaseName, String maxRevisions) {
-		ParameterizedTypeReference<List<Release>> typeReference = new ParameterizedTypeReference<List<Release>>() {
+	public List<SkipperRelease> history(String releaseName, String maxRevisions) {
+		ParameterizedTypeReference<List<SkipperRelease>> typeReference = new ParameterizedTypeReference<List<SkipperRelease>>() {
 		};
 		Map<String, Object> parameters = new HashMap<>();
 		String url = String.format("%s/%s/%s/%s", baseUri, "history", releaseName, maxRevisions);
@@ -216,8 +216,8 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public Resources<Release> history(String releaseName) {
-		ParameterizedTypeReference<Resources<Release>> typeReference = new ParameterizedTypeReference<Resources<Release>>() {
+	public Resources<SkipperRelease> history(String releaseName) {
+		ParameterizedTypeReference<Resources<SkipperRelease>> typeReference = new ParameterizedTypeReference<Resources<SkipperRelease>>() {
 		};
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("name", releaseName);
@@ -227,23 +227,23 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public Repository addRepository(String name, String rootUrl, String sourceUrl) {
+	public SkipperRepository addRepository(String name, String rootUrl, String sourceUrl) {
 		String url = String.format("%s/%s", baseUri, "repositories");
-		Repository repository = new Repository();
+		SkipperRepository repository = new SkipperRepository();
 		repository.setName(name);
 		repository.setUrl(rootUrl);
 		repository.setSourceUrl(sourceUrl);
-		return this.restTemplate.postForObject(url, repository, Repository.class);
+		return this.restTemplate.postForObject(url, repository, SkipperRepository.class);
 	}
 
 	@Override
 	public void deleteRepository(String name) {
-		ParameterizedTypeReference<Resource<Repository>> typeReference = new ParameterizedTypeReference<Resource<Repository>>() {
+		ParameterizedTypeReference<Resource<SkipperRepository>> typeReference = new ParameterizedTypeReference<Resource<SkipperRepository>>() {
 		};
 		Traverson.TraversalBuilder traversalBuilder = this.traverson.follow("repositories", "search", "findByName");
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("name", name);
-		Resource<Repository> repositoryResource = traversalBuilder.withTemplateParameters(parameters)
+		Resource<SkipperRepository> repositoryResource = traversalBuilder.withTemplateParameters(parameters)
 				.toObject(typeReference);
 		if (repositoryResource != null) {
 			this.restTemplate.delete(repositoryResource.getId().getHref());
@@ -254,8 +254,8 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public Resources<Repository> listRepositories() {
-		ParameterizedTypeReference<Resources<Repository>> typeReference = new ParameterizedTypeReference<Resources<Repository>>() {
+	public Resources<SkipperRepository> listRepositories() {
+		ParameterizedTypeReference<Resources<SkipperRepository>> typeReference = new ParameterizedTypeReference<Resources<SkipperRepository>>() {
 		};
 		Traverson.TraversalBuilder traversalBuilder = this.traverson.follow("repositories");
 		Map<String, Object> parameters = new HashMap<>();
@@ -274,11 +274,11 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public PackageMetadata upload(UploadRequest uploadRequest) {
+	public SkipperPackageMetadata upload(UploadRequest uploadRequest) {
 		String url = String.format("%s/%s", baseUri, "upload");
 		log.debug("Uploading package {}-{} to repository {}.", uploadRequest.getName(), uploadRequest.getVersion(),
 				uploadRequest.getRepoName());
-		return this.restTemplate.postForObject(url, uploadRequest, PackageMetadata.class);
+		return this.restTemplate.postForObject(url, uploadRequest, SkipperPackageMetadata.class);
 	}
 
 	protected Traverson createTraverson(String baseUrl) {

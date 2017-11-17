@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 
 /**
@@ -33,8 +33,8 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	private ReleaseRepository releaseRepository;
 
 	@Override
-	public Release findLatestRelease(String releaseName) {
-		Release latestRelease = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
+	public SkipperRelease findLatestRelease(String releaseName) {
+		SkipperRelease latestRelease = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
 		if (latestRelease == null) {
 			throw new ReleaseNotFoundException(releaseName);
 		}
@@ -42,9 +42,9 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	}
 
 	@Override
-	public Release findLatestDeployedRelease(String releaseName) {
-		List<Release> releases = this.releaseRepository.findByNameOrderByVersionDesc(releaseName);
-		for (Release release : releases) {
+	public SkipperRelease findLatestDeployedRelease(String releaseName) {
+		List<SkipperRelease> releases = this.releaseRepository.findByNameOrderByVersionDesc(releaseName);
+		for (SkipperRelease release : releases) {
 			if (release.getInfo().getStatus().getStatusCode().equals(StatusCode.DEPLOYED)) {
 				return release;
 			}
@@ -53,9 +53,9 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	}
 
 	@Override
-	public Release findLatestReleaseForUpdate(String releaseName) {
-		List<Release> releases = this.releaseRepository.findByNameOrderByVersionDesc(releaseName);
-		for (Release release : releases) {
+	public SkipperRelease findLatestReleaseForUpdate(String releaseName) {
+		List<SkipperRelease> releases = this.releaseRepository.findByNameOrderByVersionDesc(releaseName);
+		for (SkipperRelease release : releases) {
 			if (release.getInfo().getStatus().getStatusCode().equals(StatusCode.DEPLOYED) ||
 					release.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) {
 				return release;
@@ -65,10 +65,10 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	}
 
 	@Override
-	public Release findReleaseToRollback(String releaseName) {
-		Release latestRelease = this.releaseRepository.findLatestReleaseForUpdate(releaseName);
-		List<Release> releases = this.releaseRepository.findByNameOrderByVersionDesc(releaseName);
-		for (Release release : releases) {
+	public SkipperRelease findReleaseToRollback(String releaseName) {
+		SkipperRelease latestRelease = this.releaseRepository.findLatestReleaseForUpdate(releaseName);
+		List<SkipperRelease> releases = this.releaseRepository.findByNameOrderByVersionDesc(releaseName);
+		for (SkipperRelease release : releases) {
 			if ((release.getInfo().getStatus().getStatusCode().equals(StatusCode.DEPLOYED) ||
 					release.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) &&
 					release.getVersion() != latestRelease.getVersion()) {
@@ -79,11 +79,11 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	}
 
 	@Override
-	public Release findByNameAndVersion(String releaseName, int version) {
-		Iterable<Release> releases = this.releaseRepository.findAll();
+	public SkipperRelease findByNameAndVersion(String releaseName, int version) {
+		Iterable<SkipperRelease> releases = this.releaseRepository.findAll();
 
-		Release matchingRelease = null;
-		for (Release release : releases) {
+		SkipperRelease matchingRelease = null;
+		for (SkipperRelease release : releases) {
 			if (release.getName().equals(releaseName) && release.getVersion() == version) {
 				matchingRelease = release;
 				break;
@@ -96,7 +96,7 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	}
 
 	@Override
-	public List<Release> findReleaseRevisions(String releaseName, int revisions) {
+	public List<SkipperRelease> findReleaseRevisions(String releaseName, int revisions) {
 		int latestVersion = findLatestRelease(releaseName).getVersion();
 		int lowerVersion = latestVersion - Integer.valueOf(revisions);
 		return this.releaseRepository.findByNameAndVersionBetweenOrderByNameAscVersionDesc(releaseName,
@@ -104,18 +104,18 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	}
 
 	@Override
-	public List<Release> findLatestDeployedOrFailed(String releaseName) {
+	public List<SkipperRelease> findLatestDeployedOrFailed(String releaseName) {
 		return getDeployedOrFailed(this.releaseRepository.findByNameIgnoreCaseContaining(releaseName));
 	}
 
 	@Override
-	public List<Release> findLatestDeployedOrFailed() {
+	public List<SkipperRelease> findLatestDeployedOrFailed() {
 		return getDeployedOrFailed(this.releaseRepository.findAll());
 	}
 
-	private List<Release> getDeployedOrFailed(Iterable<Release> allReleases) {
-		List<Release> releases = new ArrayList<>();
-		for (Release release : allReleases) {
+	private List<SkipperRelease> getDeployedOrFailed(Iterable<SkipperRelease> allReleases) {
+		List<SkipperRelease> releases = new ArrayList<>();
+		for (SkipperRelease release : allReleases) {
 			StatusCode releaseStatusCode = release.getInfo().getStatus().getStatusCode();
 			if (releaseStatusCode.equals(StatusCode.DEPLOYED) || releaseStatusCode.equals(StatusCode.FAILED)) {
 				releases.add(release);
@@ -125,8 +125,8 @@ public class ReleaseRepositoryImpl implements ReleaseRepositoryCustom {
 	}
 
 	@Override
-	public Release findLatestReleaseIfDeleted(String releaseName) {
-		Release latestRelease = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
+	public SkipperRelease findLatestReleaseIfDeleted(String releaseName) {
+		SkipperRelease latestRelease = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
 		return (latestRelease != null &&
 				latestRelease.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) ? latestRelease : null;
 	}

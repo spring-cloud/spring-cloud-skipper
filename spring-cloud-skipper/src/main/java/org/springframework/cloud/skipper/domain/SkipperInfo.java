@@ -27,10 +27,10 @@ import javax.persistence.OneToOne;
  * @author Mark Pollack
  */
 @Entity
-public class Info extends AbstractEntity {
+public class SkipperInfo extends AbstractEntity {
 
 	@OneToOne(cascade = { CascadeType.ALL })
-	private Status status;
+	private SkipperStatus status;
 
 	private Date firstDeployed;
 
@@ -42,14 +42,14 @@ public class Info extends AbstractEntity {
 	// Description is human-friendly "log entry" about this release.
 	private String description;
 
-	public Info() {
+	public SkipperInfo() {
 	}
 
-	public Status getStatus() {
+	public SkipperStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(SkipperStatus status) {
 		this.status = status;
 	}
 
@@ -91,11 +91,11 @@ public class Info extends AbstractEntity {
 	 * @param description a string describing the general info status at a level finer than StatusCode
 	 * @return a new Info object
 	 */
-	public static Info createNewInfo(String description) {
-		Info info = new Info();
+	public static SkipperInfo createNewInfo(String description) {
+		SkipperInfo info = new SkipperInfo();
 		info.setFirstDeployed(new Date());
 		info.setLastDeployed(new Date());
-		Status status = new Status();
+		SkipperStatus status = new SkipperStatus();
 		status.setStatusCode(StatusCode.UNKNOWN);
 		info.setStatus(status);
 		info.setDescription(description);

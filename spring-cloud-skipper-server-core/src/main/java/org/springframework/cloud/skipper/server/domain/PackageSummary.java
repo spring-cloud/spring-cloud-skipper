@@ -15,7 +15,7 @@
  */
 package org.springframework.cloud.skipper.server.domain;
 
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
 import org.springframework.data.rest.core.config.Projection;
 
 /**
@@ -28,7 +28,7 @@ import org.springframework.data.rest.core.config.Projection;
  * model entity.
  * @author Mark Pollack
  */
-@Projection(name = "summary", types = { PackageMetadata.class })
+@Projection(name = "summary", types = { SkipperPackageMetadata.class })
 public interface PackageSummary {
 
 	String getId();

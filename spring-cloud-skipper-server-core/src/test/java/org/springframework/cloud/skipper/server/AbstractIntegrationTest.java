@@ -33,9 +33,9 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.EmbeddedDataSourceConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallRequest;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.server.config.SkipperServerConfiguration;
@@ -103,7 +103,7 @@ public abstract class AbstractIntegrationTest extends AbstractAssertReleaseDeplo
 		// should go away once we introduce spring state machine.
 		try {
 			Thread.sleep(5000);
-			for (Release release : releaseRepository.findAll()) {
+			for (SkipperRelease release : releaseRepository.findAll()) {
 				if (release.getInfo().getStatus().getStatusCode() != StatusCode.DELETED) {
 					try {
 						logger.info("After test clean up, deleting release " + release.getName());
@@ -129,9 +129,9 @@ public abstract class AbstractIntegrationTest extends AbstractAssertReleaseDeplo
 		try {
 			logger.info("Checking status of release={} version={}", releaseName, releaseVersion);
 			// retrieve status from underlying AppDeployer
-			Release release = this.releaseManager
+			SkipperRelease release = this.releaseManager
 					.status(releaseRepository.findByNameAndVersion(releaseName, releaseVersion));
-			Info info = release.getInfo();
+			SkipperInfo info = release.getInfo();
 
 			logger.info("Status = " + info.getStatus());
 			return info.getStatus().getStatusCode().equals(StatusCode.DEPLOYED) &&
@@ -143,27 +143,27 @@ public abstract class AbstractIntegrationTest extends AbstractAssertReleaseDeplo
 		}
 	}
 
-	protected Release install(InstallRequest installRequest) throws InterruptedException {
-		Release release = releaseService.install(installRequest);
+	protected SkipperRelease install(InstallRequest installRequest) throws InterruptedException {
+		SkipperRelease release = releaseService.install(installRequest);
 		assertReleaseIsDeployedSuccessfully(release.getName(), release.getVersion());
 		return release;
 	}
 
-	protected Release upgrade(UpgradeRequest upgradeRequest) throws InterruptedException {
-		Release release = releaseService.upgrade(upgradeRequest);
+	protected SkipperRelease upgrade(UpgradeRequest upgradeRequest) throws InterruptedException {
+		SkipperRelease release = releaseService.upgrade(upgradeRequest);
 		assertReleaseIsDeployedSuccessfully(release.getName(), release.getVersion());
 		return release;
 	}
 
-	protected Release rollback(String releaseName, int releaseVersion) throws InterruptedException {
-		Release release = releaseService.rollback(releaseName, releaseVersion);
+	protected SkipperRelease rollback(String releaseName, int releaseVersion) throws InterruptedException {
+		SkipperRelease release = releaseService.rollback(releaseName, releaseVersion);
 		// Need to use the value of version passed back from calling rollback,
 		// since 0 implies most recent deleted release
 		assertReleaseIsDeployedSuccessfully(release.getName(), release.getVersion());
 		return release;
 	}
 
-	protected Release delete(String releaseName) {
+	protected SkipperRelease delete(String releaseName) {
 		logger.info("Deleting release {}", releaseName);
 		return releaseService.delete(releaseName);
 	}

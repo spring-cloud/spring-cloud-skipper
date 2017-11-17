@@ -19,11 +19,11 @@ import java.util.List;
 
 import org.springframework.cloud.skipper.domain.AboutInfo;
 import org.springframework.cloud.skipper.domain.Deployer;
-import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallRequest;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.cloud.skipper.domain.Template;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.domain.UploadRequest;
@@ -58,21 +58,21 @@ public interface SkipperClient {
 	 * @param details boolean flag to fetch all the metadata
 	 * @return the package metadata with the projection set to summary
 	 */
-	Resources<PackageMetadata> search(String name, boolean details);
+	Resources<SkipperPackageMetadata> search(String name, boolean details);
 
 	/**
 	 * Install the package
 	 * @param installRequest the package install request
-	 * @return the installed {@link Release}
+	 * @return the installed {@link SkipperRelease}
 	 */
-	Release install(InstallRequest installRequest);
+	SkipperRelease install(InstallRequest installRequest);
 
 	/**
 	 * Upgrade a release.
 	 * @param upgradeRequest the request to upgrade the release
-	 * @return the upgraded {@link Release}
+	 * @return the upgraded {@link SkipperRelease}
 	 */
-	Release upgrade(UpgradeRequest upgradeRequest);
+	SkipperRelease upgrade(UpgradeRequest upgradeRequest);
 
 	/*
 	 * Upload the package.
@@ -80,24 +80,24 @@ public interface SkipperClient {
 	 * @param uploadRequest the properties for the package upload
 	 * @return package metadata for the uploaded package
 	 */
-	PackageMetadata upload(UploadRequest uploadRequest);
+	SkipperPackageMetadata upload(UploadRequest uploadRequest);
 
 	/**
 	 * Delete a specific release.
 	 *
 	 * @param releaseName the release name
-	 * @return the deleted {@link Release}
+	 * @return the deleted {@link SkipperRelease}
 	 */
-	Release delete(String releaseName);
+	SkipperRelease delete(String releaseName);
 
 	/**
 	 * Rollback a specific release.
 	 *
 	 * @param releaseName the release name
 	 * @param releaseVersion the release version
-	 * @return the rolled back {@link Release}
+	 * @return the rolled back {@link SkipperRelease}
 	 */
-	Release rollback(String releaseName, int releaseVersion);
+	SkipperRelease rollback(String releaseName, int releaseVersion);
 
 	/**
 	 * List the latest version of releases with status of deployed or failed.
@@ -105,7 +105,7 @@ public interface SkipperClient {
 	 * @param releaseNameLike the wildcard name of releases to search for
 	 * @return the list of all matching releases
 	 */
-	List<Release> list(String releaseNameLike);
+	List<SkipperRelease> list(String releaseNameLike);
 
 	/**
 	 * List the history of versions for a given release.
@@ -114,7 +114,7 @@ public interface SkipperClient {
 	 * @param maxRevisions the maximum number of revisions to get
 	 * @return the list of all releases by the given name and revisions max.
 	 */
-	List<Release> history(String releaseName, String maxRevisions);
+	List<SkipperRelease> history(String releaseName, String maxRevisions);
 
 	/**
 	 * List all releases for the given release name.
@@ -122,7 +122,7 @@ public interface SkipperClient {
 	 * @param releaseName the release name of the release to search for
 	 * @return the list of all releases by the given name
 	 */
-	Resources<Release> history(String releaseName);
+	Resources<SkipperRelease> history(String releaseName);
 
 	/**
 	 * Add a new Package Repository.
@@ -132,7 +132,7 @@ public interface SkipperClient {
 	 * @param sourceUrl the source URL for the packages
 	 * @return the newly added Repository
 	 */
-	Repository addRepository(String name, String rootUrl, String sourceUrl);
+	SkipperRepository addRepository(String name, String rootUrl, String sourceUrl);
 
 	/**
 	 * Delete a Package Repository.
@@ -146,7 +146,7 @@ public interface SkipperClient {
 	 *
 	 * @return the list of package repositories
 	 */
-	Resources<Repository> listRepositories();
+	Resources<SkipperRepository> listRepositories();
 
 	/**
 	 * List Platform Deployers
@@ -161,7 +161,7 @@ public interface SkipperClient {
 	 * @param releaseName the release name
 	 * @return the status info of a release
 	 */
-	Info status(String releaseName);
+	SkipperInfo status(String releaseName);
 
 	/**
 	 * Return a status info of a release version.
@@ -170,7 +170,7 @@ public interface SkipperClient {
 	 * @param releaseVersion the release version
 	 * @return the status info of a release
 	 */
-	Info status(String releaseName, int releaseVersion);
+	SkipperInfo status(String releaseName, int releaseVersion);
 
 	/**
 	 * Return the manifest of the last known release. For packages with dependencies, the

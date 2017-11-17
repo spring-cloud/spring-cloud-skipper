@@ -24,10 +24,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.app.DeploymentState;
-import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.cloud.skipper.domain.Status;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
+import org.springframework.cloud.skipper.domain.SkipperStatus;
 import org.springframework.cloud.skipper.domain.StatusCode;
-import org.springframework.cloud.skipper.server.domain.AppDeployerData;
+import org.springframework.cloud.skipper.server.domain.SkipperAppDeployerData;
 import org.springframework.cloud.skipper.server.repository.DeployerRepository;
 import org.springframework.cloud.skipper.server.repository.ReleaseRepository;
 
@@ -49,7 +49,7 @@ public class DeleteStep {
 		this.deployerRepository = deployerRepository;
 	}
 
-	public Release delete(Release release, AppDeployerData existingAppDeployerData,
+	public SkipperRelease delete(SkipperRelease release, SkipperAppDeployerData existingAppDeployerData,
 			List<String> applicationNamesToDelete) {
 
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
@@ -70,7 +70,7 @@ public class DeleteStep {
 			}
 		}
 
-		Status deletedStatus = new Status();
+		SkipperStatus deletedStatus = new SkipperStatus();
 		deletedStatus.setStatusCode(StatusCode.DELETED);
 		release.getInfo().setStatus(deletedStatus);
 		release.getInfo().setDescription("Delete complete");

@@ -15,7 +15,7 @@
  */
 package org.springframework.cloud.skipper.server.deployer.strategies;
 
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.server.deployer.ReleaseAnalysisReport;
 
 /**
@@ -36,6 +36,6 @@ public interface UpgradeStrategy {
 	 * @param releaseAnalysisReport report to guide the strategy on what apps to replace.
 	 * @return the replacingRelease, now deployed.
 	 */
-	Release upgrade(Release existingRelease, Release replacingRelease, ReleaseAnalysisReport releaseAnalysisReport);
+	SkipperRelease upgrade(SkipperRelease existingRelease, SkipperRelease replacingRelease, ReleaseAnalysisReport releaseAnalysisReport);
 
 }

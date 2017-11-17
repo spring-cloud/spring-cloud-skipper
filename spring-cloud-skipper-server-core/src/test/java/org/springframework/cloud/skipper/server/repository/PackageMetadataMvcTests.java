@@ -18,7 +18,7 @@ package org.springframework.cloud.skipper.server.repository;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
 import org.springframework.cloud.skipper.server.AbstractMockMvcTests;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -47,7 +47,7 @@ public class PackageMetadataMvcTests extends AbstractMockMvcTests {
 	@Test
 	public void testProjection() throws Exception {
 		PackageMetadataCreator.createTwoPackages(packageMetadataRepository);
-		PackageMetadata packageMetadata = packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("package1", "1.0.0");
+		SkipperPackageMetadata packageMetadata = packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("package1", "1.0.0");
 		assertThat(packageMetadata.getId()).isNotNull();
 		packageMetadata = packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("package2", "2.0.0");
 		assertThat(packageMetadata.getId()).isNotNull();

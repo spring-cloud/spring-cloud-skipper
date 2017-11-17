@@ -36,7 +36,7 @@ import org.zeroturnaround.zip.ZipUtil;
 import org.springframework.cloud.skipper.TestResourceUtils;
 import org.springframework.cloud.skipper.domain.ConfigValues;
 import org.springframework.cloud.skipper.domain.Package;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
 import org.springframework.cloud.skipper.domain.Template;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -88,7 +88,7 @@ public class PackageWriterTests {
 		Package pkg = new Package();
 
 		// Add package metadata
-		PackageMetadata packageMetadata = new PackageMetadata();
+		SkipperPackageMetadata packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setName("myapp");
 		packageMetadata.setVersion("1.0.0");
 		packageMetadata.setMaintainer("bob");

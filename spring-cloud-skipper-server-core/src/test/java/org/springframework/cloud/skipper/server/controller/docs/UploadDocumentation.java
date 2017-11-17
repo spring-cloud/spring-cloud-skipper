@@ -20,7 +20,7 @@ import java.nio.charset.Charset;
 
 import org.junit.Test;
 
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.cloud.skipper.domain.UploadRequest;
 import org.springframework.cloud.skipper.server.repository.RepositoryRepository;
 import org.springframework.core.io.ClassPathResource;
@@ -48,7 +48,7 @@ public class UploadDocumentation extends BaseDocumentation {
 	@Test
 	public void uploadRelease() throws Exception {
 
-		final Repository repository = new Repository();
+		final SkipperRepository repository = new SkipperRepository();
 		repository.setName("database-repo");
 		repository.setUrl("http://example.com/repository/");
 		super.context.getBean(RepositoryRepository.class).save(repository);

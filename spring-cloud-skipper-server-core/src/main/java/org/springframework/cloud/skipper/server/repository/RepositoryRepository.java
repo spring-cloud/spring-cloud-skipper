@@ -17,7 +17,7 @@ package org.springframework.cloud.skipper.server.repository;
 
 import java.util.List;
 
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -26,16 +26,16 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
  */
-@RepositoryRestResource(path = "repositories", collectionResourceRel = "repositories")
-public interface RepositoryRepository extends PagingAndSortingRepository<Repository, Long> {
+@RepositoryRestResource(path = "repositories", collectionResourceRel = "repositories", itemResourceRel = "repository")
+public interface RepositoryRepository extends PagingAndSortingRepository<SkipperRepository, Long> {
 
-	Repository findByName(@Param("name") String name);
+	SkipperRepository findByName(@Param("name") String name);
 
 	/**
 	 * Get all the repositories with their repository order in descending order.
 	 *
 	 * @return the list of repositories
 	 */
-	List<Repository> findAllByOrderByRepoOrderDesc();
+	List<SkipperRepository> findAllByOrderByRepoOrderDesc();
 
 }

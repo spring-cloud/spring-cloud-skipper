@@ -23,13 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.Package;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.server.deployer.ReleaseAnalysisReport;
@@ -92,10 +92,10 @@ public class ReleaseService {
 	 * @throws SkipperException if the package to install can not be found.
 	 */
 	@Transactional
-	public Release install(Long id, InstallProperties installProperties) {
+	public SkipperRelease install(Long id, InstallProperties installProperties) {
 		Assert.notNull(installProperties, "Deploy properties can not be null");
 		Assert.notNull(id, "Package id can not be null");
-		PackageMetadata packageMetadata = this.packageMetadataRepository.findOne(id);
+		SkipperPackageMetadata packageMetadata = this.packageMetadataRepository.findOne(id);
 		if (packageMetadata == null) {
 			throw new SkipperException(String.format("Package with id='%s' can not be found.", id));
 		}
@@ -110,14 +110,14 @@ public class ReleaseService {
 	 * @return the Release object associated with this deployment
 	 */
 	@Transactional
-	public Release install(InstallRequest installRequest) {
+	public SkipperRelease install(InstallRequest installRequest) {
 		validateInstallRequest(installRequest);
 		PackageIdentifier packageIdentifier = installRequest.getPackageIdentifier();
 		String packageVersion = packageIdentifier.getPackageVersion();
 		String packageName = packageIdentifier.getPackageName();
-		PackageMetadata packageMetadata;
+		SkipperPackageMetadata packageMetadata;
 		if (!StringUtils.hasText(packageVersion)) {
-			List<PackageMetadata> packageMetadataList = this.packageMetadataRepository.findByNameRequired(packageName);
+			List<SkipperPackageMetadata> packageMetadataList = this.packageMetadataRepository.findByNameRequired(packageName);
 			if (packageMetadataList.size() == 1) {
 				packageMetadata = packageMetadataList.get(0);
 			}
@@ -142,7 +142,7 @@ public class ReleaseService {
 		Assert.isTrue(StringUtils.hasText(installRequest.getPackageIdentifier().getPackageName()),
 				"Package name must not be empty");
 		try {
-			Release latestRelease = this.releaseRepository.findLatestRelease(installRequest.getInstallProperties()
+			SkipperRelease latestRelease = this.releaseRepository.findLatestRelease(installRequest.getInstallProperties()
 					.getReleaseName());
 			if (latestRelease != null &&
 					!latestRelease.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) {
@@ -156,9 +156,9 @@ public class ReleaseService {
 		}
 	}
 
-	protected Release install(PackageMetadata packageMetadata, InstallProperties installProperties) {
+	protected SkipperRelease install(SkipperPackageMetadata packageMetadata, InstallProperties installProperties) {
 		Assert.notNull(packageMetadata, "Can't download package, PackageMetadata is a null value.");
-		Release existingDeletedRelease = this.releaseRepository
+		SkipperRelease existingDeletedRelease = this.releaseRepository
 				.findLatestReleaseIfDeleted(installProperties.getReleaseName());
 		int releaseVersion;
 		if (existingDeletedRelease != null) {
@@ -169,19 +169,19 @@ public class ReleaseService {
 		else {
 			releaseVersion = 1;
 		}
-		Release release = createInitialRelease(installProperties, this.packageService.downloadPackage(packageMetadata),
+		SkipperRelease release = createInitialRelease(installProperties, this.packageService.downloadPackage(packageMetadata),
 				releaseVersion);
 		return install(release);
 	}
 
-	protected Release install(Release release) {
+	protected SkipperRelease install(SkipperRelease release) {
 		Map<String, Object> mergedMap = ConfigValueUtils.mergeConfigValues(release.getPkg(), release.getConfigValues());
 		// Render yaml resources
 		String manifest = ManifestUtils.createManifest(release.getPkg(), mergedMap);
 		logger.debug("Manifest = " + manifest);
 		release.setManifest(manifest);
 		// Deployment
-		Release releaseToReturn = this.releaseManager.install(release);
+		SkipperRelease releaseToReturn = this.releaseManager.install(release);
 		return releaseToReturn;
 	}
 
@@ -191,9 +191,9 @@ public class ReleaseService {
 	 * @return the state of the release after requesting a deletion
 	 */
 	@Transactional
-	public Release delete(String releaseName) {
+	public SkipperRelease delete(String releaseName) {
 		Assert.notNull(releaseName, "Release name must not be null");
-		Release release = this.releaseRepository.findLatestDeployedRelease(releaseName);
+		SkipperRelease release = this.releaseRepository.findLatestDeployedRelease(releaseName);
 		return this.releaseManager.delete(release);
 	}
 
@@ -203,8 +203,8 @@ public class ReleaseService {
 	 * @return The latest state of the release as stored in the database
 	 */
 	@Transactional
-	public Info status(String releaseName) {
-		Release release = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
+	public SkipperInfo status(String releaseName) {
+		SkipperRelease release = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
 		if (release == null) {
 			throw new ReleaseNotFoundException(releaseName);
 		}
@@ -223,7 +223,7 @@ public class ReleaseService {
 	 * @return The latest state of the release as stored in the database
 	 */
 	@Transactional
-	public Info status(String releaseName, Integer version) {
+	public SkipperInfo status(String releaseName, Integer version) {
 		return status(this.releaseRepository.findByNameAndVersion(releaseName, version)).getInfo();
 	}
 
@@ -234,7 +234,7 @@ public class ReleaseService {
 	 */
 	@Transactional
 	public String manifest(String releaseName) {
-		Release release = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
+		SkipperRelease release = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
 		if (release == null) {
 			throw new ReleaseNotFoundException(releaseName);
 		}
@@ -253,7 +253,7 @@ public class ReleaseService {
 		return this.releaseRepository.findByNameAndVersion(releaseName, version).getManifest();
 	}
 
-	private Release status(Release release) {
+	private SkipperRelease status(SkipperRelease release) {
 		return this.releaseManager.status(release);
 	}
 
@@ -264,15 +264,15 @@ public class ReleaseService {
 	 * @param upgradeRequest The update request
 	 * @return the initially created release object
 	 */
-	public Release upgrade(UpgradeRequest upgradeRequest) {
+	public SkipperRelease upgrade(UpgradeRequest upgradeRequest) {
 		ReleaseAnalysisReport releaseAnalysisReport = this.releaseReportService.createReport(upgradeRequest);
 		// This is expected to be executed on another thread.
 		this.releaseManager.upgrade(releaseAnalysisReport);
 		return releaseAnalysisReport.getReplacingRelease();
 	}
 
-	protected Info createNewInfo() {
-		return Info.createNewInfo("Initial install underway");
+	protected SkipperInfo createNewInfo() {
+		return SkipperInfo.createNewInfo("Initial install underway");
 	}
 
 	/**
@@ -284,17 +284,17 @@ public class ReleaseService {
 	 * then rollback to the previous release.
 	 * @return the Release
 	 */
-	public Release rollback(final String releaseName, final int rollbackVersion) {
+	public SkipperRelease rollback(final String releaseName, final int rollbackVersion) {
 		Assert.notNull(releaseName, "Release name must not be null");
 		Assert.isTrue(rollbackVersion >= 0,
 				"Rollback version can not be less than zero.  Value = " + rollbackVersion);
 
-		Release currentRelease = this.releaseRepository.findLatestReleaseForUpdate(releaseName);
+		SkipperRelease currentRelease = this.releaseRepository.findLatestReleaseForUpdate(releaseName);
 		Assert.notNull(currentRelease, "Could not find release = [" + releaseName + "]");
 
 		// Determine with version to rollback to
 		int rollbackVersionToUse = rollbackVersion;
-		Release releaseToRollback = null;
+		SkipperRelease releaseToRollback = null;
 		if (rollbackVersion == 0) {
 			releaseToRollback = this.releaseRepository.findReleaseToRollback(releaseName);
 		}
@@ -311,7 +311,7 @@ public class ReleaseService {
 		logger.info("Rolling back releaseName={}.  Current version={}, Target version={}", releaseName,
 				currentRelease.getVersion(), rollbackVersionToUse);
 
-		Release newRollbackRelease = new Release();
+		SkipperRelease newRollbackRelease = new SkipperRelease();
 		newRollbackRelease.setName(releaseName);
 		newRollbackRelease.setPkg(releaseToRollback.getPkg());
 		newRollbackRelease.setManifest(releaseToRollback.getManifest());
@@ -328,7 +328,7 @@ public class ReleaseService {
 		}
 	}
 
-	private Release upgrade(Release existingRelease, Release replacingRelease) {
+	private SkipperRelease upgrade(SkipperRelease existingRelease, SkipperRelease replacingRelease) {
 		ReleaseAnalysisReport releaseAnalysisReport = this.releaseManager.createReport(existingRelease,
 				replacingRelease);
 		// This is expected to be executed on another thread.
@@ -336,15 +336,15 @@ public class ReleaseService {
 		return status(releaseAnalysisReport.getReplacingRelease());
 	}
 
-	protected Release createInitialRelease(InstallProperties installProperties, Package packageToInstall,
+	protected SkipperRelease createInitialRelease(InstallProperties installProperties, Package packageToInstall,
 			int releaseVersion) {
-		Release release = new Release();
+		SkipperRelease release = new SkipperRelease();
 		release.setName(installProperties.getReleaseName());
 		release.setPlatformName(installProperties.getPlatformName());
 		release.setConfigValues(installProperties.getConfigValues());
 		release.setPkg(packageToInstall);
 		release.setVersion(releaseVersion);
-		Info info = createNewInfo();
+		SkipperInfo info = createNewInfo();
 		release.setInfo(info);
 		validateInitialRelease(release);
 		return release;
@@ -354,7 +354,7 @@ public class ReleaseService {
 	 * Do up front checks before deploying
 	 * @param release the initial release object this data provided by the end user.
 	 */
-	protected void validateInitialRelease(Release release) {
+	protected void validateInitialRelease(SkipperRelease release) {
 		this.deployerRepository.findByNameRequired(release.getPlatformName());
 	}
 
@@ -365,7 +365,7 @@ public class ReleaseService {
 	 * @param maxRevisions the maximum number of revisions to get
 	 * @return the list of all releases by the given name and revisions max.
 	 */
-	public List<Release> history(String releaseName, int maxRevisions) {
+	public List<SkipperRelease> history(String releaseName, int maxRevisions) {
 		return this.releaseRepository.findReleaseRevisions(releaseName, maxRevisions);
 	}
 
@@ -375,7 +375,7 @@ public class ReleaseService {
 	 * @param releaseNameLike the wildcard name of releases to search for
 	 * @return the list of all matching releases
 	 */
-	public List<Release> list(String releaseNameLike) {
+	public List<SkipperRelease> list(String releaseNameLike) {
 		return this.releaseRepository.findLatestDeployedOrFailed(releaseNameLike);
 	}
 
@@ -384,7 +384,7 @@ public class ReleaseService {
 	 *
 	 * @return the list of all matching releases
 	 */
-	public List<Release> list() {
+	public List<SkipperRelease> list() {
 		return this.releaseRepository.findLatestDeployedOrFailed();
 	}
 

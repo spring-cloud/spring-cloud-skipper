@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -50,7 +50,7 @@ public class StatusDocumentation extends BaseDocumentation {
 		installRequest.setPackageIdentifier(packageIdentifier);
 		installRequest.setInstallProperties(createInstallProperties(releaseName));
 
-		final Release release = installPackage(installRequest);
+		final SkipperRelease release = installPackage(installRequest);
 
 		this.mockMvc.perform(
 				get("/api/status/{releaseName}", release.getName())).andDo(print())
@@ -80,7 +80,7 @@ public class StatusDocumentation extends BaseDocumentation {
 		installRequest.setPackageIdentifier(packageIdentifier);
 		installRequest.setInstallProperties(createInstallProperties(releaseName));
 
-		final Release release = installPackage(installRequest);
+		final SkipperRelease release = installPackage(installRequest);
 
 		this.mockMvc.perform(
 				get("/api/status/{releaseName}/{releaseVersion}",

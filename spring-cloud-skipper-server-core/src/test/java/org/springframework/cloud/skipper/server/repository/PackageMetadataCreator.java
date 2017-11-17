@@ -15,7 +15,7 @@
  */
 package org.springframework.cloud.skipper.server.repository;
 
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
 
 /**
  * @author Mark Pollack
@@ -23,7 +23,7 @@ import org.springframework.cloud.skipper.domain.PackageMetadata;
 public class PackageMetadataCreator {
 
 	public static void createTwoPackages(PackageMetadataRepository repository) {
-		PackageMetadata packageMetadata = new PackageMetadata();
+		SkipperPackageMetadata packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setApiVersion("1");
 		packageMetadata.setOrigin("www.package-repos.com/repo1");
 		packageMetadata.setRepositoryId(1L);
@@ -34,7 +34,7 @@ public class PackageMetadataCreator {
 		packageMetadata.setDescription("A very cool project");
 		packageMetadata.setMaintainer("Alan Hale Jr.");
 		repository.save(packageMetadata);
-		packageMetadata = new PackageMetadata();
+		packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setApiVersion("1");
 		packageMetadata.setRepositoryId(1L);
 		packageMetadata.setOrigin("www.package-repos.com/repo2");
@@ -48,7 +48,7 @@ public class PackageMetadataCreator {
 	}
 
 	public static void createPackageWithMultipleVersions(PackageMetadataRepository repository) {
-		PackageMetadata packageMetadata = new PackageMetadata();
+		SkipperPackageMetadata packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setApiVersion("1");
 		packageMetadata.setRepositoryId(1L);
 		packageMetadata.setKind("skipper");
@@ -58,7 +58,7 @@ public class PackageMetadataCreator {
 		packageMetadata.setDescription("A very cool project");
 		packageMetadata.setMaintainer("Alan Hale Jr.");
 		repository.save(packageMetadata);
-		packageMetadata = new PackageMetadata();
+		packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setApiVersion("1");
 		packageMetadata.setRepositoryId(1L);
 		packageMetadata.setKind("skipper");
@@ -68,7 +68,7 @@ public class PackageMetadataCreator {
 		packageMetadata.setMaintainer("Bob Denver");
 		packageMetadata.setDescription("Another very cool project");
 		repository.save(packageMetadata);
-		packageMetadata = new PackageMetadata();
+		packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setApiVersion("1");
 		packageMetadata.setRepositoryId(1L);
 		packageMetadata.setKind("skipper");
@@ -78,7 +78,7 @@ public class PackageMetadataCreator {
 		packageMetadata.setMaintainer("Bob Denver");
 		packageMetadata.setDescription("Another very cool project");
 		repository.save(packageMetadata);
-		packageMetadata = new PackageMetadata();
+		packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setApiVersion("1");
 		packageMetadata.setRepositoryId(1L);
 		packageMetadata.setKind("skipper");
@@ -91,7 +91,7 @@ public class PackageMetadataCreator {
 	}
 
 	public static void createTwoPackages(PackageMetadataRepository repository, Long repoId, String apiVersion) {
-		PackageMetadata packageMetadata = new PackageMetadata();
+		SkipperPackageMetadata packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setApiVersion(apiVersion);
 		packageMetadata.setRepositoryId(repoId);
 		packageMetadata.setKind("skipper");
@@ -101,7 +101,7 @@ public class PackageMetadataCreator {
 		packageMetadata.setDescription("A very cool project");
 		packageMetadata.setMaintainer("Alan Hale Jr.");
 		repository.save(packageMetadata);
-		packageMetadata = new PackageMetadata();
+		packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setApiVersion(apiVersion);
 		packageMetadata.setRepositoryId(repoId);
 		packageMetadata.setKind("skipper");

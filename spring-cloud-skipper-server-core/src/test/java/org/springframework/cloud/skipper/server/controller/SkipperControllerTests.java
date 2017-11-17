@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
@@ -46,7 +46,7 @@ public class SkipperControllerTests extends AbstractControllerTests {
 	@Test
 	public void deployTickTock() throws Exception {
 		String releaseName = "myTicker";
-		Release release = install("ticktock", "1.0.0", "myTicker");
+		SkipperRelease release = install("ticktock", "1.0.0", "myTicker");
 		assertThat(release.getVersion()).isEqualTo(1);
 	}
 
@@ -62,7 +62,7 @@ public class SkipperControllerTests extends AbstractControllerTests {
 		InstallProperties installProperties = createInstallProperties(releaseName);
 		installRequest.setInstallProperties(installProperties);
 
-		Release release = installPackage(installRequest);
+		SkipperRelease release = installPackage(installRequest);
 		assertReleaseIsDeployedSuccessfully(releaseName, 1);
 		assertThat(release.getVersion()).isEqualTo(1);
 	}
@@ -72,13 +72,13 @@ public class SkipperControllerTests extends AbstractControllerTests {
 
 		// Deploy
 		String releaseName = "test1";
-		Release release = install("log", "1.0.0", releaseName);
+		SkipperRelease release = install("log", "1.0.0", releaseName);
 		assertThat(release.getVersion()).isEqualTo(1);
 
 		// Undeploy
 		mockMvc.perform(post("/api/delete/" + releaseName)).andDo(print())
 				.andExpect(status().isCreated()).andReturn();
-		Release deletedRelease = this.releaseRepository.findByNameAndVersion(releaseName, 1);
+		SkipperRelease deletedRelease = this.releaseRepository.findByNameAndVersion(releaseName, 1);
 		assertThat(deletedRelease.getInfo().getStatus().getStatusCode()).isEqualTo(StatusCode.DELETED);
 	}
 
@@ -87,7 +87,7 @@ public class SkipperControllerTests extends AbstractControllerTests {
 
 		// Deploy
 		String releaseName = "test2";
-		Release release = install("log", "1.0.0", releaseName);
+		SkipperRelease release = install("log", "1.0.0", releaseName);
 		assertThat(release.getVersion()).isEqualTo(1);
 
 		// Check manifest
@@ -109,7 +109,7 @@ public class SkipperControllerTests extends AbstractControllerTests {
 		// the 1st.
 		releaseVersion = "3";
 
-		Release rollbackRelease = rollback(releaseName, 1);
+		SkipperRelease rollbackRelease = rollback(releaseName, 1);
 
 		release = this.releaseRepository.findByNameAndVersion(releaseName, Integer.valueOf(releaseVersion));
 		assertReleaseIsDeployedSuccessfully(releaseName, 3);
@@ -121,7 +121,7 @@ public class SkipperControllerTests extends AbstractControllerTests {
 		mockMvc.perform(post("/api/delete/" + releaseName))
 				.andDo(print())
 				.andExpect(status().isCreated()).andReturn();
-		Release deletedRelease = this.releaseRepository.findByNameAndVersion(releaseName,
+		SkipperRelease deletedRelease = this.releaseRepository.findByNameAndVersion(releaseName,
 				Integer.valueOf(releaseVersion));
 		assertThat(deletedRelease.getInfo().getStatus().getStatusCode()).isEqualTo(StatusCode.DELETED);
 	}
@@ -129,7 +129,7 @@ public class SkipperControllerTests extends AbstractControllerTests {
 	@Test
 	public void packageDeployAndUpgrade() throws Exception {
 		String releaseName = "myLog";
-		Release release = install("log", "1.0.0", releaseName);
+		SkipperRelease release = install("log", "1.0.0", releaseName);
 		assertThat(release.getVersion()).isEqualTo(1);
 
 		// Upgrade

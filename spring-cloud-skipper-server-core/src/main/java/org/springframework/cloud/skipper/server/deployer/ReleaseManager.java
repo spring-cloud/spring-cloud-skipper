@@ -15,7 +15,7 @@
  */
 package org.springframework.cloud.skipper.server.deployer;
 
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 
 /**
  * Manages the lifecycle of a releases.
@@ -34,7 +34,7 @@ public interface ReleaseManager {
 	 * @return the release object after requesting installation
 	 */
 	// TODO return just release name and version
-	Release install(Release release);
+	SkipperRelease install(SkipperRelease release);
 
 	/**
 	 * Create a report of what apps should be updated and deleted upon upgrade. The return
@@ -44,7 +44,7 @@ public interface ReleaseManager {
 	 * release
 	 * @return a report describing the actions to take to update
 	 */
-	ReleaseAnalysisReport createReport(Release existingRelease, Release replacingRelease);
+	ReleaseAnalysisReport createReport(SkipperRelease existingRelease, SkipperRelease replacingRelease);
 
 	/**
 	 * Given a report of what should be upgraded, perform the upgrade. It is expected this is
@@ -58,7 +58,7 @@ public interface ReleaseManager {
 	 * @param release the release to delete
 	 * @return the updated release object after deltion
 	 */
-	Release delete(Release release);
+	SkipperRelease delete(SkipperRelease release);
 
 	/**
 	 * Get the status of the release, by querying the database. The
@@ -67,6 +67,6 @@ public interface ReleaseManager {
 	 * @param release the release to update state for
 	 * @return the updated release
 	 */
-	Release status(Release release);
+	SkipperRelease status(SkipperRelease release);
 
 }

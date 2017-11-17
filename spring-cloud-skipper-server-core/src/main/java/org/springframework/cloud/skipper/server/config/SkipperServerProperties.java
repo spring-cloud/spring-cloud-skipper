@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 
 /**
  * Configurable properties of the server.
@@ -33,7 +33,7 @@ public class SkipperServerProperties {
 	/**
 	 * List of locations for package Repositories
 	 */
-	private List<Repository> packageRepositories = new ArrayList<>();
+	private List<SkipperRepository> packageRepositories = new ArrayList<>();
 
 	/**
 	 * Flag indicating to sync the local contents of the index directory with the database on
@@ -58,11 +58,11 @@ public class SkipperServerProperties {
 	 */
 	private int freeDiskSpacePercentage = 25;
 
-	public List<Repository> getPackageRepositories() {
+	public List<SkipperRepository> getPackageRepositories() {
 		return packageRepositories;
 	}
 
-	public void setPackageRepositories(List<Repository> packageRepositories) {
+	public void setPackageRepositories(List<SkipperRepository> packageRepositories) {
 		this.packageRepositories = packageRepositories;
 	}
 

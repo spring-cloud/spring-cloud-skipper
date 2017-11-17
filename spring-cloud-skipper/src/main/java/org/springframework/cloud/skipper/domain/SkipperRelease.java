@@ -37,7 +37,7 @@ import org.springframework.util.StringUtils;
  * @author Mark Pollack
  */
 @Entity
-public class Release extends AbstractEntity {
+public class SkipperRelease extends AbstractEntity {
 
 	/**
 	 * A short name, to associate with the release of this package.
@@ -48,7 +48,7 @@ public class Release extends AbstractEntity {
 	private int version;
 
 	@OneToOne(cascade = { CascadeType.ALL })
-	private Info info;
+	private SkipperInfo info;
 
 	@Transient
 	private Package pkg;
@@ -67,7 +67,7 @@ public class Release extends AbstractEntity {
 
 	private String platformName;
 
-	public Release() {
+	public SkipperRelease() {
 	}
 
 	public String getName() {
@@ -86,11 +86,11 @@ public class Release extends AbstractEntity {
 		this.version = version;
 	}
 
-	public Info getInfo() {
+	public SkipperInfo getInfo() {
 		return info;
 	}
 
-	public void setInfo(Info info) {
+	public void setInfo(SkipperInfo info) {
 		this.info = info;
 	}
 

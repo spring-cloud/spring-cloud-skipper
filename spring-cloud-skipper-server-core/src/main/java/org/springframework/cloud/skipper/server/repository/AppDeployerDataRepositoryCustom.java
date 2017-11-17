@@ -15,13 +15,13 @@
  */
 package org.springframework.cloud.skipper.server.repository;
 
-import org.springframework.cloud.skipper.server.domain.AppDeployerData;
+import org.springframework.cloud.skipper.server.domain.SkipperAppDeployerData;
 
 /**
  * @author Mark Pollack
  */
 public interface AppDeployerDataRepositoryCustom {
 
-	AppDeployerData findByReleaseNameAndReleaseVersionRequired(String releaseName, Integer releaseVersion);
+	SkipperAppDeployerData findByReleaseNameAndReleaseVersionRequired(String releaseName, Integer releaseVersion);
 
 }

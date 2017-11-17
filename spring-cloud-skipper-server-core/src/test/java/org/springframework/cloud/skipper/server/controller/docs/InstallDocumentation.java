@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -123,7 +123,7 @@ public class InstallDocumentation extends BaseDocumentation {
 		installRequest.setPackageIdentifier(packageIdentifier);
 		installRequest.setInstallProperties(createInstallProperties(releaseName));
 
-		final Release release = installPackage(installRequest);
+		final SkipperRelease release = installPackage(installRequest);
 
 		final String releaseName2 = "myLogReleaseWithInstallProperties";
 		final InstallProperties installProperties2 = createInstallProperties(releaseName2);
