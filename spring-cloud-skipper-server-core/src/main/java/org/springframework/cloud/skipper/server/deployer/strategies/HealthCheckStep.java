@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.app.DeploymentState;
-import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.cloud.skipper.server.domain.AppDeployerData;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
+import org.springframework.cloud.skipper.server.domain.SkipperAppDeployerData;
 import org.springframework.cloud.skipper.server.repository.AppDeployerDataRepository;
 import org.springframework.cloud.skipper.server.repository.DeployerRepository;
 
@@ -51,8 +51,8 @@ public class HealthCheckStep {
 		this.healthCheckProperties = healthCheckProperties;
 	}
 
-	public boolean waitForNewAppsToDeploy(Release replacingRelease) {
-		AppDeployerData replacingAppDeployerData = this.appDeployerDataRepository
+	public boolean waitForNewAppsToDeploy(SkipperRelease replacingRelease) {
+		SkipperAppDeployerData replacingAppDeployerData = this.appDeployerDataRepository
 				.findByReleaseNameAndReleaseVersionRequired(
 						replacingRelease.getName(), replacingRelease.getVersion());
 
@@ -63,7 +63,7 @@ public class HealthCheckStep {
 		return this.isHealthy(replacingRelease, replacingAppDeployerData);
 	}
 
-	private boolean isHealthy(Release replacingRelease, AppDeployerData replacingAppDeployerData) {
+	private boolean isHealthy(SkipperRelease replacingRelease, SkipperAppDeployerData replacingAppDeployerData) {
 		boolean isHealthy = false;
 		try {
 			long timeout = System.currentTimeMillis() + this.healthCheckProperties.getTimeoutInMillis();

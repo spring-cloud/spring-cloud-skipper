@@ -17,7 +17,7 @@ package org.springframework.cloud.skipper.server.repository;
 
 import java.util.List;
 
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -27,17 +27,17 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  * @author Ilayaperumal Gopinathan
  * @author Janne Valkealahti
  */
-@RepositoryRestResource(path = "packageMetadata", collectionResourceRel = "packageMetadata")
-public interface PackageMetadataRepository extends PagingAndSortingRepository<PackageMetadata, Long>,
+@RepositoryRestResource(path = "packageMetadata", collectionResourceRel = "packageMetadata", itemResourceRel = "packageMetadata")
+public interface PackageMetadataRepository extends PagingAndSortingRepository<SkipperPackageMetadata, Long>,
 		PackageMetadataRepositoryCustom {
 
-	List<PackageMetadata> findByName(@Param("name") String name);
+	List<SkipperPackageMetadata> findByName(@Param("name") String name);
 
-	List<PackageMetadata> findByNameContainingIgnoreCase(@Param("name") String name);
+	List<SkipperPackageMetadata> findByNameContainingIgnoreCase(@Param("name") String name);
 
-	List<PackageMetadata> findByNameAndVersionOrderByApiVersionDesc(@Param("name") String name,
+	List<SkipperPackageMetadata> findByNameAndVersionOrderByApiVersionDesc(@Param("name") String name,
 			@Param("version") String version);
 
-	PackageMetadata findFirstByNameOrderByVersionDesc(@Param("name") String name);
+	SkipperPackageMetadata findFirstByNameOrderByVersionDesc(@Param("name") String name);
 
 }

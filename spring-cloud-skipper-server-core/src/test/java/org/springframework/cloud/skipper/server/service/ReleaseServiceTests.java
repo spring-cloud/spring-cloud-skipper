@@ -25,12 +25,12 @@ import org.springframework.cloud.deployer.resource.support.LRUCleaningResourceLo
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.domain.ConfigValues;
-import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.domain.UpgradeProperties;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
@@ -104,11 +104,11 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		packageIdentifier.setPackageName("log");
 		packageIdentifier.setPackageVersion("1.0.0");
 		installRequest.setPackageIdentifier(packageIdentifier);
-		Release release = install(installRequest);
+		SkipperRelease release = install(installRequest);
 		installRequest.setPackageIdentifier(packageIdentifier);
 		assertThat(release).isNotNull();
 		assertThat(release.getPkg().getMetadata().getVersion()).isEqualTo("1.0.0");
-		Info info = this.releaseService.status(releaseName);
+		SkipperInfo info = this.releaseService.status(releaseName);
 		assertThat(info).isNotNull();
 
 		UpgradeProperties upgradeProperties = new UpgradeProperties();
@@ -140,7 +140,7 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		PackageIdentifier packageIdentifier = new PackageIdentifier();
 		packageIdentifier.setPackageName("log");
 		installRequest.setPackageIdentifier(packageIdentifier);
-		Release release = install(installRequest);
+		SkipperRelease release = install(installRequest);
 		assertThat(release).isNotNull();
 		assertThat(release.getPkg().getMetadata().getVersion()).isEqualTo("2.0.0");
 		delete(release.getName());
@@ -184,8 +184,8 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 	@Test
 	public void testLatestPackageByName() {
 		String packageName = "log";
-		PackageMetadata packageMetadata = this.packageMetadataRepository.findFirstByNameOrderByVersionDesc(packageName);
-		PackageMetadata latestPackageMetadata = this.packageMetadataRepository
+		SkipperPackageMetadata packageMetadata = this.packageMetadataRepository.findFirstByNameOrderByVersionDesc(packageName);
+		SkipperPackageMetadata latestPackageMetadata = this.packageMetadataRepository
 				.findByNameAndOptionalVersionRequired(packageName, null);
 		assertThat(packageMetadata).isEqualTo(latestPackageMetadata);
 	}
@@ -199,7 +199,7 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		packageIdentifier.setPackageName("log");
 		packageIdentifier.setPackageVersion("1.0.0");
 		installRequest.setPackageIdentifier(packageIdentifier);
-		Release release = install(installRequest);
+		SkipperRelease release = install(installRequest);
 		assertThat(release).isNotNull();
 
 		// Now let's install it a second time.
@@ -223,12 +223,12 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		packageIdentifier.setPackageVersion("1.0.0");
 		installRequest.setPackageIdentifier(packageIdentifier);
 		// Install
-		Release release = install(installRequest);
+		SkipperRelease release = install(installRequest);
 		assertThat(release).isNotNull();
 		// Delete
 		delete(releaseName);
 		// Install again
-		Release release2 = install(installRequest);
+		SkipperRelease release2 = install(installRequest);
 		assertThat(release2.getVersion()).isEqualTo(2);
 	}
 
@@ -247,7 +247,7 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		installRequest.setPackageIdentifier(packageIdentifier);
 		// Install
 		logger.info("Installing log 1.0.0 package");
-		Release release = install(installRequest);
+		SkipperRelease release = install(installRequest);
 		assertThat(release).isNotNull();
 		assertThat(release.getVersion()).isEqualTo(1);
 		this.appDeployerDataRepository.findByReleaseNameAndReleaseVersionRequired(releaseName, 1);
@@ -267,7 +267,7 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		packageIdentifier.setPackageVersion(packageVersion);
 		upgradeRequest.setPackageIdentifier(packageIdentifier);
 		logger.info("Upgrading to log 2.0.0 package");
-		Release upgradedRelease = upgrade(upgradeRequest);
+		SkipperRelease upgradedRelease = upgrade(upgradeRequest);
 
 		assertThat(upgradedRelease.getVersion()).isEqualTo(2);
 		assertThat(upgradedRelease.getConfigValues()).isEqualTo(upgradeRequest.getUpgradeProperties().getConfigValues());
@@ -276,13 +276,13 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		// Delete
 		delete(releaseName);
 
-		Release deletedRelease = releaseRepository.findByNameAndVersion(releaseName, 2);
+		SkipperRelease deletedRelease = releaseRepository.findByNameAndVersion(releaseName, 2);
 		assertThat(deletedRelease.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED));
 
 		// Rollback
 		logger.info("Rolling back the release " + release);
 
-		Release rolledBackRelease = rollback(releaseName, 0);
+		SkipperRelease rolledBackRelease = rollback(releaseName, 0);
 
 		assertThat(rolledBackRelease.getManifest()).isEqualTo(release.getManifest());
 		assertThat(rolledBackRelease.getConfigValues().getRaw()).isEqualTo(release.getConfigValues().getRaw());

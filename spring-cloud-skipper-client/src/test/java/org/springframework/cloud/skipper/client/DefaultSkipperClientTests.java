@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.domain.Info;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -66,11 +66,11 @@ public class DefaultSkipperClientTests {
 		MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
 		mockServer.expect(requestTo("/status/mylog")).andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
 
-		Info status = skipperClient.status("mylog");
+		SkipperInfo status = skipperClient.status("mylog");
 		mockServer.verify();
 
 		assertThat(status).isNotNull();
-		assertThat(status).isInstanceOf(Info.class);
+		assertThat(status).isInstanceOf(SkipperInfo.class);
 	}
 
 	@Test(expected = ReleaseNotFoundException.class)

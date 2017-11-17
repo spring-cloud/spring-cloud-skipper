@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MvcResult;
@@ -106,7 +106,7 @@ public class RollbackDocumentation extends BaseDocumentation {
 								fieldWithPath("manifest").description("The manifest of the release"),
 								fieldWithPath("platformName").description("Platform name of the release"))))
 				.andReturn();
-		Release release = convertContentToRelease(result.getResponse().getContentAsString());
+		SkipperRelease release = convertContentToRelease(result.getResponse().getContentAsString());
 		assertReleaseIsDeployedSuccessfully(releaseName, release.getVersion());
 	}
 }

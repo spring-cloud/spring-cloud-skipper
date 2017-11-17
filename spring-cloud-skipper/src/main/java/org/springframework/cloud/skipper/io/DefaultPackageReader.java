@@ -32,7 +32,7 @@ import org.zeroturnaround.zip.commons.FileUtils;
 
 import org.springframework.cloud.skipper.domain.ConfigValues;
 import org.springframework.cloud.skipper.domain.Package;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
 import org.springframework.cloud.skipper.domain.Template;
 import org.springframework.util.Assert;
 
@@ -135,12 +135,12 @@ public class DefaultPackageReader implements PackageReader {
 		return configValues;
 	}
 
-	private PackageMetadata loadPackageMetadata(File file) {
+	private SkipperPackageMetadata loadPackageMetadata(File file) {
 		// The Representer will not try to set the value in the YAML on the
 		// Java object if it isn't present on the object
 		Representer representer = new Representer();
 		representer.getPropertyUtils().setSkipMissingProperties(true);
-		Yaml yaml = new Yaml(new Constructor(PackageMetadata.class), representer);
+		Yaml yaml = new Yaml(new Constructor(SkipperPackageMetadata.class), representer);
 		String fileContents = null;
 		try {
 			fileContents = FileUtils.readFileToString(file);
@@ -148,7 +148,7 @@ public class DefaultPackageReader implements PackageReader {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-		PackageMetadata pkgMetadata = (PackageMetadata) yaml.load(fileContents);
+		SkipperPackageMetadata pkgMetadata = (SkipperPackageMetadata) yaml.load(fileContents);
 		return pkgMetadata;
 	}
 }

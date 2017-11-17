@@ -33,8 +33,8 @@ import org.zeroturnaround.zip.ZipUtil;
 import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.SkipperUtils;
 import org.springframework.cloud.skipper.domain.Package;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.cloud.skipper.domain.UploadRequest;
 import org.springframework.cloud.skipper.io.PackageReader;
 import org.springframework.cloud.skipper.io.TempFileUtils;
@@ -78,7 +78,7 @@ public class PackageService implements ResourceLoaderAware {
 	}
 
 	@Transactional
-	public Package downloadPackage(PackageMetadata packageMetadata) {
+	public Package downloadPackage(SkipperPackageMetadata packageMetadata) {
 		Assert.notNull(packageMetadata, "Can't download PackageMetadata, it is a null value.");
 		// Database contains the package file from a previous upload
 		if (packageMetadata.getPackageFileBytes() != null) {
@@ -89,14 +89,14 @@ public class PackageService implements ResourceLoaderAware {
 		}
 	}
 
-	private Package downloadAndDeserializePackage(PackageMetadata packageMetadata) {
+	private Package downloadAndDeserializePackage(SkipperPackageMetadata packageMetadata) {
 		Path targetPath = null;
 		// package file is in a non DB hosted repository
 		try {
 			targetPath = TempFileUtils.createTempDirectory("skipper" + packageMetadata.getName());
 			File targetFile = SkipperUtils.calculatePackageZipFile(packageMetadata, targetPath.toFile());
 			logger.debug("Finding repository for package  {}", packageMetadata.getName());
-			Repository packageRepository = repositoryRepository.findOne(packageMetadata.getRepositoryId());
+			SkipperRepository packageRepository = repositoryRepository.findOne(packageMetadata.getRepositoryId());
 			if (packageRepository == null) {
 				return throwDescriptiveException(packageMetadata);
 			}
@@ -146,15 +146,15 @@ public class PackageService implements ResourceLoaderAware {
 		}
 	}
 
-	private Package throwDescriptiveException(PackageMetadata packageMetadata) {
-		List<Repository> list = StreamSupport
+	private Package throwDescriptiveException(SkipperPackageMetadata packageMetadata) {
+		List<SkipperRepository> list = StreamSupport
 				.stream(repositoryRepository.findAll().spliterator(), false)
 				.collect(Collectors.toList());
 		throw new SkipperException("Can not find packageRepository with Id = "
 				+ packageMetadata.getRepositoryId() + ". Known repositories are " + Arrays.toString(list.toArray()));
 	}
 
-	private Package deserializePackageFromDatabase(PackageMetadata packageMetadata) {
+	private Package deserializePackageFromDatabase(SkipperPackageMetadata packageMetadata) {
 		// package file was uploaded to a local DB hosted repository
 		Path tmpDirPath = null;
 		try {
@@ -185,7 +185,7 @@ public class PackageService implements ResourceLoaderAware {
 		}
 	}
 
-	private Resource getResourceForRepository(Repository packageRepository, String name, String version) {
+	private Resource getResourceForRepository(SkipperRepository packageRepository, String name, String version) {
 		// TODO local respository will not have url, add assertion
 		String sourceUrl = packageRepository.getUrl() + "/" + name + "/" +
 				name + "-" + version + ".zip";
@@ -200,9 +200,9 @@ public class PackageService implements ResourceLoaderAware {
 	}
 
 	@Transactional
-	public PackageMetadata upload(UploadRequest uploadRequest) {
+	public SkipperPackageMetadata upload(UploadRequest uploadRequest) {
 		validateUploadRequest(uploadRequest);
-		Repository localRepositoryToUpload = getRepositoryToUpload(uploadRequest.getRepoName());
+		SkipperRepository localRepositoryToUpload = getRepositoryToUpload(uploadRequest.getRepoName());
 		Path packageDirPath = null;
 		try {
 			packageDirPath = TempFileUtils.createTempDirectory("skipperUpload");
@@ -219,7 +219,7 @@ public class PackageService implements ResourceLoaderAware {
 			File unpackagedFile = new File(unzippedPath);
 			Assert.isTrue(unpackagedFile.exists(), "Package is expected to be unpacked, but it doesn't exist");
 			Package packageToUpload = this.packageReader.read(unpackagedFile);
-			PackageMetadata packageMetadata = packageToUpload.getMetadata();
+			SkipperPackageMetadata packageMetadata = packageToUpload.getMetadata();
 			// TODO: Model the PackageMetadata -> Repository relationship in the DB.
 			if (localRepositoryToUpload != null) {
 				packageMetadata.setRepositoryId(localRepositoryToUpload.getId());
@@ -237,8 +237,8 @@ public class PackageService implements ResourceLoaderAware {
 		}
 	}
 
-	private Repository getRepositoryToUpload(String repoName) {
-		Repository localRepositoryToUpload = this.repositoryRepository.findByName(repoName);
+	private SkipperRepository getRepositoryToUpload(String repoName) {
+		SkipperRepository localRepositoryToUpload = this.repositoryRepository.findByName(repoName);
 		// TODO: Verify the repo name set to package upload properties always belong to local
 		// repository type.
 		if (localRepositoryToUpload == null) {

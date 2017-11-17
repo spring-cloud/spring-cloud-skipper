@@ -27,7 +27,7 @@ import org.zeroturnaround.zip.ZipUtil;
 
 import org.springframework.cloud.skipper.SkipperUtils;
 import org.springframework.cloud.skipper.domain.Package;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.FileSystemUtils;
@@ -51,7 +51,7 @@ public class DefaultPackageWriter implements PackageWriter {
 
 	@Override
 	public File write(Package pkg, File targetDirectory) {
-		PackageMetadata packageMetadata = pkg.getMetadata();
+		SkipperPackageMetadata packageMetadata = pkg.getMetadata();
 		File tmpDir = TempFileUtils.createTempDirectory("skipper" + packageMetadata.getName()).toFile();
 		File rootPackageDir = new File(tmpDir,
 				String.format("%s-%s", packageMetadata.getName(), packageMetadata.getVersion()));
@@ -107,7 +107,7 @@ public class DefaultPackageWriter implements PackageWriter {
 		}
 	}
 
-	private String generatePackageMetadata(PackageMetadata packageMetadata) {
+	private String generatePackageMetadata(SkipperPackageMetadata packageMetadata) {
 		return yaml.dump(packageMetadata);
 	}
 

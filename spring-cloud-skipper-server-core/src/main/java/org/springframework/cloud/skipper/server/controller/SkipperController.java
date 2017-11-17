@@ -21,11 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.domain.AboutInfo;
-import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.domain.UploadRequest;
 import org.springframework.cloud.skipper.server.service.PackageService;
@@ -75,31 +75,31 @@ public class SkipperController {
 
 	@RequestMapping(path = "/upload", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public PackageMetadata upload(@RequestBody UploadRequest uploadRequest) {
+	public SkipperPackageMetadata upload(@RequestBody UploadRequest uploadRequest) {
 		return this.packageService.upload(uploadRequest);
 	}
 
 	@RequestMapping(path = "/install", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public Release install(@RequestBody InstallRequest installRequest) {
+	public SkipperRelease install(@RequestBody InstallRequest installRequest) {
 		return this.releaseService.install(installRequest);
 	}
 
 	@RequestMapping(path = "/install/{id}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public Release install(@PathVariable("id") Long id, @RequestBody InstallProperties installProperties) {
+	public SkipperRelease install(@PathVariable("id") Long id, @RequestBody InstallProperties installProperties) {
 		return this.releaseService.install(id, installProperties);
 	}
 
 	@RequestMapping(path = "/status/{name}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public Info status(@PathVariable("name") String name) {
+	public SkipperInfo status(@PathVariable("name") String name) {
 		return this.releaseService.status(name);
 	}
 
 	@RequestMapping(path = "/status/{name}/{version}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public Info status(@PathVariable("name") String name, @PathVariable("version") int version) {
+	public SkipperInfo status(@PathVariable("name") String name, @PathVariable("version") int version) {
 		return this.releaseService.status(name, version);
 	}
 
@@ -115,39 +115,39 @@ public class SkipperController {
 
 	@RequestMapping(path = "/upgrade", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public Release upgrade(@RequestBody UpgradeRequest upgradeRequest) {
+	public SkipperRelease upgrade(@RequestBody UpgradeRequest upgradeRequest) {
 		return this.releaseService.upgrade(upgradeRequest);
 	}
 
 	@RequestMapping(path = "/rollback/{name}/{version}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public Release rollback(@PathVariable("name") String releaseName,
+	public SkipperRelease rollback(@PathVariable("name") String releaseName,
 			@PathVariable("version") int rollbackVersion) {
 		return this.releaseService.rollback(releaseName, rollbackVersion);
 	}
 
 	@RequestMapping(path = "/delete/{name}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public Release delete(@PathVariable("name") String releaseName) {
+	public SkipperRelease delete(@PathVariable("name") String releaseName) {
 		return this.releaseService.delete(releaseName);
 	}
 
 	@RequestMapping(path = "/history/{name}/{max}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public List<Release> history(@PathVariable("name") String releaseName,
+	public List<SkipperRelease> history(@PathVariable("name") String releaseName,
 			@PathVariable("max") int maxRevisions) {
 		return this.releaseService.history(releaseName, maxRevisions);
 	}
 
 	@RequestMapping(path = "/list", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public List<Release> list() {
+	public List<SkipperRelease> list() {
 		return this.releaseService.list();
 	}
 
 	@RequestMapping(path = "/list/{name}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public List<Release> list(@PathVariable("name") String releaseName) {
+	public List<SkipperRelease> list(@PathVariable("name") String releaseName) {
 		return this.releaseService.list(releaseName);
 	}
 

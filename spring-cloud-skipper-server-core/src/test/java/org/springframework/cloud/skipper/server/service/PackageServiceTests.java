@@ -28,8 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.domain.ConfigValues;
 import org.springframework.cloud.skipper.domain.Package;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.cloud.skipper.domain.Template;
 import org.springframework.cloud.skipper.domain.UploadRequest;
 import org.springframework.cloud.skipper.server.AbstractIntegrationTest;
@@ -69,7 +69,7 @@ public class PackageServiceTests extends AbstractIntegrationTest {
 
 	@Test
 	public void testExceptions() {
-		PackageMetadata packageMetadata = new PackageMetadata();
+		SkipperPackageMetadata packageMetadata = new SkipperPackageMetadata();
 		packageMetadata.setName("noname");
 		packageMetadata.setVersion("noversion");
 		assertThat(packageService).isNotNull();
@@ -82,7 +82,7 @@ public class PackageServiceTests extends AbstractIntegrationTest {
 
 	@Test
 	public void download() {
-		PackageMetadata packageMetadata = packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("log", "1.0.0");
+		SkipperPackageMetadata packageMetadata = packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("log", "1.0.0");
 		// Other tests may have caused the file to be loaded into the database, ensure we start
 		// fresh.
 		if (packageMetadata.getPackageFileBytes() != null) {
@@ -95,7 +95,7 @@ public class PackageServiceTests extends AbstractIntegrationTest {
 		assertThat(packageService).isNotNull();
 		assertThat(packageMetadata.getId()).isNotNull();
 		assertThat(packageMetadata.getRepositoryId()).isNotNull();
-		Repository repository = repositoryRepository.findOne(packageMetadata.getRepositoryId());
+		SkipperRepository repository = repositoryRepository.findOne(packageMetadata.getRepositoryId());
 		assertThat(repository).isNotNull();
 
 		Package downloadedPackage = packageService.downloadPackage(packageMetadata);
@@ -110,13 +110,13 @@ public class PackageServiceTests extends AbstractIntegrationTest {
 	@Test
 	public void upload() throws Exception {
 		// Create throw away repository, treated to be a 'local' database repo by default for now.
-		Repository repository = new Repository();
+		SkipperRepository repository = new SkipperRepository();
 		repository.setName("database-repo");
 		repository.setUrl("http://example.com/repository/");
 		this.repositoryRepository.save(repository);
 
 		// Package log 9.9.9 should not exist, since it hasn't been uploaded yet.
-		PackageMetadata packageMetadata = packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("log", "9.9.9");
+		SkipperPackageMetadata packageMetadata = packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("log", "9.9.9");
 		assertThat(packageMetadata).isNull();
 
 		UploadRequest uploadProperties = new UploadRequest();
@@ -134,12 +134,12 @@ public class PackageServiceTests extends AbstractIntegrationTest {
 
 		// Upload new package
 		assertThat(packageService).isNotNull();
-		PackageMetadata uploadedPackageMetadata = this.packageService.upload(uploadProperties);
+		SkipperPackageMetadata uploadedPackageMetadata = this.packageService.upload(uploadProperties);
 		assertThat(uploadedPackageMetadata.getName().equals("log")).isTrue();
 		assertThat(uploadedPackageMetadata.getVersion().equals("9.9.9")).isTrue();
 
 		// Retrieve new package
-		PackageMetadata retrievedPackageMetadata = packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("log",
+		SkipperPackageMetadata retrievedPackageMetadata = packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("log",
 				"9.9.9");
 		assertThat(retrievedPackageMetadata.getName().equals("log")).isTrue();
 		assertThat(retrievedPackageMetadata.getVersion().equals("9.9.9")).isTrue();
@@ -158,7 +158,7 @@ public class PackageServiceTests extends AbstractIntegrationTest {
 
 	@Test
 	public void deserializePackage() {
-		PackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("log",
+		SkipperPackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("log",
 				"1.0.0");
 		assertThat(packageService).isNotNull();
 		Package pkg = packageService.downloadPackage(packageMetadata);
@@ -173,7 +173,7 @@ public class PackageServiceTests extends AbstractIntegrationTest {
 
 	@Test
 	public void deserializeNestedPackage() {
-		PackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("ticktock",
+		SkipperPackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndVersionByMaxRepoOrder("ticktock",
 				"1.0.0");
 		assertThat(packageService).isNotNull();
 		Package pkg = packageService.downloadPackage(packageMetadata);

@@ -17,7 +17,7 @@ package org.springframework.cloud.skipper.server.deployer.strategies;
 
 import java.util.List;
 
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.server.deployer.ReleaseAnalysisReport;
 import org.springframework.scheduling.annotation.Async;
@@ -49,7 +49,7 @@ public class SimpleRedBlackUpgradeStrategy implements UpgradeStrategy {
 
 	@Override
 	@Async(SKIPPER_EXECUTOR)
-	public Release upgrade(Release existingRelease, Release replacingRelease,
+	public SkipperRelease upgrade(SkipperRelease existingRelease, SkipperRelease replacingRelease,
 			ReleaseAnalysisReport releaseAnalysisReport) {
 		List<String> applicationNamesToUpgrade = this.deployAppStep.deployApps(existingRelease, replacingRelease,
 				releaseAnalysisReport);

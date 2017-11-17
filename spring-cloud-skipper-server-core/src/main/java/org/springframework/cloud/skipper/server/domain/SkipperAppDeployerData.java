@@ -42,7 +42,7 @@ import org.springframework.cloud.skipper.domain.AbstractEntity;
  * @author Mark Pollack
  */
 @Entity
-public class AppDeployerData extends AbstractEntity {
+public class SkipperAppDeployerData extends AbstractEntity {
 
 	private String releaseName;
 
@@ -52,7 +52,7 @@ public class AppDeployerData extends AbstractEntity {
 	@Lob
 	private String deploymentData;
 
-	public AppDeployerData() {
+	public SkipperAppDeployerData() {
 	}
 
 	public String getReleaseName() {

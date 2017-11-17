@@ -20,11 +20,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.Package;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.UpgradeProperties;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.server.deployer.ReleaseAnalysisReport;
@@ -72,14 +72,14 @@ public class ReleaseReportService {
 		Assert.notNull(upgradeRequest.getUpgradeProperties(), "UpgradeProperties can not be null");
 		Assert.notNull(upgradeRequest.getPackageIdentifier(), "PackageIdentifier can not be null");
 		UpgradeProperties upgradeProperties = upgradeRequest.getUpgradeProperties();
-		Release existingRelease = this.releaseRepository.findLatestReleaseForUpdate(upgradeProperties.getReleaseName());
-		Release latestRelease = this.releaseRepository.findLatestRelease(upgradeProperties.getReleaseName());
+		SkipperRelease existingRelease = this.releaseRepository.findLatestReleaseForUpdate(upgradeProperties.getReleaseName());
+		SkipperRelease latestRelease = this.releaseRepository.findLatestRelease(upgradeProperties.getReleaseName());
 		PackageIdentifier packageIdentifier = upgradeRequest.getPackageIdentifier();
-		PackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndOptionalVersionRequired(
+		SkipperPackageMetadata packageMetadata = this.packageMetadataRepository.findByNameAndOptionalVersionRequired(
 				packageIdentifier.getPackageName(),
 				packageIdentifier
 						.getPackageVersion());
-		Release replacingRelease = createReleaseForUpgrade(packageMetadata, latestRelease.getVersion() + 1,
+		SkipperRelease replacingRelease = createReleaseForUpgrade(packageMetadata, latestRelease.getVersion() + 1,
 				upgradeProperties,
 				existingRelease.getPlatformName());
 		Map<String, Object> model = ConfigValueUtils.mergeConfigValues(replacingRelease.getPkg(),
@@ -89,17 +89,17 @@ public class ReleaseReportService {
 		return this.releaseManager.createReport(existingRelease, replacingRelease);
 	}
 
-	private Release createReleaseForUpgrade(PackageMetadata packageMetadata, Integer newVersion,
+	private SkipperRelease createReleaseForUpgrade(SkipperPackageMetadata packageMetadata, Integer newVersion,
 			UpgradeProperties upgradeProperties, String platformName) {
 		Assert.notNull(upgradeProperties, "Upgrade Properties can not be null");
 		Package packageToInstall = this.packageService.downloadPackage(packageMetadata);
-		Release release = new Release();
+		SkipperRelease release = new SkipperRelease();
 		release.setName(upgradeProperties.getReleaseName());
 		release.setPlatformName(platformName);
 		release.setConfigValues(upgradeProperties.getConfigValues());
 		release.setPkg(packageToInstall);
 		release.setVersion(newVersion);
-		Info info = Info.createNewInfo("Upgrade install underway");
+		SkipperInfo info = SkipperInfo.createNewInfo("Upgrade install underway");
 		release.setInfo(info);
 		return release;
 	}

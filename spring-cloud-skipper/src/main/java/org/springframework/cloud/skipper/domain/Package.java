@@ -26,7 +26,7 @@ import java.util.List;
 public class Package {
 
 	// Metadata describing the package
-	private PackageMetadata metadata;
+	private SkipperPackageMetadata metadata;
 
 	// The templates for this package
 	private List<Template> templates = new ArrayList<>();
@@ -43,11 +43,11 @@ public class Package {
 	public Package() {
 	}
 
-	public PackageMetadata getMetadata() {
+	public SkipperPackageMetadata getMetadata() {
 		return metadata;
 	}
 
-	public void setMetadata(PackageMetadata metadata) {
+	public void setMetadata(SkipperPackageMetadata metadata) {
 		this.metadata = metadata;
 	}
 

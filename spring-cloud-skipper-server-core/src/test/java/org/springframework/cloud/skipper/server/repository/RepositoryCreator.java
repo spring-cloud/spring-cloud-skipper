@@ -15,7 +15,7 @@
  */
 package org.springframework.cloud.skipper.server.repository;
 
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 
 /**
  * @author Mark Pollack
@@ -24,11 +24,11 @@ import org.springframework.cloud.skipper.domain.Repository;
 public class RepositoryCreator {
 
 	public static void createTwoRepositories(RepositoryRepository repositoryRepository) {
-		Repository repository = new Repository();
+		SkipperRepository repository = new SkipperRepository();
 		repository.setName("stable");
 		repository.setUrl("http://www.example.com/skipper/repository/stable");
 		repositoryRepository.save(repository);
-		repository = new Repository();
+		repository = new SkipperRepository();
 		repository.setName("unstable");
 		repository.setUrl("http://www.example.com/skipper/repository/unstable");
 		repositoryRepository.save(repository);
@@ -36,7 +36,7 @@ public class RepositoryCreator {
 
 	public static void createRepository(RepositoryRepository repositoryRepository, String repoName,
 			Integer repoOrder) {
-		Repository repository = new Repository();
+		SkipperRepository repository = new SkipperRepository();
 		repository.setName(repoName);
 		repository.setUrl("http://www.example.com/skipper/repository/" + repoName);
 		repositoryRepository.save(repository);

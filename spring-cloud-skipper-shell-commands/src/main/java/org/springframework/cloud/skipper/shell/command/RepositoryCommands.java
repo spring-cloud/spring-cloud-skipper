@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.client.SkipperClient;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.cloud.skipper.shell.command.support.TableUtils;
 import org.springframework.hateoas.Resources;
 import org.springframework.shell.standard.ShellComponent;
@@ -52,7 +52,7 @@ public class RepositoryCommands extends AbstractSkipperCommand {
 	public String add(@ShellOption(help = "name of the repository") @NotNull String name,
 			@ShellOption(help = "the root URL that points to index.yaml file") @NotNull String url,
 			@ShellOption(help = "the source URL to the package", defaultValue = NULL) String sourceUrl) {
-		Repository repository = this.skipperClient.addRepository(name, url, sourceUrl);
+		SkipperRepository repository = this.skipperClient.addRepository(name, url, sourceUrl);
 		return "Repository '" + name + "' added.";
 	}
 
@@ -64,7 +64,7 @@ public class RepositoryCommands extends AbstractSkipperCommand {
 
 	@ShellMethod(key = "repo list", value = "List package repositories")
 	public Table list() {
-		Resources<Repository> repositoryResources = this.skipperClient.listRepositories();
+		Resources<SkipperRepository> repositoryResources = this.skipperClient.listRepositories();
 		LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
 		headers.put("name", "Name");
 		headers.put("url", "URL");

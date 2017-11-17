@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
  * @author Mark Pollack
  */
 @Entity
-public class Repository extends AbstractEntity {
+public class SkipperRepository extends AbstractEntity {
 
 	/**
 	 * A short name, e.g. 'stable' to associate with this repository, must be unique.
@@ -65,7 +65,7 @@ public class Repository extends AbstractEntity {
 
 	// TODO security/checksum fields of referenced index file.
 
-	public Repository() {
+	public SkipperRepository() {
 	}
 
 	public String getName() {

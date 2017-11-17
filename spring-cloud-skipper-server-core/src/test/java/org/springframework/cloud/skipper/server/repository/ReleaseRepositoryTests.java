@@ -21,11 +21,11 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
-import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.Package;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.cloud.skipper.domain.Status;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
+import org.springframework.cloud.skipper.domain.SkipperStatus;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.server.AbstractIntegrationTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -46,43 +46,43 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 
 	@Test
 	public void verifyFindByMethods() {
-		PackageMetadata packageMetadata1 = new PackageMetadata();
+		SkipperPackageMetadata packageMetadata1 = new SkipperPackageMetadata();
 		packageMetadata1.setName("package1");
 		packageMetadata1.setVersion("1.0.0");
 		Package pkg1 = new Package();
 		pkg1.setMetadata(packageMetadata1);
 
-		PackageMetadata packageMetadata2 = new PackageMetadata();
+		SkipperPackageMetadata packageMetadata2 = new SkipperPackageMetadata();
 		packageMetadata2.setName("package2");
 		packageMetadata2.setVersion("1.0.1");
 		Package pkg2 = new Package();
 		pkg2.setMetadata(packageMetadata2);
 
-		Info deletedInfo = new Info();
-		Status deletedStatus = new Status();
+		SkipperInfo deletedInfo = new SkipperInfo();
+		SkipperStatus deletedStatus = new SkipperStatus();
 		deletedStatus.setPlatformStatus("Deleted successfully");
 		deletedStatus.setStatusCode(StatusCode.DELETED);
 		deletedInfo.setStatus(deletedStatus);
 
-		Info deployedInfo = new Info();
-		Status deployedStatus = new Status();
+		SkipperInfo deployedInfo = new SkipperInfo();
+		SkipperStatus deployedStatus = new SkipperStatus();
 		deployedStatus.setPlatformStatus("Deployed successfully");
 		deployedStatus.setStatusCode(StatusCode.DEPLOYED);
 		deployedInfo.setStatus(deployedStatus);
 
-		Info unknownInfo = new Info();
-		Status unknownStatus = new Status();
+		SkipperInfo unknownInfo = new SkipperInfo();
+		SkipperStatus unknownStatus = new SkipperStatus();
 		unknownStatus.setPlatformStatus("Unknown");
 		unknownStatus.setStatusCode(StatusCode.UNKNOWN);
 		unknownInfo.setStatus(unknownStatus);
 
-		Info failedInfo = new Info();
-		Status failedStatus = new Status();
+		SkipperInfo failedInfo = new SkipperInfo();
+		SkipperStatus failedStatus = new SkipperStatus();
 		failedStatus.setPlatformStatus("Deployment failed");
 		failedStatus.setStatusCode(StatusCode.FAILED);
 		failedInfo.setStatus(failedStatus);
 
-		Release release1 = new Release();
+		SkipperRelease release1 = new SkipperRelease();
 		release1.setName("stableA");
 		release1.setVersion(1);
 		release1.setPlatformName("platform1");
@@ -90,7 +90,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release1.setInfo(deletedInfo);
 		this.releaseRepository.save(release1);
 
-		Release release2 = new Release();
+		SkipperRelease release2 = new SkipperRelease();
 		release2.setName(release1.getName());
 		release2.setVersion(2);
 		release2.setPlatformName(release1.getPlatformName());
@@ -98,7 +98,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release2.setInfo(deletedInfo);
 		this.releaseRepository.save(release2);
 
-		Release release3 = new Release();
+		SkipperRelease release3 = new SkipperRelease();
 		release3.setName(release1.getName());
 		release3.setVersion(3);
 		release3.setPlatformName(release1.getPlatformName());
@@ -106,7 +106,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release3.setInfo(deployedInfo);
 		this.releaseRepository.save(release3);
 
-		Release release4 = new Release();
+		SkipperRelease release4 = new SkipperRelease();
 		release4.setName("stableB");
 		release4.setVersion(1);
 		release4.setPlatformName("platform2");
@@ -114,7 +114,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release4.setInfo(deletedInfo);
 		this.releaseRepository.save(release4);
 
-		Release release5 = new Release();
+		SkipperRelease release5 = new SkipperRelease();
 		release5.setName(release4.getName());
 		release5.setVersion(2);
 		release5.setPlatformName(release4.getPlatformName());
@@ -122,7 +122,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release5.setInfo(failedInfo);
 		this.releaseRepository.save(release5);
 
-		Release release6 = new Release();
+		SkipperRelease release6 = new SkipperRelease();
 		release6.setName("multipleDeleted");
 		release6.setVersion(1);
 		release6.setPlatformName("platform2");
@@ -130,7 +130,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release6.setInfo(deployedInfo);
 		this.releaseRepository.save(release6);
 
-		Release release7 = new Release();
+		SkipperRelease release7 = new SkipperRelease();
 		release7.setName(release6.getName());
 		release7.setVersion(2);
 		release7.setPlatformName(release6.getPlatformName());
@@ -138,7 +138,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release7.setInfo(deletedInfo);
 		this.releaseRepository.save(release7);
 
-		Release release8 = new Release();
+		SkipperRelease release8 = new SkipperRelease();
 		release8.setName(release6.getName());
 		release8.setVersion(3);
 		release8.setPlatformName(release6.getPlatformName());
@@ -146,7 +146,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release8.setInfo(failedInfo);
 		this.releaseRepository.save(release8);
 
-		Release release9 = new Release();
+		SkipperRelease release9 = new SkipperRelease();
 		release9.setName(release6.getName());
 		release9.setVersion(4);
 		release9.setPlatformName(release6.getPlatformName());
@@ -154,7 +154,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release9.setInfo(deletedInfo);
 		this.releaseRepository.save(release9);
 
-		Release release10 = new Release();
+		SkipperRelease release10 = new SkipperRelease();
 		release10.setName("multipleRevisions1");
 		release10.setVersion(1);
 		release10.setPlatformName("platform2");
@@ -162,7 +162,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release10.setInfo(deployedInfo);
 		this.releaseRepository.save(release10);
 
-		Release release11 = new Release();
+		SkipperRelease release11 = new SkipperRelease();
 		release11.setName(release10.getName());
 		release11.setVersion(2);
 		release11.setPlatformName(release10.getPlatformName());
@@ -170,7 +170,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release11.setInfo(failedInfo);
 		this.releaseRepository.save(release11);
 
-		Release release12 = new Release();
+		SkipperRelease release12 = new SkipperRelease();
 		release12.setName(release10.getName());
 		release12.setVersion(3);
 		release12.setPlatformName(release10.getPlatformName());
@@ -178,7 +178,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release12.setInfo(failedInfo);
 		this.releaseRepository.save(release12);
 
-		Release release13 = new Release();
+		SkipperRelease release13 = new SkipperRelease();
 		release13.setName("multipleRevisions2");
 		release13.setVersion(1);
 		release13.setPlatformName("platform2");
@@ -186,7 +186,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release13.setInfo(deployedInfo);
 		this.releaseRepository.save(release13);
 
-		Release release14 = new Release();
+		SkipperRelease release14 = new SkipperRelease();
 		release14.setName(release13.getName());
 		release14.setVersion(2);
 		release14.setPlatformName(release13.getPlatformName());
@@ -194,7 +194,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release14.setInfo(deletedInfo);
 		this.releaseRepository.save(release14);
 
-		Release release15 = new Release();
+		SkipperRelease release15 = new SkipperRelease();
 		release15.setName(release13.getName());
 		release15.setVersion(3);
 		release15.setPlatformName(release13.getPlatformName());
@@ -202,7 +202,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release15.setInfo(unknownInfo);
 		this.releaseRepository.save(release15);
 
-		Release release16 = new Release();
+		SkipperRelease release16 = new SkipperRelease();
 		release16.setName("multipleRevisions3");
 		release16.setVersion(1);
 		release16.setPlatformName(release16.getPlatformName());
@@ -210,7 +210,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		release16.setInfo(failedInfo);
 		this.releaseRepository.save(release16);
 
-		Release release17 = new Release();
+		SkipperRelease release17 = new SkipperRelease();
 		release17.setName(release16.getName());
 		release17.setVersion(2);
 		release17.setPlatformName(release16.getPlatformName());
@@ -219,12 +219,12 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		this.releaseRepository.save(release17);
 
 		// findAll
-		Iterable<Release> releases = this.releaseRepository.findAll();
+		Iterable<SkipperRelease> releases = this.releaseRepository.findAll();
 		assertThat(releases).isNotEmpty();
 		assertThat(releases).hasSize(17);
 
 		// findByNameAndVersionOrderByApiVersionDesc
-		Release foundByNameAndVersion = this.releaseRepository.findByNameAndVersion(release1.getName(), 2);
+		SkipperRelease foundByNameAndVersion = this.releaseRepository.findByNameAndVersion(release1.getName(), 2);
 		assertThat(foundByNameAndVersion).isNotNull();
 		assertThat(foundByNameAndVersion.getInfo().getStatus().getStatusCode()).isEqualTo(release2.getInfo().getStatus()
 				.getStatusCode());
@@ -236,7 +236,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 				.getName());
 
 		// findLatestRelease
-		Release latestRelease = this.releaseRepository.findLatestRelease(release1.getName());
+		SkipperRelease latestRelease = this.releaseRepository.findLatestRelease(release1.getName());
 		assertThat(latestRelease).isNotNull();
 		assertThat(latestRelease.getName()).isEqualTo(release3.getName());
 		assertThat(latestRelease.getVersion()).isEqualTo(release3.getVersion());
@@ -244,7 +244,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 				.isEqualTo(release3.getInfo().getStatus().getStatusCode());
 
 		// findReleaseRevisions
-		List<Release> releaseRevisions = this.releaseRepository.findReleaseRevisions(release1.getName(), 2);
+		List<SkipperRelease> releaseRevisions = this.releaseRepository.findReleaseRevisions(release1.getName(), 2);
 		assertThat(releaseRevisions).isNotEmpty();
 		assertThat(releaseRevisions).hasSize(2);
 		assertThat(releaseRevisions.get(0).getName()).isEqualTo(release3.getName());
@@ -257,7 +257,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 				.getStatus().getStatusCode());
 
 		// findByNameIgnoreCaseContainingOrderByNameAscVersionDesc
-		List<Release> orderByVersion = this.releaseRepository
+		List<SkipperRelease> orderByVersion = this.releaseRepository
 				.findByNameIgnoreCaseContainingOrderByNameAscVersionDesc(release4.getName());
 		assertThat(orderByVersion).isNotEmpty();
 		assertThat(orderByVersion).hasSize(2);
@@ -271,34 +271,34 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 				.getStatus().getStatusCode());
 
 		// findByNameIgnoreCaseContaining
-		List<Release> byNameLike = this.releaseRepository.findByNameIgnoreCaseContaining("stable");
+		List<SkipperRelease> byNameLike = this.releaseRepository.findByNameIgnoreCaseContaining("stable");
 		assertThat(byNameLike).isNotEmpty();
 		assertThat(byNameLike).hasSize(5);
 
 		// findLatestDeployedOrFailed
-		List<Release> deployedOrFailed = this.releaseRepository.findLatestDeployedOrFailed("stable");
+		List<SkipperRelease> deployedOrFailed = this.releaseRepository.findLatestDeployedOrFailed("stable");
 		assertThat(deployedOrFailed).isNotEmpty();
 		assertThat(deployedOrFailed).hasSize(2);
 
-		List<Release> deployedOrFailedAll = this.releaseRepository.findLatestDeployedOrFailed("");
+		List<SkipperRelease> deployedOrFailedAll = this.releaseRepository.findLatestDeployedOrFailed("");
 		assertThat(deployedOrFailedAll).isNotEmpty();
 		assertThat(deployedOrFailedAll).hasSize(9);
 
-		Release latestDeletedRelease1 = this.releaseRepository.findLatestReleaseIfDeleted(release1.getName());
+		SkipperRelease latestDeletedRelease1 = this.releaseRepository.findLatestReleaseIfDeleted(release1.getName());
 		assertThat(latestDeletedRelease1).isNull();
 
-		Release latestDeletedRelease2 = this.releaseRepository.findLatestReleaseIfDeleted(release6.getName());
+		SkipperRelease latestDeletedRelease2 = this.releaseRepository.findLatestReleaseIfDeleted(release6.getName());
 		assertThat(latestDeletedRelease2.getVersion()).isEqualTo(4);
 
 		// deployed -> failed -> failed
-		Release latestReleaseForUpdate1 = this.releaseRepository.findLatestReleaseForUpdate(release10.getName());
+		SkipperRelease latestReleaseForUpdate1 = this.releaseRepository.findLatestReleaseForUpdate(release10.getName());
 		assertThat(latestReleaseForUpdate1.getVersion()).isEqualTo(1);
 		// deployed -> deleted -> unknown
-		Release latestReleaseForUpdate2 = this.releaseRepository.findLatestReleaseForUpdate(release13.getName());
+		SkipperRelease latestReleaseForUpdate2 = this.releaseRepository.findLatestReleaseForUpdate(release13.getName());
 		assertThat(latestReleaseForUpdate2.getVersion()).isEqualTo(2);
 
 		// deployed -> deleted -> unknown
-		Release latestDeployedRelease = this.releaseRepository.findLatestDeployedRelease(release13.getName());
+		SkipperRelease latestDeployedRelease = this.releaseRepository.findLatestDeployedRelease(release13.getName());
 		assertThat(latestDeployedRelease.getVersion()).isEqualTo(1);
 
 		try {

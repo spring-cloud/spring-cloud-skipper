@@ -21,11 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.cloud.skipper.domain.Release;
-import org.springframework.cloud.skipper.domain.Status;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
+import org.springframework.cloud.skipper.domain.SkipperStatus;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.server.deployer.ReleaseManager;
-import org.springframework.cloud.skipper.server.domain.AppDeployerData;
+import org.springframework.cloud.skipper.server.domain.SkipperAppDeployerData;
 import org.springframework.cloud.skipper.server.repository.AppDeployerDataRepository;
 import org.springframework.cloud.skipper.server.repository.ReleaseRepository;
 import org.springframework.context.event.EventListener;
@@ -65,9 +65,9 @@ public class HandleHealthCheckStep {
 	}
 
 	@Transactional
-	public void handleHealthCheck(boolean healthy, Release existingRelease,
+	public void handleHealthCheck(boolean healthy, SkipperRelease existingRelease,
 			List<String> applicationNamesToUpgrade,
-			Release replacingRelease) {
+			SkipperRelease replacingRelease) {
 		if (healthy) {
 			updateReplacingReleaseState(replacingRelease);
 			deleteExistingRelease(existingRelease, applicationNamesToUpgrade);
@@ -77,9 +77,9 @@ public class HandleHealthCheckStep {
 		}
 	}
 
-	private void updateReplacingReleaseState(Release replacingRelease) {
+	private void updateReplacingReleaseState(SkipperRelease replacingRelease) {
 		// Update Status in DB
-		Status status = new Status();
+		SkipperStatus status = new SkipperStatus();
 		status.setStatusCode(StatusCode.DEPLOYED);
 		replacingRelease.getInfo().setStatus(status);
 		replacingRelease.getInfo().setDescription("Upgrade complete");
@@ -90,13 +90,13 @@ public class HandleHealthCheckStep {
 				replacingRelease.getVersion());
 	}
 
-	private void deleteReplacingRelease(Release replacingRelease) {
+	private void deleteReplacingRelease(SkipperRelease replacingRelease) {
 		try {
 			logger.error("New release " + replacingRelease.getName() + " was not detected as healthy after " +
 					this.healthCheckProperties.getTimeoutInMillis() + " milliseconds.  " +
 					"Keeping existing release, and Deleting apps of replacing release");
 			this.releaseManager.delete(replacingRelease);
-			Status status = new Status();
+			SkipperStatus status = new SkipperStatus();
 			status.setStatusCode(StatusCode.FAILED);
 			replacingRelease.getInfo().setStatus(status);
 			replacingRelease.getInfo().setStatus(status);
@@ -109,7 +109,7 @@ public class HandleHealthCheckStep {
 		}
 		catch (Exception e) {
 			// Update Status in DB
-			Status status = new Status();
+			SkipperStatus status = new SkipperStatus();
 			status.setStatusCode(StatusCode.FAILED);
 			replacingRelease.getInfo().setStatus(status);
 			replacingRelease.getInfo().setDescription("Could not delete replacing release application, " +
@@ -120,9 +120,9 @@ public class HandleHealthCheckStep {
 		}
 	}
 
-	private void deleteExistingRelease(Release existingRelease, List<String> applicationNamesToUpgrade) {
+	private void deleteExistingRelease(SkipperRelease existingRelease, List<String> applicationNamesToUpgrade) {
 		try {
-			AppDeployerData existingAppDeployerData = this.appDeployerDataRepository
+			SkipperAppDeployerData existingAppDeployerData = this.appDeployerDataRepository
 					.findByReleaseNameAndReleaseVersionRequired(
 							existingRelease.getName(), existingRelease.getVersion());
 			logger.info("Deleting changed applications from existing release {}-v{}",
@@ -135,7 +135,7 @@ public class HandleHealthCheckStep {
 		}
 		catch (Exception e) {
 			// Update Status in DB
-			Status status = new Status();
+			SkipperStatus status = new SkipperStatus();
 			status.setStatusCode(StatusCode.FAILED);
 			existingRelease.getInfo().setStatus(status);
 			existingRelease.getInfo().setDescription("Could not delete existing application, " +

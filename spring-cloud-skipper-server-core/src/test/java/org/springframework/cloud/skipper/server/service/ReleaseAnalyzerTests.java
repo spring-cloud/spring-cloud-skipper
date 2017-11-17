@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.domain.ConfigValues;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.UpgradeProperties;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.server.AbstractIntegrationTest;
@@ -74,7 +74,7 @@ public class ReleaseAnalyzerTests extends AbstractIntegrationTest {
 		packageIdentifier.setPackageName(packageName);
 		packageIdentifier.setPackageVersion(packageVersion);
 		installRequest.setPackageIdentifier(packageIdentifier);
-		Release installedRelease = install(installRequest);
+		SkipperRelease installedRelease = install(installRequest);
 
 		assertThat(installedRelease.getName()).isEqualTo(releaseName);
 		logger.info("installed release \n" + installedRelease.getManifest());
@@ -94,7 +94,7 @@ public class ReleaseAnalyzerTests extends AbstractIntegrationTest {
 		packageIdentifier.setPackageVersion(packageVersion);
 		upgradeRequest.setPackageIdentifier(packageIdentifier);
 
-		Release upgradedRelease = upgrade(upgradeRequest);
+		SkipperRelease upgradedRelease = upgrade(upgradeRequest);
 
 		assertThat(upgradedRelease.getName()).isEqualTo(releaseName);
 		logger.info("upgraded release \n" + upgradedRelease.getManifest());

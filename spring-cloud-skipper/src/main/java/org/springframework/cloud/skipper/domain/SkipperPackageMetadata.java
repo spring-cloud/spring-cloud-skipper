@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Gunnar Hillert
  */
 @Entity
-public class PackageMetadata extends AbstractEntity {
+public class SkipperPackageMetadata extends AbstractEntity {
 
 	/**
 	 * The Package Index spec version this file is based on.
@@ -108,7 +108,7 @@ public class PackageMetadata extends AbstractEntity {
 	 */
 	private String iconUrl;
 
-	public PackageMetadata() {
+	public SkipperPackageMetadata() {
 	}
 
 	public String getApiVersion() {
@@ -234,7 +234,7 @@ public class PackageMetadata extends AbstractEntity {
 			return false;
 		}
 
-		PackageMetadata that = (PackageMetadata) o;
+		SkipperPackageMetadata that = (SkipperPackageMetadata) o;
 
 		if (apiVersion != null ? !apiVersion.equals(that.apiVersion) : that.apiVersion != null) {
 			return false;

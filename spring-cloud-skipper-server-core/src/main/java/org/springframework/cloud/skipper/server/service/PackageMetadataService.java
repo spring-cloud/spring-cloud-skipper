@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.cloud.skipper.io.TempFileUtils;
 import org.springframework.cloud.skipper.server.repository.RepositoryRepository;
 import org.springframework.context.ResourceLoaderAware;
@@ -60,12 +60,12 @@ public class PackageMetadataService implements ResourceLoaderAware {
 	 * Download package metadata from all repositories.
 	 * @return A list of package metadata, not yet persisted in the PackageMetadataRepository.
 	 */
-	public List<PackageMetadata> downloadPackageMetadata() {
-		List<PackageMetadata> finalMetadataList = new ArrayList<>();
+	public List<SkipperPackageMetadata> downloadPackageMetadata() {
+		List<SkipperPackageMetadata> finalMetadataList = new ArrayList<>();
 		Path targetPath = null;
 		try {
 			targetPath = TempFileUtils.createTempDirectory("skipperIndex");
-			for (Repository packageRepository : this.repositoryRepository.findAll()) {
+			for (SkipperRepository packageRepository : this.repositoryRepository.findAll()) {
 				try {
 					if (!packageRepository.isLocal()) {
 						Resource resource = resourceLoader.getResource(packageRepository.getUrl()
@@ -76,9 +76,9 @@ public class PackageMetadataService implements ResourceLoaderAware {
 							StreamUtils.copy(resource.getInputStream(), new FileOutputStream(downloadedFile));
 							List<File> downloadedFileAsList = new ArrayList<>();
 							downloadedFileAsList.add(downloadedFile);
-							List<PackageMetadata> downloadedPackageMetadata = deserializeFromIndexFiles(
+							List<SkipperPackageMetadata> downloadedPackageMetadata = deserializeFromIndexFiles(
 									downloadedFileAsList);
-							for (PackageMetadata packageMetadata : downloadedPackageMetadata) {
+							for (SkipperPackageMetadata packageMetadata : downloadedPackageMetadata) {
 								packageMetadata.setRepositoryId(packageRepository.getId());
 							}
 							finalMetadataList.addAll(downloadedPackageMetadata);
@@ -102,15 +102,15 @@ public class PackageMetadataService implements ResourceLoaderAware {
 		return finalMetadataList;
 	}
 
-	protected List<PackageMetadata> deserializeFromIndexFiles(List<File> indexFiles) {
-		List<PackageMetadata> packageMetadataList = new ArrayList<>();
+	protected List<SkipperPackageMetadata> deserializeFromIndexFiles(List<File> indexFiles) {
+		List<SkipperPackageMetadata> packageMetadataList = new ArrayList<>();
 		YAMLMapper yamlMapper = new YAMLMapper();
 		yamlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		for (File indexFile : indexFiles) {
 			try {
-				MappingIterator<PackageMetadata> it = yamlMapper.readerFor(PackageMetadata.class).readValues(indexFile);
+				MappingIterator<SkipperPackageMetadata> it = yamlMapper.readerFor(SkipperPackageMetadata.class).readValues(indexFile);
 				while (it.hasNextValue()) {
-					PackageMetadata packageMetadata = it.next();
+					SkipperPackageMetadata packageMetadata = it.next();
 					packageMetadataList.add(packageMetadata);
 				}
 			}

@@ -35,8 +35,8 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.skipper.domain.Info;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.domain.UpgradeProperties;
 import org.springframework.cloud.skipper.server.config.SkipperServerConfiguration;
@@ -90,7 +90,7 @@ public abstract class AbstractMockMvcTests extends AbstractAssertReleaseDeployed
 			logger.info("Checking status of release={} version={}", releaseName, releaseVersion);
 			MvcResult result = mockMvc.perform(get(String.format("/api/status/%s/%s", releaseName, releaseVersion)))
 					.andReturn();
-			Info info = convertContentToInfo(result.getResponse().getContentAsString());
+			SkipperInfo info = convertContentToInfo(result.getResponse().getContentAsString());
 
 			logger.info("Status = " + info.getStatus());
 			return info.getStatus().getStatusCode().equals(StatusCode.DEPLOYED) &&
@@ -102,10 +102,10 @@ public abstract class AbstractMockMvcTests extends AbstractAssertReleaseDeployed
 		}
 	}
 
-	private Info convertContentToInfo(String json) {
+	private SkipperInfo convertContentToInfo(String json) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			return objectMapper.readValue(json, new TypeReference<Info>() {
+			return objectMapper.readValue(json, new TypeReference<SkipperInfo>() {
 			});
 		}
 		catch (IOException e) {
@@ -113,10 +113,10 @@ public abstract class AbstractMockMvcTests extends AbstractAssertReleaseDeployed
 		}
 	}
 
-	protected Release convertContentToRelease(String json) {
+	protected SkipperRelease convertContentToRelease(String json) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			return objectMapper.readValue(json, new TypeReference<Release>() {
+			return objectMapper.readValue(json, new TypeReference<SkipperRelease>() {
 			});
 		}
 		catch (IOException e) {

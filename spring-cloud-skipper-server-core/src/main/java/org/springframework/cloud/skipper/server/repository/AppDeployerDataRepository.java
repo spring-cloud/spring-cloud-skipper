@@ -15,15 +15,17 @@
  */
 package org.springframework.cloud.skipper.server.repository;
 
-import org.springframework.cloud.skipper.server.domain.AppDeployerData;
+import org.springframework.cloud.skipper.server.domain.SkipperAppDeployerData;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 /**
  * @author Mark Pollack
  */
+@RepositoryRestResource(path = "appDeployerDatas", collectionResourceRel = "appDeployerDatas")
 public interface AppDeployerDataRepository
-		extends PagingAndSortingRepository<AppDeployerData, Long>, AppDeployerDataRepositoryCustom {
+		extends PagingAndSortingRepository<SkipperAppDeployerData, Long>, AppDeployerDataRepositoryCustom {
 
-	AppDeployerData findByReleaseNameAndReleaseVersion(String releaseName, Integer releaseVersion);
+	SkipperAppDeployerData findByReleaseNameAndReleaseVersion(String releaseName, Integer releaseVersion);
 
 }

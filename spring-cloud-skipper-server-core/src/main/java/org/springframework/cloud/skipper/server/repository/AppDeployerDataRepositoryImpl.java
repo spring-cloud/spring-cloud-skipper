@@ -21,7 +21,7 @@ import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.server.domain.AppDeployerData;
+import org.springframework.cloud.skipper.server.domain.SkipperAppDeployerData;
 import org.springframework.util.StringUtils;
 
 /**
@@ -33,11 +33,11 @@ public class AppDeployerDataRepositoryImpl implements AppDeployerDataRepositoryC
 	private AppDeployerDataRepository appDeployerDataRepository;
 
 	@Override
-	public AppDeployerData findByReleaseNameAndReleaseVersionRequired(String releaseName, Integer releaseVersion) {
-		AppDeployerData appDeployerData = appDeployerDataRepository.findByReleaseNameAndReleaseVersion(releaseName,
+	public SkipperAppDeployerData findByReleaseNameAndReleaseVersionRequired(String releaseName, Integer releaseVersion) {
+		SkipperAppDeployerData appDeployerData = appDeployerDataRepository.findByReleaseNameAndReleaseVersion(releaseName,
 				releaseVersion);
 		if (appDeployerData == null) {
-			List<AppDeployerData> appDeployerDataList = StreamSupport
+			List<SkipperAppDeployerData> appDeployerDataList = StreamSupport
 					.stream(appDeployerDataRepository.findAll().spliterator(), false)
 					.collect(Collectors.toList());
 			String existingDeployerData = StringUtils.collectionToCommaDelimitedString(appDeployerDataList);

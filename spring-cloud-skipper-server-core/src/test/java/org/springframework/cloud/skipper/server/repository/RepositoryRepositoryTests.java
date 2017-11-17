@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.cloud.skipper.server.AbstractIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +42,7 @@ public class RepositoryRepositoryTests extends AbstractIntegrationTest {
 	}
 
 	private void deleteRepoIfExists(String repoName) {
-		Repository repo = repositoryRepository.findByName(repoName);
+		SkipperRepository repo = repositoryRepository.findByName(repoName);
 		if (repo != null) {
 			this.repositoryRepository.delete(repo);
 		}
@@ -51,11 +51,11 @@ public class RepositoryRepositoryTests extends AbstractIntegrationTest {
 	@Test
 	public void basicCrud() {
 		RepositoryCreator.createTwoRepositories(repositoryRepository);
-		Iterable<Repository> repositories = repositoryRepository.findAll();
+		Iterable<SkipperRepository> repositories = repositoryRepository.findAll();
 		assertThat(repositories).isNotEmpty();
-		Repository repo1 = repositoryRepository.findByName("stable");
+		SkipperRepository repo1 = repositoryRepository.findByName("stable");
 		assertThat(repo1.getUrl()).isEqualTo("http://www.example.com/skipper/repository/stable");
-		Repository repo2 = repositoryRepository.findByName("unstable");
+		SkipperRepository repo2 = repositoryRepository.findByName("unstable");
 		assertThat(repo2.getUrl()).isEqualTo("http://www.example.com/skipper/repository/unstable");
 	}
 }

@@ -39,12 +39,12 @@ import org.springframework.cloud.deployer.spi.app.DeploymentState;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.client.SkipperClient;
 import org.springframework.cloud.skipper.domain.ConfigValues;
-import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.SkipperInfo;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRelease;
 import org.springframework.cloud.skipper.domain.UpgradeProperties;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.domain.UploadRequest;
@@ -139,7 +139,7 @@ public class SkipperCommands extends AbstractSkipperCommand {
 			@ShellOption(help = "wildcard expression to search for the package name", defaultValue = NULL) String name,
 			@ShellOption(help = "boolean to set for more detailed package metadata") boolean details)
 			throws Exception {
-		Resources<PackageMetadata> resources = skipperClient.search(name, details);
+		Resources<SkipperPackageMetadata> resources = skipperClient.search(name, details);
 		if (!details) {
 			LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
 			headers.put("name", "Name");
@@ -153,7 +153,7 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		else {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			PackageMetadata[] packageMetadataResources = resources.getContent().toArray(new PackageMetadata[0]);
+			SkipperPackageMetadata[] packageMetadataResources = resources.getContent().toArray(new SkipperPackageMetadata[0]);
 			List<Table> tableList = new ArrayList<>();
 			for (int i = 0; i < resources.getContent().size(); i++) {
 				String json = mapper.writeValueAsString(packageMetadataResources[i]);
@@ -187,7 +187,7 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		// Commented out until https://github.com/spring-cloud/spring-cloud-skipper/issues/263 is
 		// addressed
 		// assertMutuallyExclusiveFileAndProperties(file, properties);
-		Release release = skipperClient
+		SkipperRelease release = skipperClient
 				.install(getInstallRequest(packageName, packageVersion, file, properties, releaseName, platformName));
 		return "Released " + release.getName() + ". Now at version v" + release.getVersion() + ".";
 	}
@@ -233,14 +233,14 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		// Commented out until https://github.com/spring-cloud/spring-cloud-skipper/issues/263 is
 		// addressed
 		// assertMutuallyExclusiveFileAndProperties(file, properties);
-		Release release = skipperClient
+		SkipperRelease release = skipperClient
 				.upgrade(getUpgradeRequest(releaseName, packageName, packageVersion, file, properties));
 		StringBuilder sb = new StringBuilder();
 		sb.append(release.getName() + " has been upgraded.  Now at version v" + release.getVersion() + ".");
 		return sb.toString();
 	}
 
-	private void updateStatus(StringBuilder sb, Release release) {
+	private void updateStatus(StringBuilder sb, SkipperRelease release) {
 		sb.append("Release Status: " + release.getInfo().getStatus().getStatusCode() + "\n");
 		if (StringUtils.hasText(release.getInfo().getStatus().getPlatformStatus())) {
 			sb.append("Platform Status: " + release.getInfo().getStatus().getPlatformStatusPrettyPrint());
@@ -285,7 +285,7 @@ public class SkipperCommands extends AbstractSkipperCommand {
 			@ShellOption(help = "the name of the release to rollback") String releaseName,
 			@ShellOption(help = "the specific release version to rollback to. " +
 					"Not specifying the value rolls back to the previous release.", defaultValue = "0") int releaseVersion) {
-		Release release = skipperClient.rollback(releaseName, releaseVersion);
+		SkipperRelease release = skipperClient.rollback(releaseName, releaseVersion);
 		StringBuilder sb = new StringBuilder();
 		sb.append(release.getName() + " has been rolled back.  Now at version v" + release.getVersion() + ".");
 		return sb.toString();
@@ -294,7 +294,7 @@ public class SkipperCommands extends AbstractSkipperCommand {
 	@ShellMethod(key = "delete", value = "Delete the release.")
 	public String delete(
 			@ShellOption(help = "the name of the release to delete") String releaseName) {
-		Release release = skipperClient.delete(releaseName);
+		SkipperRelease release = skipperClient.delete(releaseName);
 		StringBuilder sb = new StringBuilder();
 		sb.append(release.getName() + " has been deleted.");
 		return sb.toString();
@@ -323,14 +323,14 @@ public class SkipperCommands extends AbstractSkipperCommand {
 		catch (IOException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
-		PackageMetadata packageMetadata = skipperClient.upload(uploadRequest);
+		SkipperPackageMetadata packageMetadata = skipperClient.upload(uploadRequest);
 		return "Package uploaded successfully:[" + packageMetadata.getName() + ":" + packageMetadata.getVersion() + "]";
 	}
 
 	@ShellMethod(key = "list", value = "List the latest version of releases with status of deployed or failed.")
 	public Table list(
 			@ShellOption(help = "wildcard expression to search by release name", defaultValue = NULL) String releaseName) {
-		List<Release> releases = this.skipperClient.list(releaseName);
+		List<SkipperRelease> releases = this.skipperClient.list(releaseName);
 		LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
 		headers.put("name", "Name");
 		headers.put("version", "Version");
@@ -350,7 +350,7 @@ public class SkipperCommands extends AbstractSkipperCommand {
 	public Table history(
 			@ShellOption(help = "wildcard expression to search by release name") @NotNull String releaseName,
 			@ShellOption(help = "maximum number of revisions to include in the history", defaultValue = NULL) String max) {
-		Collection<Release> releases;
+		Collection<SkipperRelease> releases;
 		if (StringUtils.hasText(max)) {
 			assertMaxIsIntegerAndGreaterThanZero(max);
 			releases = this.skipperClient.history(releaseName, max);
@@ -375,7 +375,7 @@ public class SkipperCommands extends AbstractSkipperCommand {
 	public Object status(
 			@ShellOption(help = "release name") @NotNull String releaseName,
 			@ShellOption(help = "the specific release version.", defaultValue = NULL) Integer releaseVersion) {
-		Info info;
+		SkipperInfo info;
 		try {
 			if (releaseVersion == null) {
 				info = this.skipperClient.status(releaseName);

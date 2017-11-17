@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
-import org.springframework.cloud.skipper.domain.Repository;
+import org.springframework.cloud.skipper.domain.SkipperPackageMetadata;
+import org.springframework.cloud.skipper.domain.SkipperRepository;
 import org.springframework.cloud.skipper.server.config.SkipperServerProperties;
 import org.springframework.cloud.skipper.server.repository.PackageMetadataRepository;
 import org.springframework.cloud.skipper.server.repository.RepositoryRepository;
@@ -75,7 +75,7 @@ public class RepositoryInitializationService {
 
 	private void loadAllPackageMetadata() {
 		try {
-			List<PackageMetadata> packageMetadataList = this.packageMetadataService.downloadPackageMetadata();
+			List<SkipperPackageMetadata> packageMetadataList = this.packageMetadataService.downloadPackageMetadata();
 			this.packageMetadataRepository.save(packageMetadataList);
 		}
 		catch (SkipperException e) {
@@ -84,8 +84,8 @@ public class RepositoryInitializationService {
 	}
 
 	private void synchronizeRepositories() {
-		List<Repository> configurationRepositories = skipperServerProperties.getPackageRepositories();
-		for (Repository configurationRepository : configurationRepositories) {
+		List<SkipperRepository> configurationRepositories = skipperServerProperties.getPackageRepositories();
+		for (SkipperRepository configurationRepository : configurationRepositories) {
 			if (repositoryRepository.findByName(configurationRepository.getName()) == null) {
 				logger.info("Initializing repository database with " + configurationRepository);
 				repositoryRepository.save(configurationRepository);
