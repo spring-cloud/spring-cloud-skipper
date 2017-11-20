@@ -56,44 +56,22 @@ You can generate eclipse project metadata using the following command:
 The generated eclipse projects can be imported by selecting `import existing projects`
 from the `file` menu.
 
-=== Implementing a Custom Database
+=== Using a Custom Database
 
-Skipper, by default, uses an H2 DB that they control. It is possible to change the DB source, by making the following changes.
+Skipper, by default, uses an H2 DB that they control. It is possible to change the DB source, by specifying the
+corresponding datasource properties when starting the Skipper server or via external configuration:
 
-Clone the Spring-Cloud-Skipper
-Go to the server-core pom.xml: `https://github.com/spring-cloud/spring-cloud-skipper/blob/master/spring-cloud-skipper-server-core/pom.xml`
+[source,bash,subs=attributes]
+----
+# MySQL
+java -jar spring-cloud-skipper-server/target/spring-cloud-skipper-server-{project-version}.jar --spring.datasource.url=jdbc:mysql://localhost/skipper --spring.datasource.username=xxx --spring.datasource.password=xxx --spring.datasource.driver-class-name=org.mariadb.jdbc.Driver --spring.jpa.generate-ddl=true
 
-Add your driver's maven dependency (example for postgres):
-```
-<dependency>
-    <groupId>org.postgresql</groupId>
-    <artifactId>postgresql</artifactId>
-    <version>9.4.1212</version>
-</dependency>
-```
+# Postgres
+java -jar spring-cloud-skipper-server/target/spring-cloud-skipper-server-{project-version}.jar --spring.datasource.url=jdbc:postgresql://localhost:5432/skipper --spring.datasource.username=xxx --spring.datasource.password=xxx --spring.datasource.driver-class-name=org.postgresql.Driver --spring.jpa.generate-ddl=true
 
-Update the `server-core/application.yml` or create your own application.properties/application.yml and add these properties. Here is a model for postgres on localhost:
-```
-spring:
-  datasource:
-    username: postgres
-    password: postgres
-    driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/skipper
-    initialize: true
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create-drop
-```
+# MSSQL
+java -jar spring-cloud-skipper-server/target/spring-cloud-skipper-server-{project-version}.jar --spring.datasource.url='jdbc:sqlserver://172.16.101.143;databaseName=skipper' --spring.datasource.username=xxx --spring.datasource.password=xxx --spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver --spring.jpa.generate-ddl=true
 
-Go to your command line, and from the /spring-cloud-skipper/ directory, run this command:
-```
-./mvnw clean package -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip
-```
-Which will build the jar, without running tests, creating documentation or checkstyle.
-
-Run `java -jar spring-cloud-skipper-server/target/spring-cloud-skipper-server-1.0.0.BUILD-SNAPSHOT.jar` if you updated the application.yml. If you created your own config, point to it by using:
-`java -jar spring-cloud-skipper-server/target/spring-cloud-skipper-server-1.0.0.BUILD-SNAPSHOT.jar --spring.config.location=/my-path/properties.ym;`. All the requests/history will now be stored on your custom DB!
-
-Important note, `spring.jpa.hibernate.ddl-auto` property will probably want to be changed to fit your use case. There are five options: `create`, `create-drop`, `update`, `validate` and `none`. `Create` and `create-drop` will delete all existing data in the DB on server boot-up (`create-drop` does it on server boot-down). So if you are using your own DB to persist state use `update`, `validate`, or `none`.
+# HSQLDB
+java -jar spring-cloud-skipper-server/target/spring-cloud-skipper-server-{project-version}.jar --spring.datasource.url=jdbc:hsqldb:hsql://localhost:9101/xxxx --spring.datasource.username=xxx --spring.datasource.driver-class-name=org.hsqldb.jdbcDriver --spring.jpa.generate-ddl=true
+----
