@@ -53,7 +53,7 @@ Applications in Skipper are bundled as packages which contain a templated config
 
 ## Features
 
-The main features in Skipper 1.0 M1 are:
+The main features in Skipper are:
 
 * Define multiple platform accounts where Spring Boot applications can be deployed.  Supported platforms are Local, Cloud Foundry, and Kubernetes.
 * Substitute variables in Mustache templated files that describe how to deploy applications to a platform.
@@ -65,7 +65,7 @@ The main features in Skipper 1.0 M1 are:
 The means to deploy a Spring Boot application to multiple platforms is
 provided by [Spring Cloud Deployer implementations.](https://github.com/spring-cloud/spring-cloud-deployer#implementations)  The supported template file format are YAML based and describe the set of variables needed to create a Spring Cloud Deployer [AppDeploymentRequest](https://github.com/spring-cloud/spring-cloud-deployer/blob/master/spring-cloud-deployer-spi/src/main/java/org/springframework/cloud/deployer/spi/core/AppDeploymentRequest.java)
 
-The next version of Skipper will replace the simple hardcoded workflow of upgrading/rolling back applications versions to a more flexible approach based on the [Spring Statemachine](https://projects.spring.io/spring-statemachine) project.
+The next version (1.0 RC1) of Skipper will replace the simple hardcoded workflow of upgrading/rolling back applications versions to a more flexible approach based on the [Spring Statemachine](https://projects.spring.io/spring-statemachine) project.
 
 ## Getting Started
 The [reference guide](https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#getting-started-installing-skipper) is the best place to get started.
