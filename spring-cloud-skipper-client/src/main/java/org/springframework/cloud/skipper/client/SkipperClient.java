@@ -53,6 +53,11 @@ public interface SkipperClient {
 	AboutInfo info();
 
 	/**
+	 * @return The URI for server
+	 */
+	String getUri();
+
+	/**
 	 * Search for package metadata.
 	 * @param name optional name with wildcard support for searching
 	 * @param details boolean flag to fetch all the metadata

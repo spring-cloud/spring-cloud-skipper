@@ -90,6 +90,11 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
+	public String getUri() {
+		return this.baseUri;
+	}
+
+	@Override
 	public Template getSpringCloudDeployerApplicationTemplate() {
 		org.springframework.core.io.Resource resource = new ClassPathResource(
 				"/org/springframework/cloud/skipper/io/generic-template.yml");
