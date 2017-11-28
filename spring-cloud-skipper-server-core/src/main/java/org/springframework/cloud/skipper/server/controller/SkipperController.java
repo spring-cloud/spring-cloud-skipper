@@ -30,6 +30,7 @@ import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.domain.UploadRequest;
 import org.springframework.cloud.skipper.server.service.PackageService;
 import org.springframework.cloud.skipper.server.service.ReleaseService;
+import org.springframework.cloud.skipper.server.statemachine.SkipperStateMachineService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -62,6 +63,9 @@ public class SkipperController {
 	private String appVersion;
 
 	@Autowired
+	private SkipperStateMachineService stateMachineService;
+
+	@Autowired
 	public SkipperController(ReleaseService releaseService, PackageService packageService) {
 		this.releaseService = releaseService;
 		this.packageService = packageService;
@@ -82,13 +86,13 @@ public class SkipperController {
 	@RequestMapping(path = "/install", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public Release install(@RequestBody InstallRequest installRequest) {
-		return this.releaseService.install(installRequest);
+		return this.stateMachineService.installRelease(installRequest);
 	}
 
 	@RequestMapping(path = "/install/{id}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public Release install(@PathVariable("id") Long id, @RequestBody InstallProperties installProperties) {
-		return this.releaseService.install(id, installProperties);
+		return this.stateMachineService.installRelease(id, installProperties);
 	}
 
 	@RequestMapping(path = "/status/{name}", method = RequestMethod.GET)
@@ -116,20 +120,20 @@ public class SkipperController {
 	@RequestMapping(path = "/upgrade", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public Release upgrade(@RequestBody UpgradeRequest upgradeRequest) {
-		return this.releaseService.upgrade(upgradeRequest);
+		return this.stateMachineService.upgradeRelease(upgradeRequest);
 	}
 
 	@RequestMapping(path = "/rollback/{name}/{version}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public Release rollback(@PathVariable("name") String releaseName,
 			@PathVariable("version") int rollbackVersion) {
-		return this.releaseService.rollback(releaseName, rollbackVersion);
+		return this.stateMachineService.rollbackRelease(releaseName, rollbackVersion);
 	}
 
 	@RequestMapping(path = "/delete/{name}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public Release delete(@PathVariable("name") String releaseName) {
-		return this.releaseService.delete(releaseName);
+		return this.stateMachineService.deleteRelease(releaseName);
 	}
 
 	@RequestMapping(path = "/history/{name}/{max}", method = RequestMethod.GET)

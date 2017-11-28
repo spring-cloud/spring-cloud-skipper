@@ -45,6 +45,7 @@ import org.springframework.cloud.skipper.server.service.ReleaseService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.statemachine.boot.autoconfigure.StateMachineJpaRepositoriesAutoConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -169,8 +170,8 @@ public abstract class AbstractIntegrationTest extends AbstractAssertReleaseDeplo
 	}
 
 	@Configuration
-	@ImportAutoConfiguration(classes = { JacksonAutoConfiguration.class,
-			EmbeddedDataSourceConfiguration.class, HibernateJpaAutoConfiguration.class })
+	@ImportAutoConfiguration(classes = { JacksonAutoConfiguration.class, EmbeddedDataSourceConfiguration.class,
+			HibernateJpaAutoConfiguration.class, StateMachineJpaRepositoriesAutoConfiguration.class })
 	@Import(SkipperServerConfiguration.class)
 	@EnableWebMvc
 	static class TestConfig {

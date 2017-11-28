@@ -61,4 +61,27 @@ public class SimpleRedBlackUpgradeStrategy implements UpgradeStrategy {
 		return replacingRelease;
 	}
 
+	@Override
+	public void deployApps(Release existingRelease, Release replacingRelease, ReleaseAnalysisReport releaseAnalysisReport) {
+		this.deployAppStep.deployApps(existingRelease, replacingRelease, releaseAnalysisReport);
+	}
+
+	@Override
+	public boolean checkStatus(Release replacingRelease) {
+		return this.healthCheckStep.isHealthy(replacingRelease);
+	}
+
+	@Override
+	public void accept(Release existingRelease, Release replacingRelease,
+			ReleaseAnalysisReport releaseAnalysisReport) {
+		this.handleHealthCheckStep.handleHealthCheck(true, existingRelease,
+				releaseAnalysisReport.getApplicationNamesToUpgrade(), replacingRelease);
+	}
+
+	@Override
+	public void cancel(Release existingRelease, Release replacingRelease, ReleaseAnalysisReport releaseAnalysisReport) {
+		this.handleHealthCheckStep.handleHealthCheck(false, existingRelease,
+				releaseAnalysisReport.getApplicationNamesToUpgrade(), replacingRelease);
+	}
+
 }

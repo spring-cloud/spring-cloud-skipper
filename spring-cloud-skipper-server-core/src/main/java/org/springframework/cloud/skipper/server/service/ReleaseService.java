@@ -169,12 +169,13 @@ public class ReleaseService {
 		else {
 			releaseVersion = 1;
 		}
+
 		Release release = createInitialRelease(installProperties, this.packageService.downloadPackage(packageMetadata),
 				releaseVersion);
 		return install(release);
 	}
 
-	protected Release install(Release release) {
+	public Release install(Release release) {
 		Map<String, Object> mergedMap = ConfigValueUtils.mergeConfigValues(release.getPkg(), release.getConfigValues());
 		// Render yaml resources
 		String manifest = ManifestUtils.createManifest(release.getPkg(), mergedMap);
@@ -326,6 +327,10 @@ public class ReleaseService {
 		else {
 			return upgrade(currentRelease, newRollbackRelease);
 		}
+	}
+
+	public ReleaseAnalysisReport createReport(Release existingRelease, Release replacingRelease) {
+		return this.releaseManager.createReport(existingRelease, replacingRelease);
 	}
 
 	private Release upgrade(Release existingRelease, Release replacingRelease) {
