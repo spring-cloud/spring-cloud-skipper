@@ -40,7 +40,7 @@ import org.springframework.statemachine.action.Action;
 public class UpgradeStartAction extends AbstractAction {
 
 	private static final Logger log = LoggerFactory.getLogger(UpgradeStartAction.class);
-	private static final long DEFAULT_UPGRADE_TIMEOUT = 60000L;
+	private static final long DEFAULT_UPGRADE_TIMEOUT = 300000L;
 	private final ReleaseReportService releaseReportService;
 	private final ReleaseService releaseService;
 
