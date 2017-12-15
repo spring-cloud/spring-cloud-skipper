@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.skipper.server.config;
 
-import org.springframework.cloud.skipper.server.config.security.OAuthSecurityConfiguration;
+import org.springframework.cloud.skipper.server.config.security.SkipperOAuthSecurityConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Import;
  * @author Gunnar Hillert
  */
 @Configuration
-@Import({ OAuthSecurityConfiguration.class })
+@Import({ SkipperOAuthSecurityConfiguration.class })
 public class SecurityConfiguration {
 
 }

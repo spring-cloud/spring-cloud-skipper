@@ -36,6 +36,7 @@ spring:
         authorization:
           enabled: true
           permit-all-paths: "/authenticate,/security/info,/features,/assets/**,/dashboard/logout-success-oauth.html"
+          authenticated-paths: "/api/**,/,/api"
           rules:
             # About
 
