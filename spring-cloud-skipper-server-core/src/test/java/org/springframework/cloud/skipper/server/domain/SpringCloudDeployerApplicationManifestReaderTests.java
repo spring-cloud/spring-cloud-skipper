@@ -23,6 +23,9 @@ import java.util.Map;
 import org.junit.Test;
 
 import org.springframework.cloud.skipper.SkipperException;
+import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifest;
+import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifestReader;
+import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationSpec;
 import org.springframework.cloud.skipper.server.TestResourceUtils;
 import org.springframework.util.StreamUtils;
 
