@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-   org.springframework.cloud.skipper.deployer.KubernetesPlatformAutoConfiguration
+   org.springframework.cloud.skipper.deployer.kubernetes.KubernetesPlatformAutoConfiguration

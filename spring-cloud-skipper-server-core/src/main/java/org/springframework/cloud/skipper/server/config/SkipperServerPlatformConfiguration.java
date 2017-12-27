@@ -56,7 +56,7 @@ public class SkipperServerPlatformConfiguration {
 			deployers.add(deployer);
 		}
 
-		return new Platform("local", deployers);
+		return new Platform("Local", deployers);
 	}
 
 	private String prettyPrintLocalDeployerProperties(LocalDeployerProperties localDeployerProperties) {

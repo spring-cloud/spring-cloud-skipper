@@ -26,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.deployer.spi.kubernetes.EntryPointStyle;
 import org.springframework.cloud.deployer.spi.kubernetes.ImagePullPolicy;
 import org.springframework.cloud.deployer.spi.kubernetes.KubernetesDeployerProperties;
+import org.springframework.cloud.skipper.deployer.kubernetes.KubernetesPlatformProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;

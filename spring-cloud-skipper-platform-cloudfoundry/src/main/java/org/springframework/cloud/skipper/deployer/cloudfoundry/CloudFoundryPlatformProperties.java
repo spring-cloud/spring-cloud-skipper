@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.skipper.deployer;
+package org.springframework.cloud.skipper.deployer.cloudfoundry;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
