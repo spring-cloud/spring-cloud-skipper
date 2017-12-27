@@ -62,7 +62,7 @@ public class SkipperServerPlatformConfigurationTests {
 
 		@Test
 		public void allPlatformsConfiguredTest() {
-			assertThat(platforms).extracting("name").contains("Local", "Test");
+			assertThat(platforms).extracting("name").containsExactly("Local", "Test");
 		}
 	}
 
@@ -76,7 +76,7 @@ public class SkipperServerPlatformConfigurationTests {
 
 		@Test
 		public void localPlatformDisabledTest() {
-			assertThat(platforms).extracting("name").contains("Test");
+			assertThat(platforms).extracting("name").containsExactly("Test");
 		}
 	}
 
