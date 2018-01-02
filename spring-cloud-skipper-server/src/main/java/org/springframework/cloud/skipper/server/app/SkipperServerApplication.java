@@ -23,10 +23,7 @@ import org.springframework.boot.autoconfigure.session.SessionAutoConfiguration;
 import org.springframework.cloud.deployer.spi.cloudfoundry.CloudFoundryDeployerAutoConfiguration;
 import org.springframework.cloud.deployer.spi.kubernetes.KubernetesAutoConfiguration;
 import org.springframework.cloud.deployer.spi.local.LocalDeployerAutoConfiguration;
-import org.springframework.cloud.skipper.deployer.cloudfoundry.CloudFoundryPlatformAutoConfiguration;
-import org.springframework.cloud.skipper.deployer.kubernetes.KubernetesPlatformAutoConfiguration;
 import org.springframework.cloud.skipper.server.EnableSkipperServer;
-import org.springframework.context.annotation.Import;
 
 /**
  * Runs the Skipper Server Application.
@@ -43,7 +40,6 @@ import org.springframework.context.annotation.Import;
 		SessionAutoConfiguration.class
 	})
 @EnableSkipperServer
-@Import({KubernetesPlatformAutoConfiguration.class, CloudFoundryPlatformAutoConfiguration.class})
 public class SkipperServerApplication {
 
 	public static void main(String[] args) {
