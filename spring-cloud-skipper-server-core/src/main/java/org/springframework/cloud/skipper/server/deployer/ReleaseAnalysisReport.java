@@ -18,15 +18,16 @@ package org.springframework.cloud.skipper.server.deployer;
 import java.util.List;
 
 import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.deployer.ReleaseDifference;
 import org.springframework.util.Assert;
 
 /**
  * Report returned from the {@link ReleaseAnalyzer} that gives the
- * {@link ReleaseDifference} that describes if there is a difference between the existing
- * release and the requested on, and if so, a description of the differences. The list of
- * application names is also provided. Deployment strategies are the consumers of this
- * report. The reports dictates what needs to change, and the strategies determine how to
- * make the change.
+ * {@link ReleaseDifference} that describes if there is a difference between the
+ * existing release and the requested on, and if so, a description of the differences. The
+ * list of application names is also provided. Deployment strategies are the consumers of
+ * this report. The reports dictates what needs to change, and the strategies determine
+ * how to make the change.
  * @author Mark Pollack
  */
 public class ReleaseAnalysisReport {
@@ -51,6 +52,8 @@ public class ReleaseAnalysisReport {
 			Release existingRelease, Release replacingRelease) {
 		Assert.notNull(applicationNamesToUpgrade, "ApplicationNamesToUpgrade can not be null.");
 		Assert.notNull(releaseDifference, "ReleaseDifference can not be null.");
+		Assert.notNull(existingRelease, "ExistingRelease can not be null.");
+		Assert.notNull(replacingRelease, "ReplacingRelease can not be null.");
 		this.applicationNamesToUpgrade = applicationNamesToUpgrade;
 		this.releaseDifference = releaseDifference;
 		this.existingRelease = existingRelease;
@@ -58,18 +61,30 @@ public class ReleaseAnalysisReport {
 	}
 
 	public List<String> getApplicationNamesToUpgrade() {
-		return applicationNamesToUpgrade;
+		return this.applicationNamesToUpgrade;
 	}
 
 	public ReleaseDifference getReleaseDifference() {
-		return releaseDifference;
+		return this.releaseDifference;
+	}
+
+	public String getReleaseDifferenceSummary() {
+		ReleaseDifferenceSummaryGenerator releaseDifferenceSummaryGenerator = new ReleaseDifferenceSummaryGenerator();
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("Release Difference Summary between existing release ");
+		stringBuilder.append("[name: " + existingRelease.getName() + "version: " + existingRelease.getVersion() + "]");
+		stringBuilder.append(" and replacing release ");
+		stringBuilder
+				.append("[name: " + replacingRelease.getName() + "version: " + replacingRelease.getVersion() + "]\n");
+		stringBuilder.append(releaseDifferenceSummaryGenerator.generateSummary(this.releaseDifference));
+		return stringBuilder.toString();
 	}
 
 	public Release getExistingRelease() {
-		return existingRelease;
+		return this.existingRelease;
 	}
 
 	public Release getReplacingRelease() {
-		return replacingRelease;
+		return this.replacingRelease;
 	}
 }
