@@ -23,11 +23,11 @@ import org.springframework.util.Assert;
 
 /**
  * Report returned from the {@link ReleaseAnalyzer} that gives the
- * {@link ReleaseDifference} that describes if there is a difference between the
- * existing release and the requested on, and if so, a description of the differences. The
- * list of application names is also provided. Deployment strategies are the consumers of
- * this report. The reports dictates what needs to change, and the strategies determine
- * how to make the change.
+ * {@link ReleaseDifference} that describes if there is a difference between the existing
+ * release and the requested on, and if so, a description of the differences. The list of
+ * application names is also provided. Deployment strategies are the consumers of this
+ * report. The reports dictates what needs to change, and the strategies determine how to
+ * make the change.
  * @author Mark Pollack
  */
 public class ReleaseAnalysisReport {
@@ -70,14 +70,11 @@ public class ReleaseAnalysisReport {
 
 	public String getReleaseDifferenceSummary() {
 		ReleaseDifferenceSummaryGenerator releaseDifferenceSummaryGenerator = new ReleaseDifferenceSummaryGenerator();
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("Release Difference Summary between existing release ");
-		stringBuilder.append("[name: " + existingRelease.getName() + "version: " + existingRelease.getVersion() + "]");
-		stringBuilder.append(" and replacing release ");
-		stringBuilder
-				.append("[name: " + replacingRelease.getName() + "version: " + replacingRelease.getVersion() + "]\n");
-		stringBuilder.append(releaseDifferenceSummaryGenerator.generateSummary(this.releaseDifference));
-		return stringBuilder.toString();
+		return releaseDifferenceSummaryGenerator.generateSummary(existingRelease.getName(),
+				existingRelease.getVersion(),
+				replacingRelease.getName(),
+				replacingRelease.getVersion(),
+				this.releaseDifference);
 	}
 
 	public Release getExistingRelease() {

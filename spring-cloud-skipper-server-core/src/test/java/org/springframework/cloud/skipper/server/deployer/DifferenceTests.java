@@ -21,10 +21,10 @@ import java.util.List;
 
 import org.junit.Test;
 
+import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifest;
+import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifestReader;
 import org.springframework.cloud.skipper.domain.deployer.ApplicationManifestDifference;
 import org.springframework.cloud.skipper.server.TestResourceUtils;
-import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationManifest;
-import org.springframework.cloud.skipper.server.domain.SpringCloudDeployerApplicationManifestReader;
 import org.springframework.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

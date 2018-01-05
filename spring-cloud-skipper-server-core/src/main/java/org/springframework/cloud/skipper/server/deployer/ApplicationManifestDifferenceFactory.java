@@ -24,7 +24,6 @@ import com.google.common.collect.Maps;
 
 import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifest;
 import org.springframework.cloud.skipper.domain.deployer.ApplicationManifestDifference;
-
 import org.springframework.util.Assert;
 
 /**
@@ -63,11 +62,11 @@ public class ApplicationManifestDifferenceFactory {
 			SpringCloudDeployerApplicationManifest existingApplicationManifest,
 			SpringCloudDeployerApplicationManifest replacingApplicationManifest) {
 		Map<String, String> existingApiAndKindMap = new HashMap<>();
-		existingApiAndKindMap.put("api", existingApplicationManifest.getApiVersion().trim());
+		existingApiAndKindMap.put("apiVersion", existingApplicationManifest.getApiVersion().trim());
 		existingApiAndKindMap.put("kind", existingApplicationManifest.getKind().trim());
 
 		Map<String, String> replacingApiAndKindMap = new HashMap<>();
-		replacingApiAndKindMap.put("api", replacingApplicationManifest.getApiVersion().trim());
+		replacingApiAndKindMap.put("apiVersion", replacingApplicationManifest.getApiVersion().trim());
 		replacingApiAndKindMap.put("kind", replacingApplicationManifest.getKind().trim());
 
 		return Maps.difference(existingApiAndKindMap, replacingApiAndKindMap);

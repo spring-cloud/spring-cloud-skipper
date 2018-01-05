@@ -37,12 +37,12 @@ public class ApplicationManifestDifferenceSummaryGenerator {
 		StringBuffer stringBuffer = new StringBuffer();
 
 		if (applicationManifestDifference.areEqual()) {
-			stringBuffer.append("Existing and Replacing Application Name=["
-					+ applicationManifestDifference.getApplicationName() + "] are equal.\n\n");
+			stringBuffer.append("Existing and Replacing Applications are equal for Application Name=["
+					+ applicationManifestDifference.getApplicationName() + "]\n\n");
 		}
 		else {
-			stringBuffer.append("Existing and Replacing Application Name=["
-					+ applicationManifestDifference.getApplicationName() + "] differ.\n\n");
+			stringBuffer.append("Existing and Replacing Applications are different for Application Name=["
+					+ applicationManifestDifference.getApplicationName() + "]\n\n");
 
 			if (!applicationManifestDifference.getApiAndKindDifference().areEqual()) {
 				stringBuffer.append("API and Kind\n");

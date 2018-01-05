@@ -101,7 +101,6 @@ public class ReleaseAnalyzer {
 			List<? extends SpringCloudDeployerApplicationManifest> replacingApplicationSpecList,
 			Release existingRelease, Release replacingRelease) {
 
-		List<String> appsToDelete = new ArrayList<>();
 		List<ApplicationManifestDifference> applicationManifestDifferences = new ArrayList<>();
 
 		for (SpringCloudDeployerApplicationManifest existingApplicationManifest : existingApplicationSpecList) {
@@ -115,8 +114,7 @@ public class ReleaseAnalyzer {
 			applicationManifestDifferences.add(applicationManifestDifference);
 		}
 
-		return createReleaseAnalysisReport(existingRelease, replacingRelease, appsToDelete,
-				applicationManifestDifferences);
+		return createReleaseAnalysisReport(existingRelease, replacingRelease, applicationManifestDifferences);
 
 	}
 
@@ -125,7 +123,6 @@ public class ReleaseAnalyzer {
 			List<? extends SpringCloudDeployerApplicationManifest> replacingApplicationSpecList,
 			Release existingRelease, Release replacingRelease) {
 
-		List<String> appsToDelete = new ArrayList<>();
 		List<ApplicationManifestDifference> applicationManifestDifferences = new ArrayList<>();
 
 		ApplicationManifestDifference applicationManifestDifference = applicationManifestDifferenceFactory
@@ -135,22 +132,22 @@ public class ReleaseAnalyzer {
 						replacingApplicationSpecList.get(0));
 		applicationManifestDifferences.add(applicationManifestDifference);
 
-		return createReleaseAnalysisReport(existingRelease, replacingRelease, appsToDelete,
-				applicationManifestDifferences);
+		return createReleaseAnalysisReport(existingRelease, replacingRelease, applicationManifestDifferences);
 	}
 
 	private ReleaseAnalysisReport createReleaseAnalysisReport(Release existingRelease,
 			Release replacingRelease,
-			List<String> appsToDelete,
 			List<ApplicationManifestDifference> applicationManifestDifferences) {
+		List<String> appsToUpgrade = new ArrayList<>();
 		ReleaseDifference releaseDifference = new ReleaseDifference();
 		releaseDifference.setDifferences(applicationManifestDifferences);
 		if (!releaseDifference.areEqual()) {
-			logger.info("Differences detected between existing and application manifests. Upgrading applications = [" +
+			logger.info("Differences detected between existing and replacing application manifests."
+					+ "Upgrading applications = [" +
 					StringUtils.collectionToCommaDelimitedString(releaseDifference.getChangedApplicationNames()) + "]");
-			appsToDelete.addAll(releaseDifference.getChangedApplicationNames());
+			appsToUpgrade.addAll(releaseDifference.getChangedApplicationNames());
 		}
-		return new ReleaseAnalysisReport(appsToDelete, releaseDifference, existingRelease, replacingRelease);
+		return new ReleaseAnalysisReport(appsToUpgrade, releaseDifference, existingRelease, replacingRelease);
 	}
 
 	private SpringCloudDeployerApplicationManifest findMatching(String existingApplicationName,
