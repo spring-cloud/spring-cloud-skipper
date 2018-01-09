@@ -18,7 +18,6 @@ package org.springframework.cloud.skipper.shell.command.support;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -37,12 +36,7 @@ import org.springframework.util.StringUtils;
  */
 public abstract class YmlUtils {
 
-	public static String convertFromCsvToYaml(String propertiesAsString) {
-		return YamlConverter.builder().mode(Mode.FLATTEN).map(DeploymentPropertiesUtils.parse(propertiesAsString))
-				.build().convert().getYaml();
-	}
-
-	public static String getYamlConfigValues(File yamlFile, String propertiesAsCsvString) throws IOException {
+	public static String getYamlConfigValues(File yamlFile, String properties) {
 		String configValuesYML = null;
 		if (yamlFile != null) {
 			Yaml yaml = new Yaml();
@@ -54,18 +48,20 @@ public abstract class YmlUtils {
 				throw new SkipperException("Could not find file " + yamlFile.toString());
 			}
 		}
-		else if (StringUtils.hasText(propertiesAsCsvString)) {
-			configValuesYML = convertToYaml(propertiesAsCsvString);
+		else if (StringUtils.hasText(properties)) {
+			configValuesYML = convertToYaml(properties);
 		}
 		return configValuesYML;
 	}
 
-	private static String convertToYaml(String propertiesAsCsvString) {
+	private static String convertToYaml(String properties) {
 		return YamlConverter.builder()
 				.mode(Mode.FLATTEN)
 				.flat("spec.applicationProperties")
 				.flat("spec.deploymentProperties")
-				.map(DeploymentPropertiesUtils.parse(propertiesAsCsvString)).build()
+				.flat("\\w+\\.spec\\.applicationProperties")
+				.flat("\\w+\\.spec\\.deploymentProperties")
+				.map(DeploymentPropertiesUtils.parse(properties)).build()
 				.convert().getYaml();
 	}
 }

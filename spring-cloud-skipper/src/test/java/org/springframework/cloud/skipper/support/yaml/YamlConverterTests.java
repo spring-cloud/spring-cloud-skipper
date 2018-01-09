@@ -253,6 +253,32 @@ public class YamlConverterTests {
 	}
 
 	@Test
+	public void forceFlattenMultiUseRegex() throws Exception {
+		do_conversionTest(
+				Mode.FLATTEN,
+				Arrays.asList("[a-z]*2\\.property"),
+				"some1.property.sub1.sub2=sub-value1\n" +
+				"some1.property.sub3.sub4=sub-value2\n" +
+				"some2.property.sub5.sub6=sub-value1\n" +
+				"some2.property.sub7.sub8=sub-value2",
+				// ==>
+				"some1:\n" +
+				"  property:\n" +
+				"    sub1:\n" +
+				"      sub2: sub-value1\n" +
+				"    sub3:\n" +
+				"      sub4: sub-value2\n" +
+				"some2:\n" +
+				"  property:\n" +
+				"    sub5.sub6: sub-value1\n" +
+				"    sub7.sub8: sub-value2\n",
+				(status) -> {
+					assertThat(status.getSeverity()).isEqualTo(0);
+				}
+		);
+	}
+
+	@Test
 	public void scalarAndMapConflictDeepFlatten() throws Exception {
 		do_conversionTest(
 				Mode.FLATTEN,

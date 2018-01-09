@@ -30,7 +30,7 @@ public class YmlUtilsTests {
 	@Test
 	public void testSimpleConversion() {
 		String stringToConvert = "hello=oi,world=mundo";
-		String yml = YmlUtils.convertFromCsvToYaml(stringToConvert);
+		String yml = YmlUtils.getYamlConfigValues(null, stringToConvert);
 		assertThat(yml).isEqualTo("hello: oi\nworld: mundo\n");
 	}
 
@@ -38,24 +38,16 @@ public class YmlUtilsTests {
 	public void testPropertiesParsingWithPackageDeps() throws IOException {
 		String properties = "log.spec.deploymentProperties.spring.cloud.deployer.cloudfoundry.route=mlp3-helloworld.cfapps.io,"
 				+ "time.spec.deploymentProperties.spring.cloud.deployer.cloudfoundry.route=mlp1-helloworld.cfapps.io";
-		String propertiesYml = YmlUtils.convertFromCsvToYaml(properties);
+		String propertiesYml = YmlUtils.getYamlConfigValues(null, properties);
 		assertThat(propertiesYml).isEqualTo(
 				"log:\n"
 						+ "  spec:\n"
 						+ "    deploymentProperties:\n"
-						+ "      spring:\n"
-						+ "        cloud:\n"
-						+ "          deployer:\n"
-						+ "            cloudfoundry:\n"
-						+ "              route: mlp3-helloworld.cfapps.io\n"
+						+ "      spring.cloud.deployer.cloudfoundry.route: mlp3-helloworld.cfapps.io\n"
 						+ "time:\n"
 						+ "  spec:\n"
 						+ "    deploymentProperties:\n"
-						+ "      spring:\n"
-						+ "        cloud:\n"
-						+ "          deployer:\n"
-						+ "            cloudfoundry:\n"
-						+ "              route: mlp1-helloworld.cfapps.io\n");
+						+ "      spring.cloud.deployer.cloudfoundry.route: mlp1-helloworld.cfapps.io\n");
 	}
 
 	@Test

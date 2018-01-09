@@ -48,9 +48,8 @@ public final class DeploymentPropertiesUtils {
 
 	/**
 	 * Parses a String comprised of 0 or more comma-delimited key=value pairs where each key
-	 * has the format: {@code app.[appname].[key]} or {@code deployer.[appname].[key]}. Values
-	 * may themselves contain commas, since the split points will be based upon the key
-	 * pattern.
+	 * has the properties format(strings and dots). Values may themselves contain commas, since
+	 * the split points will be based upon the key pattern.
 	 * <p>
 	 * Logic of parsing key/value pairs from a string is based on few rules and assumptions 1.
 	 * keys will not have commas or equals. 2. First raw split is done by commas which will

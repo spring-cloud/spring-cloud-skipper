@@ -71,7 +71,8 @@ public interface YamlConverter {
 		Builder mode(Mode mode);
 
 		/**
-		 * Adds a keyspace which forces flattening.
+		 * Adds a keyspace regex pattern which forces flattening.
+		 * This pattern needs to fully match target keyspace.
 		 *
 		 * @param keyspace the keyspace
 		 * @return the builder for chaining

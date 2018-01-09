@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.cloud.skipper.support.yaml.YamlConverter.Mode;
@@ -88,7 +90,12 @@ class YamlBuilder {
 	 */
 	public Object build() {
 		String propString = this.path.toPropString();
-		boolean force = keyspaceList.stream().anyMatch((s) -> propString.startsWith(s) && !propString.equals(s));
+		boolean force = keyspaceList.stream().anyMatch((s) -> {
+			// check that prop starts with regex pattern and
+			// need to skip full match
+			Matcher m = Pattern.compile(s).matcher(propString);
+			return m.lookingAt() && !m.matches();
+		});
 
 		Flatten flatten = null;
 		if (!scalars.isEmpty()) {
