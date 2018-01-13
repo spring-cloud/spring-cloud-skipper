@@ -220,9 +220,9 @@ public class PackageService implements ResourceLoaderAware {
 			Assert.isTrue(unpackagedFile.exists(), "Package is expected to be unpacked, but it doesn't exist");
 			Package packageToUpload = this.packageReader.read(unpackagedFile);
 			PackageMetadata packageMetadata = packageToUpload.getMetadata();
-			// TODO: Model the PackageMetadata -> Repository relationship in the DB.
 			if (localRepositoryToUpload != null) {
 				packageMetadata.setRepositoryId(localRepositoryToUpload.getId());
+				packageMetadata.setRepositoryName(localRepositoryToUpload.getName());
 			}
 			packageMetadata.setPackageFileBytes(uploadRequest.getPackageFileAsBytes());
 			return this.packageMetadataRepository.save(packageMetadata);
@@ -261,16 +261,13 @@ public class PackageService implements ResourceLoaderAware {
 		Assert.notNull(uploadRequest.getPackageFileAsBytes(), "Package file as bytes must not be null");
 		Assert.isTrue(uploadRequest.getPackageFileAsBytes().length != 0, "Package file as bytes must not be empty");
 
-		Repository repository = this.repositoryRepository.findByName(uploadRequest.getRepoName());
-		if (repository != null) {
-			PackageMetadata existingPackageMetadata = this.packageMetadataRepository.findByRepositoryIdAndNameAndVersion(
-					repository.getId(), uploadRequest.getName(), uploadRequest.getVersion());
+		PackageMetadata existingPackageMetadata = this.packageMetadataRepository.findByRepositoryNameAndNameAndVersion(
+				uploadRequest.getRepoName().trim(), uploadRequest.getName().trim(), uploadRequest.getVersion().trim());
 
-			if (existingPackageMetadata != null) {
-				throw new SkipperException(String.format("Failed to upload the package. " + "" +
-						"Package [%s:%s] in Repository [%s] already exists.",
-						uploadRequest.getName(), uploadRequest.getVersion(), repository.getName()));
-			}
+		if (existingPackageMetadata != null) {
+			throw new SkipperException(String.format("Failed to upload the package. " + "" +
+					"Package [%s:%s] in Repository [%s] already exists.",
+					uploadRequest.getName(), uploadRequest.getVersion(), uploadRequest.getRepoName().trim()));
 		}
 	}
 
