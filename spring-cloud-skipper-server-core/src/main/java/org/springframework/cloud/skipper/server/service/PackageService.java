@@ -78,6 +78,11 @@ public class PackageService implements ResourceLoaderAware {
 	}
 
 	@Transactional
+	public void delete(PackageMetadata packageMetadata) {
+
+	}
+
+	@Transactional
 	public Package downloadPackage(PackageMetadata packageMetadata) {
 		Assert.notNull(packageMetadata, "Can't download PackageMetadata, it is a null value.");
 		// Database contains the package file from a previous upload
