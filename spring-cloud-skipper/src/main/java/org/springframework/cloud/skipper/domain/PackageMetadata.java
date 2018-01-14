@@ -258,20 +258,20 @@ public class PackageMetadata extends AbstractEntity {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof PackageMetadata)) return false;
 
 		PackageMetadata that = (PackageMetadata) o;
 
-		if (!repositoryId.equals(that.repositoryId)) return false;
-		if (!name.equals(that.name)) return false;
-		return version.equals(that.version);
+		if (repositoryId != null ? !repositoryId.equals(that.repositoryId) : that.repositoryId != null) return false;
+		if (name != null ? !name.equals(that.name) : that.name != null) return false;
+		return version != null ? version.equals(that.version) : that.version == null;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = repositoryId.hashCode();
-		result = 31 * result + name.hashCode();
-		result = 31 * result + version.hashCode();
+		int result = repositoryId != null ? repositoryId.hashCode() : 0;
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + (version != null ? version.hashCode() : 0);
 		return result;
 	}
 
