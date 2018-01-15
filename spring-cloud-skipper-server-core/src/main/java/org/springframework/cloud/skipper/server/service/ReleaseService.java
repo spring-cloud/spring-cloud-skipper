@@ -17,10 +17,13 @@ package org.springframework.cloud.skipper.server.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.cloud.skipper.PackageHasDeployedRelease;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.domain.Info;
@@ -53,6 +56,7 @@ import org.springframework.util.StringUtils;
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
  * @author Glenn Renfro
+ * @author Christian Tzolov
  */
 public class ReleaseService {
 
@@ -195,9 +199,58 @@ public class ReleaseService {
 	 */
 	@Transactional
 	public Release delete(String releaseName) {
+		return this.delete(releaseName, false);
+	}
+
+	/**
+	 * If the deleteReleasePackage is true deletes the release along with the package it was created from. The
+	 * transactions succeeds only if there are no other deployed release from the same package but the releaseName.
+	 * If the deleteReleasePackage is false it behaves as {@link #delete(String)}
+	 * @param releaseName the name of the release to be deleted
+	 * @param deleteReleasePackage if true tries to delete the package of the releaseName release
+	 * @return the state of the release after requesting a deletion
+	 */
+	@Transactional
+	public Release delete(String releaseName, boolean deleteReleasePackage) {
 		Assert.notNull(releaseName, "Release name must not be null");
+		if (deleteReleasePackage) {
+			Release release = this.releaseRepository.findLatestDeployedRelease(releaseName);
+			// Note: the app deployer delete is not transactional operations (e.g. we can't revert the Deployer's state
+			// in case of failure. Therefore we should call the package delete before the release delete!
+			this.deleteReleasePackage(release);
+		}
 		Release release = this.releaseRepository.findLatestDeployedRelease(releaseName);
 		return this.releaseManager.delete(release);
+
+	}
+
+	/**
+	 * Delete all versions of the release package uploaded in the same repository as the release's package.
+	 *
+	 * @param deletedRelease Release for which the Package to be deleted
+	 */
+	private void deleteReleasePackage(Release deletedRelease) {
+
+		String pkgName = deletedRelease.getPkg().getMetadata().getName();
+		Long pkgRepoId = deletedRelease.getPkg().getMetadata().getRepositoryId();
+
+		Iterable<Release> releases = this.releaseRepository.findAll();
+		List<Release> deployedReleasesByPackageAndRepoId = StreamSupport.stream(releases.spliterator(), false)
+				.filter(r -> r.getPkg().getMetadata().getName().equalsIgnoreCase(pkgName)
+						&& r.getPkg().getMetadata().getRepositoryId() == pkgRepoId)
+				.filter(r -> r.getInfo().getStatus().getStatusCode() == StatusCode.DEPLOYED)
+				.filter(r -> !r.equals(deletedRelease))
+				.collect(Collectors.toList());
+
+		if (deployedReleasesByPackageAndRepoId.size() > 0) {
+			throw new PackageHasDeployedRelease(pkgName, deployedReleasesByPackageAndRepoId);
+		}
+
+		// Find and delete all versions of the release Package deployed in the same repository
+		List<PackageMetadata> packages = packageMetadataRepository.findByNameAndRepositoryId(pkgName, pkgRepoId);
+		for (PackageMetadata packageMetadata : packages) {
+			packageService.delete(packageMetadata);
+		}
 	}
 
 	/**
