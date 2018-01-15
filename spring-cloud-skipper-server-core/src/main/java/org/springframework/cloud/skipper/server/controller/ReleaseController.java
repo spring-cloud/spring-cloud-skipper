@@ -20,15 +20,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.domain.Info;
-import org.springframework.cloud.skipper.domain.InstallProperties;
-import org.springframework.cloud.skipper.domain.InstallRequest;
-import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
-import org.springframework.cloud.skipper.domain.UploadRequest;
-import org.springframework.cloud.skipper.server.service.PackageService;
 import org.springframework.cloud.skipper.server.service.ReleaseService;
 import org.springframework.cloud.skipper.server.statemachine.SkipperStateMachineService;
+import org.springframework.hateoas.ResourceSupport;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,20 +36,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 /**
- * REST controller for Skipper server related operations such as install, upgrade, delete,
- * and rollback.
+ * REST controller for Skipper release related operations.
  *
  * @author Mark Pollack
  * @author Ilayaperumal Gopinathan
  */
 @RestController
-@RequestMapping("/api")
-public class SkipperController {
+@RequestMapping("/api/release")
+public class ReleaseController {
 
 	private final ReleaseService releaseService;
-
-	private final PackageService packageService;
 
 	@Value("${info.app.name:#{null}}")
 	private String appName;
@@ -62,29 +58,38 @@ public class SkipperController {
 
 	private SkipperStateMachineService skipperStateMachineService;
 
-	public SkipperController(ReleaseService releaseService, PackageService packageService,
-			SkipperStateMachineService skipperStateMachineService) {
+	public ReleaseController(ReleaseService releaseService, SkipperStateMachineService skipperStateMachineService) {
 		this.releaseService = releaseService;
-		this.packageService = packageService;
 		this.skipperStateMachineService = skipperStateMachineService;
 	}
 
-	@RequestMapping(path = "/upload", method = RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	public PackageMetadata upload(@RequestBody UploadRequest uploadRequest) {
-		return this.packageService.upload(uploadRequest);
-	}
-
-	@RequestMapping(path = "/install", method = RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	public Release install(@RequestBody InstallRequest installRequest) {
-		return this.skipperStateMachineService.installRelease(installRequest);
-	}
-
-	@RequestMapping(path = "/install/{id}", method = RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	public Release install(@PathVariable("id") Long id, @RequestBody InstallProperties installProperties) {
-		return this.skipperStateMachineService.installRelease(id, installProperties);
+	@RequestMapping(method = RequestMethod.GET)
+	public ReleaseControllerLinksResource resourceLinks() {
+		ReleaseControllerLinksResource resource = new ReleaseControllerLinksResource();
+		resource.add(ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).status(null))
+				.withRel("status/name"));
+		resource.add(ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).status(null, null))
+				.withRel("status/name/version"));
+		resource.add(
+				ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).manifest(null))
+						.withRel("manifest"));
+		resource.add(ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).manifest(null, null))
+				.withRel("manifest/name/version"));
+		resource.add(ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).upgrade(null))
+				.withRel("upgrade"));
+		resource.add(
+				ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).rollback(null, null))
+						.withRel("rollback"));
+		resource.add(ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).delete(null))
+				.withRel("delete"));
+		resource.add(
+				ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).history(null, null))
+						.withRel("history"));
+		resource.add(ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).list())
+				.withRel("list"));
+		resource.add(ControllerLinkBuilder.linkTo(methodOn(ReleaseController.class).list(null))
+				.withRel("list/name"));
+		return resource;
 	}
 
 	@RequestMapping(path = "/status/{name}", method = RequestMethod.GET)
@@ -95,7 +100,7 @@ public class SkipperController {
 
 	@RequestMapping(path = "/status/{name}/{version}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public Info status(@PathVariable("name") String name, @PathVariable("version") int version) {
+	public Info status(@PathVariable("name") String name, @PathVariable("version") Integer version) {
 		return this.releaseService.status(name, version);
 	}
 
@@ -105,7 +110,7 @@ public class SkipperController {
 	}
 
 	@RequestMapping(path = "/manifest/{name}/{version}", method = RequestMethod.GET)
-	public ResponseEntity<String> manifest(@PathVariable("name") String name, @PathVariable("version") int version) {
+	public ResponseEntity<String> manifest(@PathVariable("name") String name, @PathVariable("version") Integer version) {
 		return new ResponseEntity<String>(this.releaseService.manifest(name, version), HttpStatus.OK);
 	}
 
@@ -118,7 +123,7 @@ public class SkipperController {
 	@RequestMapping(path = "/rollback/{name}/{version}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public Release rollback(@PathVariable("name") String releaseName,
-			@PathVariable("version") int rollbackVersion) {
+			@PathVariable("version") Integer rollbackVersion) {
 		return this.skipperStateMachineService.rollbackRelease(releaseName, rollbackVersion);
 	}
 
@@ -131,7 +136,7 @@ public class SkipperController {
 	@RequestMapping(path = "/history/{name}/{max}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	public List<Release> history(@PathVariable("name") String releaseName,
-			@PathVariable("max") int maxRevisions) {
+			@PathVariable("max") Integer maxRevisions) {
 		return this.releaseService.history(releaseName, maxRevisions);
 	}
 
@@ -151,5 +156,14 @@ public class SkipperController {
 	@ExceptionHandler(ReleaseNotFoundException.class)
 	public void handleReleaseNotFoundException() {
 		// needed for server not to log 500 errors
+	}
+
+	/**
+	 * @author Mark Pollack
+	 */
+	public static class ReleaseControllerLinksResource extends ResourceSupport {
+
+		public ReleaseControllerLinksResource() {
+		}
 	}
 }
