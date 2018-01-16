@@ -194,12 +194,6 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>application.yml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources/db-schema</directory>
-                <filtering>true</filtering>
-                <includes>
                     <include>*.sql</include>
                 </includes>
             </resource>
