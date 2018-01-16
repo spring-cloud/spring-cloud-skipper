@@ -188,6 +188,7 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>application.yml</include>
+                    <include>*.sql</include>
                 </includes>
             </resource>
         </resources>
