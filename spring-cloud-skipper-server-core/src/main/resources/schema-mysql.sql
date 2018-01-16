@@ -1,123 +1,9 @@
 
-    alter table jpa_repository_state 
-        drop 
-        foreign key FKl7uw0stk3ta9k0i64ve8viv8b;
-
-    alter table jpa_repository_state 
-        drop 
-        foreign key FK85uu4no99eoivtd6elb2rp9dg;
-
-    alter table jpa_repository_state_deferred_events 
-        drop 
-        foreign key FKoodyqp0kxbmkjtmskj9m79h73;
-
-    alter table jpa_repository_state_entry_actions 
-        drop 
-        foreign key FKp9g3iq1ngku1imrsf5dnmmnww;
-
-    alter table jpa_repository_state_entry_actions 
-        drop 
-        foreign key FKalgdctnelpb0xriggiufbfcd5;
-
-    alter table jpa_repository_state_exit_actions 
-        drop 
-        foreign key FKlhwv3oxyp5hprnlvs56gnyxdh;
-
-    alter table jpa_repository_state_exit_actions 
-        drop 
-        foreign key FKnuahuplj5vp27hxqdult5y2su;
-
-    alter table jpa_repository_state_state_actions 
-        drop 
-        foreign key FK8wgwopqvhfnb1xe5sqf2213pw;
-
-    alter table jpa_repository_state_state_actions 
-        drop 
-        foreign key FKqqpkvnpqb8madraq2l57niagx;
-
-    alter table jpa_repository_transition 
-        drop 
-        foreign key FKrs9l0ayy1i7t5pjnixkohgrlm;
-
-    alter table jpa_repository_transition 
-        drop 
-        foreign key FK4dahkov2dttpljo5mfcid5gxh;
-
-    alter table jpa_repository_transition 
-        drop 
-        foreign key FK6jymhcao9w1786ldrnbdlsacu;
-
-    alter table jpa_repository_transition_actions 
-        drop 
-        foreign key FKhwdl9g5s5htj2jcb1xrkq6wpw;
-
-    alter table jpa_repository_transition_actions 
-        drop 
-        foreign key FK6287nce3o7soy1bjdyi04heih;
-
-    alter table skipper_info 
-        drop 
-        foreign key fk_info_status;
-
-    alter table skipper_release 
-        drop 
-        foreign key fk_release_info;
-
-    drop table if exists hibernate_sequence;
-
-    drop table if exists jpa_repository_action;
-
-    drop table if exists jpa_repository_guard;
-
-    drop table if exists jpa_repository_state;
-
-    drop table if exists jpa_repository_state_deferred_events;
-
-    drop table if exists jpa_repository_state_entry_actions;
-
-    drop table if exists jpa_repository_state_exit_actions;
-
-    drop table if exists jpa_repository_state_state_actions;
-
-    drop table if exists jpa_repository_state_machine;
-
-    drop table if exists jpa_repository_transition;
-
-    drop table if exists jpa_repository_transition_actions;
-
-    drop table if exists skipper_app_deployer_data;
-
-    drop table if exists skipper_info;
-
-    drop table if exists skipper_package_metadata;
-
-    drop table if exists skipper_release;
-
-    drop table if exists skipper_repository;
-
-    drop table if exists skipper_status;
 
     create table hibernate_sequence (
         next_val bigint
     );
 
-    insert into hibernate_sequence values ( 1 );
-
-    insert into hibernate_sequence values ( 1 );
-
-    insert into hibernate_sequence values ( 1 );
-
-    insert into hibernate_sequence values ( 1 );
-
-    insert into hibernate_sequence values ( 1 );
-
-    insert into hibernate_sequence values ( 1 );
-
-    insert into hibernate_sequence values ( 1 );
-
-    insert into hibernate_sequence values ( 1 );
-
-    insert into hibernate_sequence values ( 1 );
 
     insert into hibernate_sequence values ( 1 );
 
@@ -215,24 +101,31 @@
         primary key (id)
     );
 
+    create table skipper_package_file (
+        id bigint not null,
+        package_bytes longblob,
+        primary key (id)
+    );
+
     create table skipper_package_metadata (
         id bigint not null,
         object_version bigint,
         api_version varchar(255),
-        description varchar(255),
+        description longtext,
         display_name varchar(255),
-        icon_url varchar(255),
+        icon_url longtext,
         kind varchar(255),
         maintainer varchar(255),
         name varchar(255),
         origin varchar(255),
-        package_file longblob,
-        package_home_url varchar(255),
-        package_source_url varchar(255),
+        package_home_url longtext,
+        package_source_url longtext,
         repository_id bigint,
+        repository_name varchar(255),
         sha256 varchar(255),
-        tags varchar(255),
+        tags longtext,
         version varchar(255),
+        packagefile_id bigint,
         primary key (id)
     );
 
@@ -242,8 +135,10 @@
         config_values_string longtext,
         manifest longtext,
         name varchar(255),
+        package_metadata_id bigint,
         pkg_json_string longtext,
         platform_name varchar(255),
+        repository_id bigint,
         version integer not null,
         info_id bigint,
         primary key (id)
@@ -267,6 +162,12 @@
         status_code varchar(255),
         primary key (id)
     );
+
+    create index idx_pkg_name on skipper_package_metadata (name);
+
+    create index idx_rel_name on skipper_release (name);
+
+    create index idx_repo_name on skipper_repository (name);
 
     alter table skipper_repository 
         add constraint uk_repository unique (name);
@@ -345,6 +246,11 @@
         add constraint fk_info_status 
         foreign key (status_id) 
         references skipper_status (id);
+
+    alter table skipper_package_metadata 
+        add constraint FKq2maocius5sr76isk7xlhn7b4 
+        foreign key (packagefile_id) 
+        references skipper_package_file (id);
 
     alter table skipper_release 
         add constraint fk_release_info 
