@@ -42,8 +42,9 @@ import org.springframework.cloud.skipper.io.DefaultPackageWriter;
 import org.springframework.cloud.skipper.io.PackageReader;
 import org.springframework.cloud.skipper.io.PackageWriter;
 import org.springframework.cloud.skipper.server.controller.AboutController;
+import org.springframework.cloud.skipper.server.controller.PackageController;
+import org.springframework.cloud.skipper.server.controller.ReleaseController;
 import org.springframework.cloud.skipper.server.controller.RootController;
-import org.springframework.cloud.skipper.server.controller.SkipperController;
 import org.springframework.cloud.skipper.server.controller.SkipperErrorAttributes;
 import org.springframework.cloud.skipper.server.controller.VersionInfoProperties;
 import org.springframework.cloud.skipper.server.deployer.AppDeployerReleaseManager;
@@ -59,7 +60,7 @@ import org.springframework.cloud.skipper.server.deployer.strategies.SimpleRedBla
 import org.springframework.cloud.skipper.server.deployer.strategies.UpgradeStrategy;
 import org.springframework.cloud.skipper.server.index.PackageMetadataResourceProcessor;
 import org.springframework.cloud.skipper.server.index.PackageSummaryResourceProcessor;
-import org.springframework.cloud.skipper.server.index.SkipperControllerResourceProcessor;
+import org.springframework.cloud.skipper.server.index.SkipperLinksResourceProcessor;
 import org.springframework.cloud.skipper.server.repository.AppDeployerDataRepository;
 import org.springframework.cloud.skipper.server.repository.DeployerRepository;
 import org.springframework.cloud.skipper.server.repository.PackageMetadataRepository;
@@ -129,14 +130,20 @@ public class SkipperServerConfiguration implements AsyncConfigurer {
 	}
 
 	@Bean
-	public SkipperControllerResourceProcessor skipperControllerResourceProcessor() {
-		return new SkipperControllerResourceProcessor();
+	public SkipperLinksResourceProcessor skipperControllerResourceProcessor() {
+		return new SkipperLinksResourceProcessor();
 	}
 
 	@Bean
-	public SkipperController skipperController(ReleaseService releaseService, PackageService packageService,
+	public ReleaseController skipperController(ReleaseService releaseService,
 			SkipperStateMachineService skipperStateMachineService) {
-		return new SkipperController(releaseService, packageService, skipperStateMachineService);
+		return new ReleaseController(releaseService, skipperStateMachineService);
+	}
+
+	@Bean
+	public PackageController packageController(PackageService packageService,
+			SkipperStateMachineService skipperStateMachineService) {
+		return new PackageController(packageService, skipperStateMachineService);
 	}
 
 	@Bean
