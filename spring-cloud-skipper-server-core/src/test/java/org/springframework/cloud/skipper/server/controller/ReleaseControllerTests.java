@@ -113,7 +113,7 @@ public class ReleaseControllerTests extends AbstractControllerTests {
 		DeleteProperties deleteProperties = new DeleteProperties();
 		deleteProperties.setDeletePackage(true);
 
-		MvcResult result = mockMvc.perform(post("/api/delete/" + releaseNameOne)
+		MvcResult result = mockMvc.perform(post("/api/release/delete/" + releaseNameOne)
 				.content(convertObjectToJson(deleteProperties)))
 				.andDo(print()).andExpect(status().isConflict()).andReturn();
 
@@ -125,14 +125,14 @@ public class ReleaseControllerTests extends AbstractControllerTests {
 
 		// Delete the 'release2' only not the package.
 		deleteProperties.setDeletePackage(false);
-		mockMvc.perform(post("/api/delete/" + releaseNameTwo)
+		mockMvc.perform(post("/api/release/delete/" + releaseNameTwo)
 				.content(convertObjectToJson(deleteProperties)))
 				.andDo(print()).andExpect(status().isCreated()).andReturn();
 		assertThat(this.packageMetadataRepository.findByName("log").size()).isEqualTo(3);
 
 		// Second attempt to delete 'release1' along with its package 'log'.
 		deleteProperties.setDeletePackage(true);
-		mockMvc.perform(post("/api/delete/" + releaseNameOne)
+		mockMvc.perform(post("/api/release/delete/" + releaseNameOne)
 				.content(convertObjectToJson(deleteProperties)))
 				.andDo(print()).andExpect(status().isCreated()).andReturn();
 		assertThat(this.packageMetadataRepository.findByName("log").size()).isEqualTo(0);
