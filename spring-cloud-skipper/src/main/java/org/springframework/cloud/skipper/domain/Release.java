@@ -28,6 +28,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,10 +60,10 @@ public class Release extends AbstractEntity {
 	@Transient
 	private Package pkg;
 
-	//TODO don't expose the ID, use names instead.
-
+	@JsonIgnore
 	private Long packageMetadataId;
 
+	@JsonIgnore
 	private Long repositoryId;
 
 	@Lob
