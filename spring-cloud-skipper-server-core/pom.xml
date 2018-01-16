@@ -34,6 +34,11 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>5.0.5</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-keyvalue</artifactId>
         </dependency>
@@ -79,6 +84,9 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -108,6 +116,11 @@
         <dependency>
             <groupId>org.springframework.statemachine</groupId>
             <artifactId>spring-statemachine-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>oracle.sucks</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>1.0.0.whocares</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.statemachine</groupId>
@@ -188,6 +201,7 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>application.yml</include>
+                    <include>db/**</include>
                 </includes>
             </resource>
         </resources>
@@ -204,4 +218,5 @@
             </plugin>
         </plugins>
     </build>
+   
 </project>
