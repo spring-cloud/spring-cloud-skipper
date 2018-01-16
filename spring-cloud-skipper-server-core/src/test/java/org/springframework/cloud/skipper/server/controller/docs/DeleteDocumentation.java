@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,6 +55,7 @@ public class DeleteDocumentation extends BaseDocumentation {
 				.andExpect(status().isCreated())
 				.andDo(this.documentationHandler.document(
 						responseFields(
+								subsectionWithPath("_links").ignored(),
 								fieldWithPath("name").description("Name of the release"),
 								fieldWithPath("version").description("Version of the release"),
 								fieldWithPath("packageMetadataId").description("The package metadata id"),
@@ -105,7 +107,7 @@ public class DeleteDocumentation extends BaseDocumentation {
 										.description("Miscellaneous files in a package, e.g. README, LICENSE, etc."),
 								fieldWithPath("configValues.raw")
 										.description("The raw YAML string of configuration values"),
-								fieldWithPath("manifest").description("The manifest of the release"),
+								fieldWithPath("manifest.data").description("The manifest of the release"),
 								fieldWithPath("platformName").description("Platform name of the release"))));
 	}
 }
