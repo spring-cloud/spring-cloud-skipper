@@ -33,12 +33,14 @@ import org.springframework.cloud.skipper.domain.Package;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
 import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.Repository;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.server.deployer.ReleaseAnalysisReport;
 import org.springframework.cloud.skipper.server.deployer.ReleaseManager;
 import org.springframework.cloud.skipper.server.repository.DeployerRepository;
 import org.springframework.cloud.skipper.server.repository.PackageMetadataRepository;
 import org.springframework.cloud.skipper.server.repository.ReleaseRepository;
+import org.springframework.cloud.skipper.server.repository.RepositoryRepository;
 import org.springframework.cloud.skipper.server.util.ArgumentSanitizer;
 import org.springframework.cloud.skipper.server.util.ConfigValueUtils;
 import org.springframework.cloud.skipper.server.util.ManifestUtils;
@@ -74,18 +76,22 @@ public class ReleaseService {
 
 	private final ReleaseReportService releaseReportService;
 
+	private final RepositoryRepository repositoryRepository;
+
 	public ReleaseService(PackageMetadataRepository packageMetadataRepository,
 			ReleaseRepository releaseRepository,
 			PackageService packageService,
 			ReleaseManager releaseManager,
 			DeployerRepository deployerRepository,
-			ReleaseReportService releaseReportService) {
+			ReleaseReportService releaseReportService,
+			RepositoryRepository repositoryRepository) {
 		this.packageMetadataRepository = packageMetadataRepository;
 		this.releaseRepository = releaseRepository;
 		this.packageService = packageService;
 		this.releaseManager = releaseManager;
 		this.deployerRepository = deployerRepository;
 		this.releaseReportService = releaseReportService;
+		this.repositoryRepository = repositoryRepository;
 	}
 
 	/**
@@ -213,33 +219,42 @@ public class ReleaseService {
 	@Transactional
 	public Release delete(String releaseName, boolean deleteReleasePackage) {
 		Assert.notNull(releaseName, "Release name must not be null");
+		Release releaseToDelete = this.releaseRepository.findLatestDeployedRelease(releaseName);
 		if (deleteReleasePackage) {
-			Release release = this.releaseRepository.findLatestDeployedRelease(releaseName);
 			// Note: the app deployer delete is not transactional operations (e.g. we can't revert the Deployer's state
 			// in case of failure. Therefore we should call the package delete before the release delete!
-			this.deleteReleasePackage(release);
+			this.deleteReleasePackage(releaseToDelete);
 		}
-		Release release = this.releaseRepository.findLatestDeployedRelease(releaseName);
-		return this.releaseManager.delete(release);
+		return this.releaseManager.delete(releaseToDelete);
 
 	}
 
 	/**
 	 * Delete all versions of the release package uploaded in the same repository as the release's package.
 	 *
-	 * @param deletedRelease Release for which the Package to be deleted
+	 * @param releaseToDelete Release for which the Package to be deleted
 	 */
-	private void deleteReleasePackage(Release deletedRelease) {
+	private void deleteReleasePackage(Release releaseToDelete) {
 
-		String pkgName = deletedRelease.getPkg().getMetadata().getName();
-		Long pkgRepoId = deletedRelease.getPkg().getMetadata().getRepositoryId();
+		String pkgName = releaseToDelete.getPkg().getMetadata().getName();
+		Long pkgRepoId = releaseToDelete.getRepositoryId();
+
+		Repository pkgRepository = this.repositoryRepository.findOne(pkgRepoId);
+		if (pkgRepository == null) {
+			throw new SkipperException("Can not delete Package Metadata [" + pkgName + "]. " +
+					"Associated repository not found.");
+		}
+		if (!pkgRepository.isLocal()) {
+			throw new SkipperException("Can not delete Package Metadata [" + pkgName + "] " +
+					"form non-local repository.");
+		}
 
 		Iterable<Release> releases = this.releaseRepository.findAll();
 		List<Release> deployedReleasesByPackageAndRepoId = StreamSupport.stream(releases.spliterator(), false)
 				.filter(r -> r.getPkg().getMetadata().getName().equalsIgnoreCase(pkgName)
 						&& r.getPkg().getMetadata().getRepositoryId() == pkgRepoId)
 				.filter(r -> r.getInfo().getStatus().getStatusCode() == StatusCode.DEPLOYED)
-				.filter(r -> !r.equals(deletedRelease))
+				.filter(r -> !r.equals(releaseToDelete))
 				.collect(Collectors.toList());
 
 		if (deployedReleasesByPackageAndRepoId.size() > 0) {
@@ -247,10 +262,7 @@ public class ReleaseService {
 		}
 
 		// Find and delete all versions of the release Package deployed in the same repository
-		List<PackageMetadata> packages = packageMetadataRepository.findByNameAndRepositoryId(pkgName, pkgRepoId);
-		for (PackageMetadata packageMetadata : packages) {
-			packageService.delete(packageMetadata);
-		}
+		packageMetadataRepository.deleteByRepositoryIdAndName(pkgRepoId, pkgName);
 	}
 
 	/**

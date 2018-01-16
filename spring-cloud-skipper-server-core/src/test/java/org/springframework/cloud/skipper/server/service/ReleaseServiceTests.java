@@ -17,6 +17,7 @@ package org.springframework.cloud.skipper.server.service;
 
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +35,14 @@ import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
 import org.springframework.cloud.skipper.domain.PackageMetadata;
 import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.Repository;
 import org.springframework.cloud.skipper.domain.StatusCode;
 import org.springframework.cloud.skipper.domain.UpgradeProperties;
 import org.springframework.cloud.skipper.domain.UpgradeRequest;
 import org.springframework.cloud.skipper.server.AbstractIntegrationTest;
 import org.springframework.cloud.skipper.server.repository.AppDeployerDataRepository;
 import org.springframework.cloud.skipper.server.repository.PackageMetadataRepository;
+import org.springframework.cloud.skipper.server.repository.RepositoryRepository;
 import org.springframework.test.context.ActiveProfiles;
 
 import static junit.framework.TestCase.fail;
@@ -66,6 +69,16 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 
 	@Autowired
 	private DelegatingResourceLoader delegatingResourceLoader;
+
+	@Autowired
+	private RepositoryRepository repositoryRepository;
+
+	@After
+	public void afterTests() {
+		Repository repo = this.repositoryRepository.findByName("test");
+		repo.setLocal(false);
+		this.repositoryRepository.save(repo);
+	}
 
 	@Test
 	public void testResourceLoaderInstance() {
@@ -230,6 +243,11 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 
 	@Test
 	public void testDeletedReleaseWithPackage() throws InterruptedException {
+		// Make the test repo Local
+		Repository repo = this.repositoryRepository.findByName("test");
+		repo.setLocal(true);
+		this.repositoryRepository.save(repo);
+
 		String releaseName = "deletedRelease";
 		InstallRequest installRequest = new InstallRequest();
 		installRequest.setInstallProperties(createInstallProperties(releaseName));
@@ -256,7 +274,43 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 	}
 
 	@Test
+	public void testDeletedReleaseWithPackageNonLocalRepo() throws InterruptedException {
+		// Make the test repo Non-local
+		Repository repo = this.repositoryRepository.findByName("test");
+		repo.setLocal(false);
+		this.repositoryRepository.save(repo);
+
+		String releaseName = "deletedRelease";
+		InstallRequest installRequest = new InstallRequest();
+		installRequest.setInstallProperties(createInstallProperties(releaseName));
+		PackageIdentifier packageIdentifier = new PackageIdentifier();
+		packageIdentifier.setPackageName("log");
+		packageIdentifier.setPackageVersion("1.0.0");
+		installRequest.setPackageIdentifier(packageIdentifier);
+
+		assertThat(this.packageMetadataRepository.findByName(packageIdentifier.getPackageName()).size()).isEqualTo(3);
+
+		// Install
+		Release release = install(installRequest);
+		assertThat(release).isNotNull();
+		assertReleaseStatus(releaseName, StatusCode.DEPLOYED);
+
+		// Delete attempt
+		try {
+			delete(releaseName, true);
+			fail("Packages from non-local repositories can't be deleted");
+		} catch (SkipperException se) {
+		}
+		assertReleaseStatus(releaseName, StatusCode.DEPLOYED);
+		assertThat(this.packageMetadataRepository.findByName(packageIdentifier.getPackageName()).size()).isEqualTo(3);
+	}
+
+	@Test
 	public void testInstallDeleteOfdMultipleReleasesFromSingePackage() throws InterruptedException {
+
+		Repository repo = this.repositoryRepository.findByName("test");
+		repo.setLocal(true);
+		this.repositoryRepository.save(repo);
 
 		boolean DELETE_RELEASE_PACKAGE = true;
 		String RELEASE_ONE = "RELEASE_ONE";

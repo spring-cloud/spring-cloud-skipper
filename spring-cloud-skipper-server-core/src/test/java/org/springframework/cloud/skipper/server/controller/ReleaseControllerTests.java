@@ -20,12 +20,15 @@ import javax.servlet.ServletContext;
 
 import org.junit.Test;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.skipper.domain.DeleteProperties;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
 import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.Repository;
 import org.springframework.cloud.skipper.domain.StatusCode;
+import org.springframework.cloud.skipper.server.repository.RepositoryRepository;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -46,6 +49,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("repo-test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class ReleaseControllerTests extends AbstractControllerTests {
+
+	@Autowired
+	private RepositoryRepository repositoryRepository;
 
 	@Test
 	public void deployTickTock() throws Exception {
@@ -88,6 +94,11 @@ public class ReleaseControllerTests extends AbstractControllerTests {
 
 	@Test
 	public void checkDeleteReleaseWithPackage() throws Exception {
+
+		// Make the test repo Local
+		Repository repo = this.repositoryRepository.findByName("test");
+		repo.setLocal(true);
+		this.repositoryRepository.save(repo);
 
 		// Deploy
 		String releaseNameOne = "test1";
