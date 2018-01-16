@@ -16,6 +16,7 @@
 package org.springframework.cloud.skipper.domain;
 
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -29,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Gunnar Hillert
  */
 @Entity
-@Table(name = "SkipperPackageMetadata")
+@Table(name = "SkipperPackageMetadata", indexes = @Index(name="idx_pkg_name", columnList = "name"))
 public class PackageMetadata extends AbstractEntity {
 
 	/**
@@ -82,11 +83,13 @@ public class PackageMetadata extends AbstractEntity {
 	/**
 	 * Location to source code for this package.
 	 */
+	@Lob
 	private String packageSourceUrl;
 
 	/**
 	 * The home page of the package
 	 */
+	@Lob
 	private String packageHomeUrl;
 
 	/**
@@ -99,6 +102,7 @@ public class PackageMetadata extends AbstractEntity {
 	/**
 	 * A comma separated list of tags to use for searching
 	 */
+	@Lob
 	private String tags;
 
 	/**
@@ -108,8 +112,8 @@ public class PackageMetadata extends AbstractEntity {
 
 	/**
 	 * Brief description of the package. The packages README.md will contain more information.
-	 * TODO - decide format.
 	 */
+	@Lob
 	private String description;
 
 	/**
@@ -118,8 +122,9 @@ public class PackageMetadata extends AbstractEntity {
 	private String sha256;
 
 	/**
-	 * Url location of a icon. TODO: size specification
+	 * Url location of a icon.
 	 */
+	@Lob
 	private String iconUrl;
 
 	public PackageMetadata() {
