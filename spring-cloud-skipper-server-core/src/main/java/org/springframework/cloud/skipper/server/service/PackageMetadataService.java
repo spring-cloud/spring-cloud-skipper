@@ -72,54 +72,55 @@ public class PackageMetadataService implements ResourceLoaderAware {
 		this.releaseRepository = releaseRepository;
 	}
 
-	@Transactional
-	public void deleteIfAllReleasesDeleted(String packageName) {
-		List<PackageMetadata> packageMetadataList = this.packageMetadataRepository.findByNameRequired(packageName);
-		for (PackageMetadata packageMetadata : packageMetadataList) {
-			deleteIfAllReleasesDeleted(packageMetadata);
-		}
-	}
-
 	/**
 	 * Delete all versions of the package metadata only if the latest releases currently using
 	 * it are in the StatusCode.DELETED state.
-	 * @param packageMetadata the package metadata
+	 * @param packageName the name of the package
 	 */
 	@Transactional
-	public void deleteIfAllReleasesDeleted(PackageMetadata packageMetadata) {
+	public void deleteIfAllReleasesDeleted(String packageName) {
+		List<PackageMetadata> packageMetadataList = this.packageMetadataRepository.findByNameRequired(packageName);
+		List<String> errorMessages = new ArrayList<String>();
+		for (PackageMetadata packageMetadata : packageMetadataList) {
+			List<Release> releases = this.releaseRepository.findByRepositoryIdAndPackageMetadataIdOrderByNameAscVersionDesc(
+					packageMetadata.getRepositoryId(),
+					packageMetadata.getId());
+			boolean canDelete = true;
 
-		List<Release> releases = this.releaseRepository.findByRepositoryIdAndPackageMetadataIdOrderByNameAscVersionDesc(
-				packageMetadata.getRepositoryId(),
-				packageMetadata.getId());
-		boolean canDelete = true;
+			List<Release> releasesFromLocalRepositories = filterReleasesFromLocalRepos(releases, packageMetadata.getName());
 
-		List<Release> releasesFromLocalRepositories = filterReleasesFromLocalRepos(releases, packageMetadata.getName());
+			// Only keep latest release per release name.
+			Map<String, Release> latestReleaseMap = new HashMap<>();
+			for (Release release : releasesFromLocalRepositories) {
+				if (!latestReleaseMap.containsKey(release.getName())) {
+					latestReleaseMap.put(release.getName(), release);
+				}
+			}
 
-		// Only keep latest release per release name.
-		Map<String, Release> latestReleaseMap = new HashMap<>();
-		for (Release release : releasesFromLocalRepositories) {
-			if (!latestReleaseMap.containsKey(release.getName())) {
-				latestReleaseMap.put(release.getName(), release);
+			// Find releases that are still 'active' so can't be deleted
+			List<String> activeReleaseNames = new ArrayList<>();
+			for (Release release : latestReleaseMap.values()) {
+				if (!release.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) {
+					canDelete = false;
+					activeReleaseNames.add(release.getName());
+				}
+			}
+			if (!canDelete) {
+				Repository repository = this.repositoryRepository.findOne(packageMetadata.getRepositoryId());
+				errorMessages.add(String.format("Can not delete Package Metadata [%s:%s] in Repository [%s]. " +
+								"Not all releases of this package have the status DELETED. Active Releases [%s]",
+						packageMetadata.getName(), packageMetadata.getVersion(), repository.getName(),
+						StringUtils.collectionToCommaDelimitedString(activeReleaseNames)));
 			}
 		}
-
-		// Find releases that are still 'active' so can't be deleted
-		List<String> activeReleaseNames = new ArrayList<>();
-		for (Release release : latestReleaseMap.values()) {
-			if (!release.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) {
-				canDelete = false;
-				activeReleaseNames.add(release.getName());
+		if (errorMessages.isEmpty()) {
+			for (PackageMetadata packageMetadata : packageMetadataList) {
+				packageMetadataRepository.deleteByRepositoryIdAndName(packageMetadata.getRepositoryId(),
+						packageMetadata.getName());
 			}
+		} else {
+			throw new SkipperException(StringUtils.collectionToCommaDelimitedString(errorMessages));
 		}
-		if (!canDelete) {
-			Repository repository = this.repositoryRepository.findOne(packageMetadata.getRepositoryId());
-			throw new SkipperException(String.format("Can not delete Package Metadata [%s:%s] in Repository [%s]. " +
-					"Not all releases of this package have the status DELETED. Active Releases [%s]",
-					packageMetadata.getName(), packageMetadata.getVersion(), repository.getName(),
-					StringUtils.collectionToCommaDelimitedString(activeReleaseNames)));
-		}
-		packageMetadataRepository.deleteByRepositoryIdAndName(packageMetadata.getRepositoryId(),
-				packageMetadata.getName());
 	}
 
 	private List<Release> filterReleasesFromLocalRepos(List<Release> releases, String packageMetadataName) {

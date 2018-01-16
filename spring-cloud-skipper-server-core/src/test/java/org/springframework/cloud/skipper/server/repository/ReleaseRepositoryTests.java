@@ -354,7 +354,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		assertThat(foundByRepositoryIdAndPackageMetadataId).hasSize(6);
 
 		try {
-			this.packageMetadataService.deleteIfAllReleasesDeleted(packageMetadata2);
+			this.packageMetadataService.deleteIfAllReleasesDeleted(packageMetadata2.getName());
 			fail("SkipperException is expected");
 		} catch (SkipperException e) {
 			assertThat(e.getMessage())
@@ -368,7 +368,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 		this.releaseRepository.save(release5);
 
 		try {
-			this.packageMetadataService.deleteIfAllReleasesDeleted(packageMetadata2);
+			this.packageMetadataService.deleteIfAllReleasesDeleted(packageMetadata2.getName());
 			fail("SkipperException is expected");
 		} catch (SkipperException e) {
 			assertThat(e.getMessage())
@@ -463,7 +463,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 
 		Long ticktockPackageMetadataId = this.packageMetadataRepository.findByName("ticktock").get(0).getId();
 		try {
-			this.packageMetadataService.deleteIfAllReleasesDeleted(packageMetadata1);
+			this.packageMetadataService.deleteIfAllReleasesDeleted(packageMetadata1.getName());
 			fail("SkipperException is expected");
 		} catch (SkipperException e) {
 			assertThat(e.getMessage())
@@ -475,7 +475,7 @@ public class ReleaseRepositoryTests extends AbstractIntegrationTest {
 
 		release3.setInfo(deletedInfo);
 		this.releaseRepository.save(release3);
-		this.packageMetadataService.deleteIfAllReleasesDeleted(packageMetadata1);
+		this.packageMetadataService.deleteIfAllReleasesDeleted(packageMetadata1.getName());
 		List<Release> foundByRepositoryIdAndPackageMetadataId =
 				this.releaseRepository.findByRepositoryIdAndPackageMetadataIdOrderByNameAscVersionDesc(REMOTE_REPO,
 						ticktockPackageMetadataId);

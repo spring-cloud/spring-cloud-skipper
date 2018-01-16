@@ -29,7 +29,7 @@ import org.springframework.web.servlet.view.RedirectView;
 public class RootController {
 
 	/**
-	 * Handles the root URL of Skipper. Redirects users to the REST API entry point at
+	 * Handles the root URL of Skipper. Redipacrects users to the REST API entry point at
 	 * {@code /api }.
 	 *
 	 * @return RedirectView to api
