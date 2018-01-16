@@ -18,6 +18,7 @@ package org.springframework.cloud.skipper.server.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.skipper.PackageDeleteException;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.domain.DeleteProperties;
 import org.springframework.cloud.skipper.domain.Info;
@@ -171,5 +172,10 @@ public class ReleaseController {
 
 		public ReleaseControllerLinksResource() {
 		}
+	}
+
+	@ExceptionHandler(PackageDeleteException.class)
+	public ResponseEntity<String> handlePackageDeleteException(PackageDeleteException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 	}
 }

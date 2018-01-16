@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
 import org.springframework.cloud.deployer.resource.support.LRUCleaningResourceLoader;
-import org.springframework.cloud.skipper.PackageHasDeployedRelease;
+import org.springframework.cloud.skipper.PackageDeleteException;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.domain.ConfigValues;
@@ -340,9 +340,9 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 			delete(RELEASE_ONE, DELETE_RELEASE_PACKAGE);
 			fail("Attempt to delete a package with other deployed releases should fail");
 		}
-		catch (PackageHasDeployedRelease se) {
-			assertThat(se.getMessage()).isEqualTo("Can't delete package: [log] because is used by deployed releases: " +
-					"[RELEASE_TWO]");
+		catch (PackageDeleteException se) {
+			assertThat(se.getMessage()).isEqualTo("Can not delete Package Metadata [log:1.0.0] in Repository [test]. " +
+					"Not all releases of this package have the status DELETED. Active Releases [RELEASE_TWO]");
 		}
 
 		// Verify that neither the releases nor the package have been deleted
@@ -359,9 +359,9 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 			delete(RELEASE_ONE, DELETE_RELEASE_PACKAGE);
 			fail("Attempt to delete a package with other deployed releases must fail.");
 		}
-		catch (PackageHasDeployedRelease se) {
-			assertThat(se.getMessage()).isEqualTo("Can't delete package: [log] because is used by deployed releases: " +
-					"[RELEASE_TWO, RELEASE_THREE]");
+		catch (PackageDeleteException se) {
+			assertThat(se.getMessage()).isEqualTo("Can not delete Package Metadata [log:1.0.0] in Repository [test]. " +
+					"Not all releases of this package have the status DELETED. Active Releases [RELEASE_THREE,RELEASE_TWO]");
 		}
 
 		// Verify that nothing has been deleted

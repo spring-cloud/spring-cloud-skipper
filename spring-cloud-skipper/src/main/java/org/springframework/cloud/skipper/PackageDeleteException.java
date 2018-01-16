@@ -15,29 +15,31 @@
  */
 package org.springframework.cloud.skipper;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.cloud.skipper.domain.Release;
-
 /**
  * Thrown if an attempt to alter a package still used by a deployed releases.
  *
  * @author Christian Tzolov
  */
-public class PackageHasDeployedRelease extends SkipperException {
+public class PackageDeleteException extends SkipperException {
 
-	public PackageHasDeployedRelease(String packageName, List<Release> releases) {
-		super(getMessage(packageName, releases));
+	public PackageDeleteException(String message) {
+		super(message);
 	}
 
-	public PackageHasDeployedRelease(String packageName, Release releases) {
-		super(getMessage(packageName, Arrays.asList(releases)));
+	public PackageDeleteException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
-	private static String getMessage(String packageName, List<Release> releases) {
-		return String.format("Can't delete package: [%s] because is used by deployed releases: %s",
-				packageName, releases.stream().map(Release::getName).collect(Collectors.toList()));
-	}
+//	public PackageDeleteException(String packageName, List<Release> releases) {
+//		super(getMessage(packageName, releases));
+//	}
+//
+//	public PackageDeleteException(String packageName, Release releases) {
+//		super(getMessage(packageName, Arrays.asList(releases)));
+//	}
+//
+//	private static String getMessage(String packageName, List<Release> releases) {
+//		return String.format("Can't delete package: [%s] because is used by deployed releases: %s",
+//				packageName, releases.stream().map(Release::getName).collect(Collectors.toList()));
+//	}
 }

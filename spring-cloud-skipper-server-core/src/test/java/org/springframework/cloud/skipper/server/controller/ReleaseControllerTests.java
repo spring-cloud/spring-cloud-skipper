@@ -118,7 +118,8 @@ public class ReleaseControllerTests extends AbstractControllerTests {
 				.andDo(print()).andExpect(status().isConflict()).andReturn();
 
 		assertThat(result.getResponse().getContentAsString())
-				.contains("Can't delete package: [log] because is used by deployed releases: [test2]");
+				.contains("Can not delete Package Metadata [log:1.0.0] in Repository [test]. Not all releases of " +
+						"this package have the status DELETED. Active Releases [test2]");
 
 		assertThat(this.packageMetadataRepository.findByName("log").size()).isEqualTo(3);
 

@@ -60,7 +60,7 @@ public class DefaultSkipperClientTests {
 	private final String ERROR3 = "{\"timestamp\":1508161424577," +
 			"\"status\":409," +
 			"\"error\":\"Conflict\"," +
-			"\"exception\":\"org.springframework.cloud.skipper.PackageHasDeployedRelease\"," +
+			"\"exception\":\"org.springframework.cloud.skipper.PackageDeleteException\"," +
 			"\"message\":\"Can't delete package: [package1] because is used by deployed releases: [release2]\"," +
 			"\"path\":\"/api/status/mylog\",\"releaseName\":\"mylog\"}";
 
