@@ -1,50 +1,50 @@
 
-    alter table jpa_repository_state 
+    alter table jpa_repository_state
         drop constraint FKl7uw0stk3ta9k0i64ve8viv8b;
 
-    alter table jpa_repository_state 
+    alter table jpa_repository_state
         drop constraint FK85uu4no99eoivtd6elb2rp9dg;
 
-    alter table jpa_repository_state_deferred_events 
+    alter table jpa_repository_state_deferred_events
         drop constraint FKoodyqp0kxbmkjtmskj9m79h73;
 
-    alter table jpa_repository_state_entry_actions 
+    alter table jpa_repository_state_entry_actions
         drop constraint FKp9g3iq1ngku1imrsf5dnmmnww;
 
-    alter table jpa_repository_state_entry_actions 
+    alter table jpa_repository_state_entry_actions
         drop constraint FKalgdctnelpb0xriggiufbfcd5;
 
-    alter table jpa_repository_state_exit_actions 
+    alter table jpa_repository_state_exit_actions
         drop constraint FKlhwv3oxyp5hprnlvs56gnyxdh;
 
-    alter table jpa_repository_state_exit_actions 
+    alter table jpa_repository_state_exit_actions
         drop constraint FKnuahuplj5vp27hxqdult5y2su;
 
-    alter table jpa_repository_state_state_actions 
+    alter table jpa_repository_state_state_actions
         drop constraint FK8wgwopqvhfnb1xe5sqf2213pw;
 
-    alter table jpa_repository_state_state_actions 
+    alter table jpa_repository_state_state_actions
         drop constraint FKqqpkvnpqb8madraq2l57niagx;
 
-    alter table jpa_repository_transition 
+    alter table jpa_repository_transition
         drop constraint FKrs9l0ayy1i7t5pjnixkohgrlm;
 
-    alter table jpa_repository_transition 
+    alter table jpa_repository_transition
         drop constraint FK4dahkov2dttpljo5mfcid5gxh;
 
-    alter table jpa_repository_transition 
+    alter table jpa_repository_transition
         drop constraint FK6jymhcao9w1786ldrnbdlsacu;
 
-    alter table jpa_repository_transition_actions 
+    alter table jpa_repository_transition_actions
         drop constraint FKhwdl9g5s5htj2jcb1xrkq6wpw;
 
-    alter table jpa_repository_transition_actions 
+    alter table jpa_repository_transition_actions
         drop constraint FK6287nce3o7soy1bjdyi04heih;
 
-    alter table skipper_info 
+    alter table skipper_info
         drop constraint fk_info_status;
 
-    alter table skipper_release 
+    alter table skipper_release
         drop constraint fk_release_info;
 
     drop table if exists jpa_repository_action cascade;
