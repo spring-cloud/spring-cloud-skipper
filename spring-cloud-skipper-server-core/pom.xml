@@ -194,6 +194,9 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>application.yml</include>
+                    <include>*.sql</include>
+                    <include>META-INF/**</include>
+                    <include>*.xml</include>
                 </includes>
             </resource>
         </resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd" version="2.0">
+
+	<entity class="org.springframework.statemachine.data.jpa.JpaRepositoryAction" >
+		<table name="repo_action"/>
+	</entity>
+	<entity class="org.springframework.statemachine.data.jpa.JpaRepositoryGuard" >
+		<table name="repo_guard"/>
+	</entity>
+	<entity class="org.springframework.statemachine.data.jpa.JpaRepositoryState" name="repoState">
+		<table name="repo_state"/>
+		<attributes>
+			<basic name="initial">
+				<column name="initial_state"/>
+			</basic>
+		</attributes>
+	</entity>
+	<entity class="org.springframework.statemachine.data.jpa.JpaRepositoryTransition" >
+		<table name="repo_transition"/>
+	</entity>
+
+</entity-mappings>
