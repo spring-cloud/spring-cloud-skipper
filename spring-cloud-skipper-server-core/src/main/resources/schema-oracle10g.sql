@@ -1,5 +1,5 @@
 
-    drop table jpa_repository_state_machine cascade constraints;
+    drop table deferred_events cascade constraints;
 
     drop table repo_action cascade constraints;
 
@@ -17,11 +17,11 @@
 
     drop table repo_transition_actions cascade constraints;
 
-    drop table repo_state_deferred_events cascade constraints;
-
     drop table skipper_app_deployer_data cascade constraints;
 
     drop table skipper_info cascade constraints;
+
+    drop table skipper_manifest cascade constraints;
 
     drop table skipper_package_file cascade constraints;
 
@@ -33,15 +33,15 @@
 
     drop table skipper_status cascade constraints;
 
+    drop table state_machine cascade constraints;
+
     drop sequence hibernate_sequence;
 
     create sequence hibernate_sequence start with 1 increment by 1;
 
-    create table jpa_repository_state_machine (
-        machine_id varchar2(255 char) not null,
-        state varchar2(255 char),
-        state_machine_context blob,
-        primary key (machine_id)
+    create table deferred_events (
+        repo_state_id number(19,0) not null,
+        deferred_events varchar2(255 char)
     );
 
     create table repo_action (
@@ -106,11 +106,6 @@
         primary key (jpa_repository_transition_id, actions_id)
     );
 
-    create table repo_state_deferred_events (
-        repo_state_id number(19,0) not null,
-        deferred_events varchar2(255 char)
-    );
-
     create table skipper_app_deployer_data (
         id number(19,0) not null,
         object_version number(19,0),
@@ -128,6 +123,13 @@
         first_deployed timestamp,
         last_deployed timestamp,
         status_id number(19,0),
+        primary key (id)
+    );
+
+    create table skipper_manifest (
+        id number(19,0) not null,
+        object_version number(19,0),
+        data clob,
         primary key (id)
     );
 
@@ -163,7 +165,6 @@
         id number(19,0) not null,
         object_version number(19,0),
         config_values_string clob,
-        manifest clob,
         name varchar2(255 char),
         package_metadata_id number(19,0),
         pkg_json_string clob,
@@ -171,6 +172,7 @@
         repository_id number(19,0),
         version number(10,0) not null,
         info_id number(19,0),
+        manifest_id number(19,0),
         primary key (id)
     );
 
@@ -193,6 +195,13 @@
         primary key (id)
     );
 
+    create table state_machine (
+        machine_id varchar2(255 char) not null,
+        state varchar2(255 char),
+        state_machine_context blob,
+        primary key (machine_id)
+    );
+
     create index idx_pkg_name on skipper_package_metadata (name);
 
     create index idx_rel_name on skipper_release (name);
@@ -202,75 +211,75 @@
     alter table skipper_repository 
         add constraint uk_repository unique (name);
 
+    alter table deferred_events 
+        add constraint fk_state_deferred_events 
+        foreign key (repo_state_id) 
+        references repo_state;
+
     alter table repo_state 
-        add constraint FK59s7wh6a10qjt9dwrxaqqhva9 
+        add constraint fk_state_initial_action 
         foreign key (initial_action_id) 
         references repo_action;
 
     alter table repo_state 
-        add constraint FKkk17xys58fylwtt7c0hl0d0pv 
+        add constraint fk_state_parent_state 
         foreign key (parent_state_id) 
         references repo_state;
 
     alter table repo_state_entry_actions 
-        add constraint FKn47kabhoffgop2h6sg7d7y8p6 
+        add constraint fk_state_entry_actions_a 
         foreign key (entry_actions_id) 
         references repo_action;
 
     alter table repo_state_entry_actions 
-        add constraint FKby4jrkyghre1wlbwogrwi7g4 
+        add constraint fk_state_entry_actions_s 
         foreign key (repo_state_id) 
         references repo_state;
 
     alter table repo_state_exit_actions 
-        add constraint FKoanawp54tid4nbb8ejxeg628 
+        add constraint fk_state_exit_actions_a 
         foreign key (exit_actions_id) 
         references repo_action;
 
     alter table repo_state_exit_actions 
-        add constraint FK1b97kkwaj47o0cpqyfofks04l 
+        add constraint fk_state_exit_actions_s 
         foreign key (repo_state_id) 
         references repo_state;
 
     alter table repo_state_state_actions 
-        add constraint FKp28jmktit1vsysmvcfogovr2d 
+        add constraint fk_state_state_actions_a 
         foreign key (state_actions_id) 
         references repo_action;
 
     alter table repo_state_state_actions 
-        add constraint FKdciktu4oxrip9wt5qbnsc8sbs 
+        add constraint fk_state_state_actions_s 
         foreign key (repo_state_id) 
         references repo_state;
 
     alter table repo_transition 
-        add constraint FKhdg1ucflqxx47bq7tfp8yckak 
+        add constraint fk_transition_guard 
         foreign key (guard_id) 
         references repo_guard;
 
     alter table repo_transition 
-        add constraint FKg5fv9bi9xrb57b5cl5tmaojht 
+        add constraint fk_transition_source 
         foreign key (source_id) 
         references repo_state;
 
     alter table repo_transition 
-        add constraint FKfc65844tovrphoxmoe650vw6x 
+        add constraint fk_transition_target 
         foreign key (target_id) 
         references repo_state;
 
     alter table repo_transition_actions 
-        add constraint FKbrxnwdnei0nrmuu2p8xppjwy6 
+        add constraint fk_transition_actions_a 
         foreign key (actions_id) 
         references repo_action;
 
     alter table repo_transition_actions 
-        add constraint FKcldpfuq5f3f50fnud2nggme7c 
+        add constraint fk_transition_actions_t 
         foreign key (jpa_repository_transition_id) 
         references repo_transition;
-
-    alter table repo_state_deferred_events 
-        add constraint FK6ohcvnukq9hum54lgac1t493s 
-        foreign key (repo_state_id) 
-        references repo_state;
 
     alter table skipper_info 
         add constraint fk_info_status 
@@ -286,3 +295,8 @@
         add constraint fk_release_info 
         foreign key (info_id) 
         references skipper_info;
+
+    alter table skipper_release 
+        add constraint fk_release_manifest 
+        foreign key (manifest_id) 
+        references skipper_manifest;
