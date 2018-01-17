@@ -97,6 +97,11 @@ public class SchemaGenerationTests extends AbstractIntegrationTest {
 			metadata.addAnnotatedClassName(clazz);
 		}
 
+		for (String mappingFileName : persistenceUnitInfo.getMappingFileNames()) {
+			logger.info(mappingFileName);
+			metadata.addResource(mappingFileName);
+		}
+
 		final SchemaExport export;
 		try {
 			export = new SchemaExport((MetadataImplementor) metadata.buildMetadata());

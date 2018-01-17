@@ -1,27 +1,29 @@
 
-    drop table jpa_repository_action cascade constraints;
-
-    drop table jpa_repository_guard cascade constraints;
-
-    drop table jpa_repository_state cascade constraints;
-
-    drop table jpa_repository_state_deferred_events cascade constraints;
-
-    drop table jpa_repository_state_entry_actions cascade constraints;
-
-    drop table jpa_repository_state_exit_actions cascade constraints;
-
-    drop table jpa_repository_state_state_actions cascade constraints;
-
     drop table jpa_repository_state_machine cascade constraints;
 
-    drop table jpa_repository_transition cascade constraints;
+    drop table repo_action cascade constraints;
 
-    drop table jpa_repository_transition_actions cascade constraints;
+    drop table repo_guard cascade constraints;
+
+    drop table repo_state cascade constraints;
+
+    drop table repo_state_entry_actions cascade constraints;
+
+    drop table repo_state_exit_actions cascade constraints;
+
+    drop table repo_state_state_actions cascade constraints;
+
+    drop table repo_transition cascade constraints;
+
+    drop table repo_transition_actions cascade constraints;
+
+    drop table repo_state_deferred_events cascade constraints;
 
     drop table skipper_app_deployer_data cascade constraints;
 
     drop table skipper_info cascade constraints;
+
+    drop table skipper_package_file cascade constraints;
 
     drop table skipper_package_metadata cascade constraints;
 
@@ -35,23 +37,30 @@
 
     create sequence hibernate_sequence start with 1 increment by 1;
 
-    create table jpa_repository_action (
+    create table jpa_repository_state_machine (
+        machine_id varchar2(255 char) not null,
+        state varchar2(255 char),
+        state_machine_context blob,
+        primary key (machine_id)
+    );
+
+    create table repo_action (
         id number(19,0) not null,
         name varchar2(255 char),
         spel varchar2(255 char),
         primary key (id)
     );
 
-    create table jpa_repository_guard (
+    create table repo_guard (
         id number(19,0) not null,
         name varchar2(255 char),
         spel varchar2(255 char),
         primary key (id)
     );
 
-    create table jpa_repository_state (
+    create table repo_state (
         id number(19,0) not null,
-        initial number(1,0) not null,
+        initial_state number(1,0),
         kind number(10,0),
         machine_id varchar2(255 char),
         region varchar2(255 char),
@@ -62,37 +71,25 @@
         primary key (id)
     );
 
-    create table jpa_repository_state_deferred_events (
-        jpa_repository_state_id number(19,0) not null,
-        deferred_events varchar2(255 char)
-    );
-
-    create table jpa_repository_state_entry_actions (
-        jpa_repository_state_id number(19,0) not null,
+    create table repo_state_entry_actions (
+        repo_state_id number(19,0) not null,
         entry_actions_id number(19,0) not null,
-        primary key (jpa_repository_state_id, entry_actions_id)
+        primary key (repo_state_id, entry_actions_id)
     );
 
-    create table jpa_repository_state_exit_actions (
-        jpa_repository_state_id number(19,0) not null,
+    create table repo_state_exit_actions (
+        repo_state_id number(19,0) not null,
         exit_actions_id number(19,0) not null,
-        primary key (jpa_repository_state_id, exit_actions_id)
+        primary key (repo_state_id, exit_actions_id)
     );
 
-    create table jpa_repository_state_state_actions (
-        jpa_repository_state_id number(19,0) not null,
+    create table repo_state_state_actions (
+        repo_state_id number(19,0) not null,
         state_actions_id number(19,0) not null,
-        primary key (jpa_repository_state_id, state_actions_id)
+        primary key (repo_state_id, state_actions_id)
     );
 
-    create table jpa_repository_state_machine (
-        machine_id varchar2(255 char) not null,
-        state varchar2(255 char),
-        state_machine_context blob,
-        primary key (machine_id)
-    );
-
-    create table jpa_repository_transition (
+    create table repo_transition (
         id number(19,0) not null,
         event varchar2(255 char),
         kind number(10,0),
@@ -103,10 +100,15 @@
         primary key (id)
     );
 
-    create table jpa_repository_transition_actions (
+    create table repo_transition_actions (
         jpa_repository_transition_id number(19,0) not null,
         actions_id number(19,0) not null,
         primary key (jpa_repository_transition_id, actions_id)
+    );
+
+    create table repo_state_deferred_events (
+        repo_state_id number(19,0) not null,
+        deferred_events varchar2(255 char)
     );
 
     create table skipper_app_deployer_data (
@@ -129,24 +131,31 @@
         primary key (id)
     );
 
+    create table skipper_package_file (
+        id number(19,0) not null,
+        package_bytes blob,
+        primary key (id)
+    );
+
     create table skipper_package_metadata (
         id number(19,0) not null,
         object_version number(19,0),
         api_version varchar2(255 char),
-        description varchar2(255 char),
+        description clob,
         display_name varchar2(255 char),
-        icon_url varchar2(255 char),
+        icon_url clob,
         kind varchar2(255 char),
         maintainer varchar2(255 char),
         name varchar2(255 char),
         origin varchar2(255 char),
-        package_file blob,
-        package_home_url varchar2(255 char),
-        package_source_url varchar2(255 char),
+        package_home_url clob,
+        package_source_url clob,
         repository_id number(19,0),
+        repository_name varchar2(255 char),
         sha256 varchar2(255 char),
-        tags varchar2(255 char),
+        tags clob,
         version varchar2(255 char),
+        packagefile_id number(19,0),
         primary key (id)
     );
 
@@ -156,8 +165,10 @@
         config_values_string clob,
         manifest clob,
         name varchar2(255 char),
+        package_metadata_id number(19,0),
         pkg_json_string clob,
         platform_name varchar2(255 char),
+        repository_id number(19,0),
         version number(10,0) not null,
         info_id number(19,0),
         primary key (id)
@@ -182,83 +193,94 @@
         primary key (id)
     );
 
+    create index idx_pkg_name on skipper_package_metadata (name);
+
+    create index idx_rel_name on skipper_release (name);
+
+    create index idx_repo_name on skipper_repository (name);
+
     alter table skipper_repository 
         add constraint uk_repository unique (name);
 
-    alter table jpa_repository_state 
-        add constraint FKl7uw0stk3ta9k0i64ve8viv8b 
+    alter table repo_state 
+        add constraint FK59s7wh6a10qjt9dwrxaqqhva9 
         foreign key (initial_action_id) 
-        references jpa_repository_action;
+        references repo_action;
 
-    alter table jpa_repository_state 
-        add constraint FK85uu4no99eoivtd6elb2rp9dg 
+    alter table repo_state 
+        add constraint FKkk17xys58fylwtt7c0hl0d0pv 
         foreign key (parent_state_id) 
-        references jpa_repository_state;
+        references repo_state;
 
-    alter table jpa_repository_state_deferred_events 
-        add constraint FKoodyqp0kxbmkjtmskj9m79h73 
-        foreign key (jpa_repository_state_id) 
-        references jpa_repository_state;
-
-    alter table jpa_repository_state_entry_actions 
-        add constraint FKp9g3iq1ngku1imrsf5dnmmnww 
+    alter table repo_state_entry_actions 
+        add constraint FKn47kabhoffgop2h6sg7d7y8p6 
         foreign key (entry_actions_id) 
-        references jpa_repository_action;
+        references repo_action;
 
-    alter table jpa_repository_state_entry_actions 
-        add constraint FKalgdctnelpb0xriggiufbfcd5 
-        foreign key (jpa_repository_state_id) 
-        references jpa_repository_state;
+    alter table repo_state_entry_actions 
+        add constraint FKby4jrkyghre1wlbwogrwi7g4 
+        foreign key (repo_state_id) 
+        references repo_state;
 
-    alter table jpa_repository_state_exit_actions 
-        add constraint FKlhwv3oxyp5hprnlvs56gnyxdh 
+    alter table repo_state_exit_actions 
+        add constraint FKoanawp54tid4nbb8ejxeg628 
         foreign key (exit_actions_id) 
-        references jpa_repository_action;
+        references repo_action;
 
-    alter table jpa_repository_state_exit_actions 
-        add constraint FKnuahuplj5vp27hxqdult5y2su 
-        foreign key (jpa_repository_state_id) 
-        references jpa_repository_state;
+    alter table repo_state_exit_actions 
+        add constraint FK1b97kkwaj47o0cpqyfofks04l 
+        foreign key (repo_state_id) 
+        references repo_state;
 
-    alter table jpa_repository_state_state_actions 
-        add constraint FK8wgwopqvhfnb1xe5sqf2213pw 
+    alter table repo_state_state_actions 
+        add constraint FKp28jmktit1vsysmvcfogovr2d 
         foreign key (state_actions_id) 
-        references jpa_repository_action;
+        references repo_action;
 
-    alter table jpa_repository_state_state_actions 
-        add constraint FKqqpkvnpqb8madraq2l57niagx 
-        foreign key (jpa_repository_state_id) 
-        references jpa_repository_state;
+    alter table repo_state_state_actions 
+        add constraint FKdciktu4oxrip9wt5qbnsc8sbs 
+        foreign key (repo_state_id) 
+        references repo_state;
 
-    alter table jpa_repository_transition 
-        add constraint FKrs9l0ayy1i7t5pjnixkohgrlm 
+    alter table repo_transition 
+        add constraint FKhdg1ucflqxx47bq7tfp8yckak 
         foreign key (guard_id) 
-        references jpa_repository_guard;
+        references repo_guard;
 
-    alter table jpa_repository_transition 
-        add constraint FK4dahkov2dttpljo5mfcid5gxh 
+    alter table repo_transition 
+        add constraint FKg5fv9bi9xrb57b5cl5tmaojht 
         foreign key (source_id) 
-        references jpa_repository_state;
+        references repo_state;
 
-    alter table jpa_repository_transition 
-        add constraint FK6jymhcao9w1786ldrnbdlsacu 
+    alter table repo_transition 
+        add constraint FKfc65844tovrphoxmoe650vw6x 
         foreign key (target_id) 
-        references jpa_repository_state;
+        references repo_state;
 
-    alter table jpa_repository_transition_actions 
-        add constraint FKhwdl9g5s5htj2jcb1xrkq6wpw 
+    alter table repo_transition_actions 
+        add constraint FKbrxnwdnei0nrmuu2p8xppjwy6 
         foreign key (actions_id) 
-        references jpa_repository_action;
+        references repo_action;
 
-    alter table jpa_repository_transition_actions 
-        add constraint FK6287nce3o7soy1bjdyi04heih 
+    alter table repo_transition_actions 
+        add constraint FKcldpfuq5f3f50fnud2nggme7c 
         foreign key (jpa_repository_transition_id) 
-        references jpa_repository_transition;
+        references repo_transition;
+
+    alter table repo_state_deferred_events 
+        add constraint FK6ohcvnukq9hum54lgac1t493s 
+        foreign key (repo_state_id) 
+        references repo_state;
 
     alter table skipper_info 
         add constraint fk_info_status 
         foreign key (status_id) 
         references skipper_status;
+
+    alter table skipper_package_metadata 
+        add constraint FKq2maocius5sr76isk7xlhn7b4 
+        foreign key (packagefile_id) 
+        references skipper_package_file;
 
     alter table skipper_release 
         add constraint fk_release_info 
