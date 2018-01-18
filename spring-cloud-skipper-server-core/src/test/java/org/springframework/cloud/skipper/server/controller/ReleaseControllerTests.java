@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,9 +111,9 @@ public class ReleaseControllerTests extends AbstractControllerTests {
 		boolean deletePackage = true;
 
 		MvcResult result = mockMvc.perform(delete("/api/release/" + releaseNameOne + "/" + deletePackage))
-				.andDo(print()).andExpect(status().isConflict()).andReturn();
+				.andDo(print()).andExpect(status().isPreconditionFailed()).andReturn();
 
-		assertThat(result.getResponse().getContentAsString())
+		assertThat(result.getResolvedException().getMessage())
 				.contains("Can not delete Package Metadata [log:1.0.0] in Repository [test]. Not all releases of " +
 						"this package have the status DELETED. Active Releases [test2]");
 
