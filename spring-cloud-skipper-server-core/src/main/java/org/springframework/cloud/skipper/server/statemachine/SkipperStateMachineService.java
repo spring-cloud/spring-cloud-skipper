@@ -204,6 +204,8 @@ public class SkipperStateMachineService {
 				if (e.getCause() instanceof SkipperException) {
 					// throw as SkipperException
 					throw (SkipperException) e.getCause();
+				} else if (e.getCause() instanceof RuntimeException) {
+					throw (RuntimeException) e.getCause();
 				}
 				throw new SkipperException("Error waiting to get Release from a statemachine", e);
 			}

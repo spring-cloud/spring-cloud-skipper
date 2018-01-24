@@ -26,6 +26,7 @@ import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
@@ -75,9 +76,22 @@ public class SkipperClientResponseErrorHandler extends DefaultResponseErrorHandl
 		else if (ObjectUtils.nullSafeEquals(exceptionClazz, SkipperException.class.getName())) {
 			handleSkipperException(map);
 		}
+		else if (isRuntimeException(exceptionClazz)) {
+			// at last try to see if we have at least RE
+			handleRuntimeException(map);
+		}
 		super.handleError(response);
 	}
 
+	private boolean isRuntimeException(String exceptionClazz) {
+		try {
+			Class<?> exceptionClass = ClassUtils.resolveClassName(exceptionClazz, ClassUtils.getDefaultClassLoader());
+			return ClassUtils.isAssignable(RuntimeException.class, exceptionClass);
+		} catch (Throwable t) {
+			// not interested
+		}
+		return false;
+	}
 
 	private void handleReleaseNotFoundException(Map<String, String> map) {
 		String releaseName = map.get("releaseName");
@@ -107,5 +121,10 @@ public class SkipperClientResponseErrorHandler extends DefaultResponseErrorHandl
 	private void handleSkipperException(Map<String, String> map) {
 		String message = map.get("message");
 		throw new SkipperException(StringUtils.hasText(message) ? message : "");
+	}
+
+	private void handleRuntimeException(Map<String, String> map) {
+		String message = map.get("message");
+		throw new RuntimeException(StringUtils.hasText(message) ? message : "");
 	}
 }
