@@ -189,6 +189,28 @@ include::{snippets}/package-metadata-documentation/get-all-package-metadata/http
 
 include::{snippets}/package-metadata-documentation/get-all-package-metadata/response-fields.adoc[]
 
+[[resources-package-search-summary]]
+==== Search summary
+
+A `GET` request will return summary information of a package using the _id_ of the package.
+
+===== Request structure
+
+include::{snippets}/package-metadata-documentation/get-package-metadata-summary/http-request.adoc[]
+
+===== Example request
+
+include::{snippets}/package-metadata-documentation/get-package-metadata-summary/curl-request.adoc[]
+
+===== Response structure
+
+include::{snippets}/package-metadata-documentation/get-package-metadata-summary/http-response.adoc[]
+
+===== Response fields
+
+include::{snippets}/package-metadata-documentation/get-package-metadata-summary/response-fields.adoc[]
+
+
 [[resources-package-search-details]]
 ==== Search with details
 
