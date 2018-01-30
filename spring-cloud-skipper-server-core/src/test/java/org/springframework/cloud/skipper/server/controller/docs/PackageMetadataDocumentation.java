@@ -124,4 +124,36 @@ public class PackageMetadataDocumentation extends BaseDocumentation {
 								fieldWithPath("_links.install.href").ignored())
 										.and(super.defaultLinkProperties)));
 	}
+
+	@Test
+	public void getPackageMetadataSummary() throws Exception {
+		this.mockMvc.perform(
+				get("/api/packageMetadata?projection=summary"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andDo(this.documentationHandler.document(
+						super.paginationProperties.and(
+								fieldWithPath("_embedded.packageMetadata[].id")
+										.description("Identifier of the package metadata"),
+								fieldWithPath("_embedded.packageMetadata[].iconUrl")
+										.description("Url location of a icon"),
+								fieldWithPath("_embedded.packageMetadata[].repositoryName")
+										.description("The repository name this Package belongs to."),
+								fieldWithPath("_embedded.packageMetadata[].version")
+										.description("The version of the package"),
+								fieldWithPath("_embedded.packageMetadata[].name")
+										.description("The name of the package"),
+								fieldWithPath("_embedded.packageMetadata[].description")
+										.description("Brief description of the package"),
+								fieldWithPath("_embedded.packageMetadata[]._links.self.href")
+										.description("self link"),
+								fieldWithPath("_embedded.packageMetadata[]._links.packageMetadata.href")
+										.description("link to full package metadata"),
+								fieldWithPath("_embedded.packageMetadata[]._links.packageMetadata.templated").ignored(),
+								fieldWithPath("_embedded.packageMetadata[]._links.install.href")
+										.description("link to install the package")
+								)
+								.and(super.defaultLinkProperties)
+				));
+	}
 }
