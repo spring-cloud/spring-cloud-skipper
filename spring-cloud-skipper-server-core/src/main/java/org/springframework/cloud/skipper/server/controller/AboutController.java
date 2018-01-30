@@ -149,6 +149,9 @@ public class AboutController {
 			result = REPO_MILESTONE_ROOT;
 		}
 		else if (version.contains(".RC")) {
+			result = REPO_MILESTONE_ROOT;
+		}
+		else if (version.contains(".RELEASE")) {
 			result = REPO_RELEASE_ROOT;
 		}
 		return result;
