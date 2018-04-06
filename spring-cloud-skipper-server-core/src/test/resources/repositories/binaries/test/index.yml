@@ -98,6 +98,7 @@ description: The hello world app says hello.
 ---
 apiVersion: skipper.spring.io/v1
 kind: SkipperPackageMetadata
+origin: samples-package-repository
 name: testapp
 version: 1.0.0
 packageSourceUrl: https://github.com/spring-cloud/spring-cloud-deployer
@@ -109,6 +110,7 @@ description: The testapp up starts and conditionally fails.
 ---
 apiVersion: skipper.spring.io/v1
 kind: SkipperPackageMetadata
+origin: samples-package-repository
 name: testapp
 version: 1.1.0
 packageSourceUrl: https://github.com/spring-cloud/spring-cloud-deployer
@@ -120,6 +122,7 @@ description: The testapp up starts and conditionally fails.
 ---
 apiVersion: skipper.spring.io/v1
 kind: SkipperPackageMetadata
+origin: samples-package-repository
 name: testapp
 version: 1.2.0
 packageSourceUrl: https://github.com/spring-cloud/spring-cloud-deployer
