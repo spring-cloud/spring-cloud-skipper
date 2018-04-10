@@ -75,7 +75,7 @@ Then launch the Skipper shell in another terminal
 $ java -jar spring-cloud-skipper-shell/target/spring-cloud-skipper-shell-1.0.0.BUILD-SNAPSHOT.jar
 ----
 
-The command `search` will search for all available packages. It should then show you the following output
+The command `package search` will search for all available packages. It should then show you the following output
 
 [source,bash,options="nowrap"]
 ----
