@@ -124,6 +124,12 @@ public class PackageController {
 		// needed for server not to log 500 errors
 	}
 
+	@ResponseStatus(value = HttpStatus.CONFLICT, reason = "Runtime server exception")
+	@ExceptionHandler(RuntimeException.class)
+	public void handleRuntimeException() {
+		// needed for server not to log 500 errors
+	}
+
 	public static class PackageControllerLinksResource extends ResourceSupport {
 
 		public PackageControllerLinksResource() {

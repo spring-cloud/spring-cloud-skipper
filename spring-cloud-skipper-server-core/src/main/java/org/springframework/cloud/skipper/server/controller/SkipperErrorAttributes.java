@@ -56,6 +56,9 @@ public class SkipperErrorAttributes extends DefaultErrorAttributes {
 			else if (error instanceof SkipperException) {
 				errorAttributes.put("message", error.getMessage());
 			}
+			else if (error instanceof RuntimeException) {
+				errorAttributes.put("message", error.getMessage());
+			}
 		}
 		return errorAttributes;
 	}
