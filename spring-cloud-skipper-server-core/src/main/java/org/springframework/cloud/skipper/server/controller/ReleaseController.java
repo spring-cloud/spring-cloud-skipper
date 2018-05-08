@@ -37,6 +37,7 @@ import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -167,6 +168,18 @@ public class ReleaseController {
 		deleteProperties.setDeletePackage(canDeletePackage);
 		Release release = this.skipperStateMachineService.deleteRelease(releaseName, deleteProperties);
 		return this.releaseResourceAssembler.toResource(release);
+	}
+
+	@RequestMapping(path = "/cancel/{name}", method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.OK)
+	public ResponseEntity<Void> cancel(@PathVariable("name") String releaseName) {
+		boolean accept = this.skipperStateMachineService.cancelRelease(releaseName);
+		if (accept) {
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		}
+		else {
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
 	}
 
 	@RequestMapping(path = "/list", method = RequestMethod.GET)

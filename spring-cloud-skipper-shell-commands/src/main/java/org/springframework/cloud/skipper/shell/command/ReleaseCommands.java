@@ -215,6 +215,13 @@ public class ReleaseCommands extends AbstractSkipperCommand {
 		return sb.toString();
 	}
 
+	@ShellMethod(key = "release cancel", value = "Request a cancellation of current release operation.")
+	public String cancel(
+			@ShellOption(help = "the name of the release to cancel") String releaseName) {
+		this.skipperClient.cancel(releaseName);
+		return "Cancel request for release " + releaseName + " sent";
+	}
+
 	@ShellMethod(key = "release list", value = "List the latest version of releases with status of deployed or failed.")
 	public Table list(
 			@ShellOption(help = "wildcard expression to search by release name", defaultValue = NULL) String releaseName) {
