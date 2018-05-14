@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.skipper.PackageDeleteException;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.SkipperException;
+import org.springframework.cloud.skipper.domain.CancelRequest;
+import org.springframework.cloud.skipper.domain.CancelResponse;
 import org.springframework.cloud.skipper.domain.DeleteProperties;
 import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.Manifest;
@@ -37,7 +39,6 @@ import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -170,18 +171,13 @@ public class ReleaseController {
 		return this.releaseResourceAssembler.toResource(release);
 	}
 
-	@RequestMapping(path = "/cancel/{name}", method = RequestMethod.POST)
+	@RequestMapping(path = "/cancel", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
-	public ResponseEntity<Void> cancel(@PathVariable("name") String releaseName) {
-		boolean accept = this.skipperStateMachineService.cancelRelease(releaseName);
-		if (accept) {
-			return new ResponseEntity<>(HttpStatus.ACCEPTED);
-		}
-		else {
-			return new ResponseEntity<>(HttpStatus.OK);
-		}
+	public CancelResponse cancel(@RequestBody CancelRequest cancelRequest) {
+		boolean accepted = this.skipperStateMachineService.cancelRelease(cancelRequest.getReleaseName());
+		return new CancelResponse(accepted);
 	}
-
+	
 	@RequestMapping(path = "/list", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	public Resources<Resource<Release>> list() {

@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.skipper.domain.CancelRequest;
+import org.springframework.cloud.skipper.domain.CancelResponse;
 import org.springframework.cloud.skipper.domain.InstallProperties;
 import org.springframework.cloud.skipper.domain.InstallRequest;
 import org.springframework.cloud.skipper.domain.PackageIdentifier;
@@ -159,9 +161,11 @@ public abstract class AbstractControllerTests extends AbstractMockMvcTests {
 		return updatedRelease;
 	}
 
-	protected void cancel(String releaseName, int expectStatus) throws Exception {
-		mockMvc.perform(post("/api/release/cancel/" + releaseName)).andDo(print())
+	protected void cancel(String releaseName, int expectStatus, boolean accepted) throws Exception {
+		MvcResult result = mockMvc.perform(post("/api/release/cancel").content(convertObjectToJson(new CancelRequest(releaseName)))).andDo(print())
 				.andExpect(status().is(expectStatus)).andReturn();
+		CancelResponse response = convertContentToCancelResponse(result.getResponse().getContentAsString());
+		assertThat(response.getAccepted()).isEqualTo(accepted);
 	}
 
 	protected void commonReleaseAssertions(String releaseName, PackageMetadata packageMetadata,

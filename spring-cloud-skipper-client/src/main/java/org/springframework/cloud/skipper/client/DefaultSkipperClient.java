@@ -26,8 +26,9 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.domain.AboutResource;
+import org.springframework.cloud.skipper.domain.CancelRequest;
+import org.springframework.cloud.skipper.domain.CancelResponse;
 import org.springframework.cloud.skipper.domain.Deployer;
 import org.springframework.cloud.skipper.domain.Info;
 import org.springframework.cloud.skipper.domain.InstallRequest;
@@ -47,7 +48,6 @@ import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.client.Traverson;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.StreamUtils;
@@ -237,21 +237,12 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public void cancel(String releaseName) {
-		ParameterizedTypeReference<Void> typeReference = new ParameterizedTypeReference<Void>() {};
-		Map<String, String> uriVariables = new HashMap<String, String>();
-		uriVariables.put("releaseName", releaseName);
-		ResponseEntity<Void> responseEntity =
-				restTemplate.exchange(baseUri + "/release/cancel/{releaseName}",
-						HttpMethod.POST,
-						null,
-						typeReference,
-						uriVariables);
-		if (responseEntity.getStatusCode() != HttpStatus.ACCEPTED) {
-			throw new SkipperException("Cancel request for release " + releaseName + " not accepted");
-		}
-	}
-
+	public CancelResponse cancel(CancelRequest cancelRequest) {
+		String url = String.format("%s/%s/%s", baseUri, "release", "cancel");
+		log.debug("Posting CancelRequest to " + url + ". CancelRequest = " + cancelRequest);
+		return this.restTemplate.postForObject(url, cancelRequest, CancelResponse.class);
+	}	
+	
 	@Override
 	public Release rollback(RollbackRequest rollbackRequest) {
 		ParameterizedTypeReference<Resource<Release>> typeReference =

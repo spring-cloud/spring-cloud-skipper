@@ -686,4 +686,7 @@ include::{snippets}/cancel-documentation/cancel-release/curl-request.adoc[]
 
 include::{snippets}/cancel-documentation/cancel-release/http-response.adoc[]
 
+====== Response fields
+
+include::{snippets}/cancel-documentation/cancel-release/response-fields.adoc[]
 

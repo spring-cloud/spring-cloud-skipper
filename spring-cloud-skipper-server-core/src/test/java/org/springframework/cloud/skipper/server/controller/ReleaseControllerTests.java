@@ -188,7 +188,7 @@ public class ReleaseControllerTests extends AbstractControllerTests {
 
 	@Test
 	public void cancelNonExistingRelease() throws Exception {
-		cancel("myLog2", HttpStatus.OK.value());
+		cancel("myLog2", HttpStatus.OK.value(), false);
 	}
 
 	@Test
@@ -202,9 +202,8 @@ public class ReleaseControllerTests extends AbstractControllerTests {
 		assertThat(release.getVersion()).isEqualTo(2);
 
 		// Cancel
-		cancel(releaseName, HttpStatus.ACCEPTED.value());
+		cancel(releaseName, HttpStatus.OK.value(), true);
 	}
-
 
 	@Test
 	public void testStatusReportsErrorForMissingRelease() throws Exception {

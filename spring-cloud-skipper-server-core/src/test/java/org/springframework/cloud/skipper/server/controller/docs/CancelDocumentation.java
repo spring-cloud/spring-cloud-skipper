@@ -17,10 +17,16 @@
 package org.springframework.cloud.skipper.server.controller.docs;
 
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.Charset;
+
 import org.junit.Test;
+import org.springframework.cloud.skipper.domain.CancelRequest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -35,10 +41,16 @@ public class CancelDocumentation extends BaseDocumentation {
 		install("testapp", "1.0.0", releaseName);
 		upgrade("testapp", "1.1.0", releaseName, false);
 
+		final MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
+				MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
+		
 		this.mockMvc.perform(
-				post("/api/release/cancel/{releaseName}", releaseName)).andDo(print())
-				.andExpect(status().isAccepted())
+				post("/api/release/cancel").accept(MediaType.APPLICATION_JSON).contentType(contentType)
+				.content(convertObjectToJson(new CancelRequest(releaseName))))
+				.andDo(print())
+				.andExpect(status().isOk())
 				.andDo(this.documentationHandler.document(
+						responseFields(fieldWithPath("accepted").description("If cancel request was accepted"))
 						))
 				.andReturn();
 	}
