@@ -10,6 +10,8 @@ Skipper commands fit into the following categories:
 * <<skipper-commands-repository>>
 * <<skipper-commands-config>>
 
+NOTE: More details about commands can be found from <<skipper-commands-generic-usage>>.
+
 [[skipper-commands-package]]
 == Package Commands
 
@@ -335,7 +337,10 @@ You can then use the `--properties` option in the `upgrade` command, as shown in
 skipper:>release upgrade --release-name ticktockskipper --package-name ticktock --properties log.version=1.1.1.RELEASE
 ----
 
-You can use `--timeout-expression` to override global setting for upgrade operation to wait healthy applications.
+You can use `--timeout-expression` to alter _timeout_ setting used to wait healthy applications
+when server is in state to do that. Global setting to override is
+`spring.cloud.skipper.server.strategies.healthcheck.timeoutInMillis` mentioned earlier. More about
+expression itself, see <<skipper-commands-generic-usage-timeout-expression>>.
 
 [source,bash,options="nowrap"]
 ----
@@ -377,7 +382,10 @@ helloworldlocal has been rolled back.  Now at version v3.
 If no `--release-version` is specified, then the rollback version is the previous stable release (either in `DELETED` or
 `DEPLOYED` status).
 
-You can use `--timeout-expression` to override global setting for rollback operation to wait healthy applications.
+You can use `--timeout-expression` to alter _timeout_ setting used to wait healthy applications
+when server is in state to do that. Global setting to override is
+`spring.cloud.skipper.server.strategies.healthcheck.timeoutInMillis` mentioned earlier. More about
+expression itself, see <<skipper-commands-generic-usage-timeout-expression>>.
 
 [[skipper-commands-release-history]]
 === History
@@ -457,7 +465,7 @@ OPTIONS::
 This command can be used to attempt a cancel for a running release operation if it supports it and
 release is currently in state where any type of cancellation can be attempted. For example during
 an upgrade server will delete old applications if new applications are detected healtly. Before
-state is trancitioned to deleting old applications, it is possible to request cancellation of whole
+state is transitioned to deleting old applications, it is possible to request cancellation of whole
 upgrade procedure.
 
 One other use case is that if new applications are failed and server will timeout waiting healtly
@@ -623,3 +631,27 @@ This command shows which server version is being used, as shown (with output) in
 skipper:>info
 Spring Cloud Skipper Server v1.0.0.{project-version}
 ----
+
+[[skipper-commands-generic-usage]]
+== Generic Usage
+This section contains generic notes about commands.
+
+[[skipper-commands-generic-usage-timeout-expression]]
+=== Timeout Expression
+* A regular long representation (using milliseconds as the default unit)
+* The standard ISO-8601 format https://docs.oracle.com/javase/8/docs/api//java/time/Duration.html#parse-java.lang.CharSequence-)[used by] 
+_java.util.Duration_
+* A more readable format where the value and the unit are coupled (e.g. 10s means 10 seconds)
+
+To specify a session timeout of 30 seconds, 30, PT30S and 30s are all equivalent. A read timeout
+of 500ms can be specified in any of the following form: 500, PT0.5S and 500ms.
+
+You can also use any of the supported unit. These are:
+
+* ns for nanoseconds
+* ms for milliseconds
+* s for seconds
+* m for minutes
+* h for hours
+* d for days
+
