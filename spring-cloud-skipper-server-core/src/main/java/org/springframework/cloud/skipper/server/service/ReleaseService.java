@@ -15,12 +15,15 @@
  */
 package org.springframework.cloud.skipper.server.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 import org.springframework.cloud.skipper.PackageDeleteException;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
@@ -185,9 +188,18 @@ public class ReleaseService {
 		Map<String, Object> mergedMap = ConfigValueUtils.mergeConfigValues(release.getPkg(), release.getConfigValues());
 		// Render yaml resources
 		String manifestData = ManifestUtils.createManifest(release.getPkg(), mergedMap);
+		DumperOptions dumperOptions = new DumperOptions();
+		dumperOptions.setDefaultScalarStyle(DumperOptions.ScalarStyle.DOUBLE_QUOTED);
+		dumperOptions.setPrettyFlow(true);
+		Yaml yaml = new Yaml(dumperOptions);
+		Iterable<Object> loadedYaml = yaml.loadAll(manifestData);
 		logger.debug("Manifest = " + ArgumentSanitizer.sanitizeYml(manifestData));
 		Manifest manifest = new Manifest();
-		manifest.setData(manifestData);
+		List<Object> yamlList = new ArrayList<>();
+		for (Object object: loadedYaml) {
+			yamlList.add(object);
+		}
+		manifest.setData(yaml.dumpAll(yamlList.iterator()));
 		release.setManifest(manifest);
 		// Deployment
 		Release releaseToReturn = this.releaseManager.install(release);
