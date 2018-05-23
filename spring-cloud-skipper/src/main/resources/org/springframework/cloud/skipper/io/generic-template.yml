@@ -2,7 +2,7 @@ apiVersion: skipper.spring.io/v1
 kind: SpringCloudDeployerApplication
 metadata:
   {{#metadata.entrySet}}
-  "{{{key}}}": "{{{value}}}"
+  "{{{key}}}": {{{value}}}
   {{/metadata.entrySet}}
 spec:
   resource: "{{{spec.resource}}}"
@@ -10,9 +10,14 @@ spec:
   version: "{{{spec.version}}}"
   applicationProperties:
     {{#spec.applicationProperties.entrySet}}
-    "{{{key}}}": "{{{value}}}"
+    "{{{key}}}": {{{value}}}
     {{/spec.applicationProperties.entrySet}}
   deploymentProperties:
     {{#spec.deploymentProperties.entrySet}}
+<<<<<<< HEAD
     "{{{key}}}": "{{{value}}}"
     {{/spec.deploymentProperties.entrySet}}
+=======
+    "{{{key}}}": {{{value}}}
+    {{/spec.deploymentProperties.entrySet}}  cfManifest: "{{{spec.cfManifest}}}"
+>>>>>>> 744b3e1... Handle package config value YAML loading
