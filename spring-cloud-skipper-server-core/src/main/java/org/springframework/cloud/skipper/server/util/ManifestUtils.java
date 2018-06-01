@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.samskivert.mustache.Mustache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Node;
@@ -39,6 +41,8 @@ import org.springframework.cloud.skipper.domain.Template;
  * @author Christian Tzolov
  */
 public class ManifestUtils {
+
+	private final static Logger logger = LoggerFactory.getLogger(ManifestUtils.class);
 
 	/**
 	 * In Java '\\\\' sands for escaped backslash. E.g. it corresponds to '\\' in regular expression.
@@ -65,12 +69,17 @@ public class ManifestUtils {
 		String rawManifest = applyManifestTemplate(packageToDeploy, newModel);
 
 		Yaml yaml = createYaml();
-		// Lazy evaluation of the generated manifest
-		List<Object> yamlList = StreamSupport
-				.stream(yaml.loadAll(rawManifest).spliterator(), false)
-				.collect(Collectors.toList());
+		try {
+			// Lazy evaluation of the generated manifest
+			List<Object> yamlList = StreamSupport
+					.stream(yaml.loadAll(rawManifest).spliterator(), false)
+					.collect(Collectors.toList());
+			return yaml.dumpAll(yamlList.iterator());
+		} catch (Exception e) {
+			logger.error("Created a manifest that can not be parsed.  Manifest = \n" + rawManifest + "\n");
+			throw e;
+		}
 
-		return yaml.dumpAll(yamlList.iterator());
 	}
 
 	private static String applyManifestTemplate(Package packageToDeploy, Map<String, ?> model) {
