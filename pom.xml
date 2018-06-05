@@ -42,7 +42,7 @@
 	<!-- note - check version of reactor at deployer-cf/cf-java-client uses -->
         <spring-cloud-deployer-cloudfoundry.version>1.4.0.RELEASE</spring-cloud-deployer-cloudfoundry.version>
         <reactor.version>3.1.5.RELEASE</reactor.version>
-        <spring-cloud-deployer-kubernetes.version>1.3.5.BUILD-SNAPSHOT</spring-cloud-deployer-kubernetes.version>
+        <spring-cloud-deployer-kubernetes.version>1.3.5.RELEASE</spring-cloud-deployer-kubernetes.version>
 
         <dockerfile-maven-plugin.version>1.3.6</dockerfile-maven-plugin.version>
         <zeroturnaround.version>1.13</zeroturnaround.version>
