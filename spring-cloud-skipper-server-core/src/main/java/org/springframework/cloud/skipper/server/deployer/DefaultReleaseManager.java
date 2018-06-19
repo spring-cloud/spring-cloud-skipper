@@ -295,10 +295,29 @@ public class DefaultReleaseManager implements ReleaseManager {
 		if (!deploymentIds.isEmpty()) {
 			for (String deploymentId : deploymentIds) {
 
-				// don't error trying trying to undeploy something
+				// don't error trying to undeploy something
 				// which is not deployed
 				AppStatus appStatus = appDeployer.status(deploymentId);
-				if (appStatus.getState().equals(DeploymentState.deployed)) {
+				DeploymentState state = appStatus.getState();
+				if (state.equals(DeploymentState.deploying)) {
+					//todo: Support configuring the timeout value
+					long timeout = System.currentTimeMillis() + 30000;
+					try {
+						while (state == DeploymentState.deploying || System.currentTimeMillis() < timeout) {
+							Thread.sleep(5000);
+							state = appDeployer.status(deploymentId).getState();
+						}
+						if (state == DeploymentState.deploying) {
+							logger.error("For Release name {}, the deployment is still going on "
+									+ ".", release.getName(), deploymentId);
+							throw new SkipperException(String.format("Deletion of release '%s' is unsuccessful.", release.getName()));
+						}
+					}
+					catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+				}
+				if (state.equals(DeploymentState.deployed)) {
 					appDeployer.undeploy(deploymentId);
 				}
 				else {

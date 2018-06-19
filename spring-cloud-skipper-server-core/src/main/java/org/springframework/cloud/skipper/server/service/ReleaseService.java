@@ -163,6 +163,7 @@ public class ReleaseService {
 		}
 	}
 
+	@Transactional
 	protected Release install(PackageMetadata packageMetadata, InstallProperties installProperties) {
 		Assert.notNull(packageMetadata, "Can't download package, PackageMetadata is a null value.");
 		Release existingDeletedRelease = this.releaseRepository
@@ -182,6 +183,7 @@ public class ReleaseService {
 		return install(release);
 	}
 
+	@Transactional
 	public Release install(Release release) {
 		Map<String, Object> mergedMap = ConfigValueUtils.mergeConfigValues(release.getPkg(), release.getConfigValues());
 		// Render yaml resources
