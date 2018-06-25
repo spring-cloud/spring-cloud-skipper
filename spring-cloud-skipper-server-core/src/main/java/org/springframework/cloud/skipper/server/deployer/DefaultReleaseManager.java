@@ -301,7 +301,8 @@ public class DefaultReleaseManager implements ReleaseManager {
 					appDeployer.undeploy(deploymentId);
 				}
 				catch (Exception e) {
-					throw new SkipperException(e.getMessage());
+					this.logger.error(String.format("Exception undeploying the application with the deploymentId %s. "
+							+ "Exception message: %s",  deploymentId, e.getMessage()));
 				}
 			}
 			Status deletedStatus = new Status();
