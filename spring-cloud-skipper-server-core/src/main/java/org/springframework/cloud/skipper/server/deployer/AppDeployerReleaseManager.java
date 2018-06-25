@@ -210,6 +210,9 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 	}
 
 	public Release status(Release release) {
+		if (release.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) {
+			return release;
+		}
 		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
 				.getAppDeployer();
 		AppDeployerData appDeployerData = this.appDeployerDataRepository
@@ -278,16 +281,12 @@ public class AppDeployerReleaseManager implements ReleaseManager {
 		List<String> deploymentIds = appDeployerData.getDeploymentIds();
 		if (!deploymentIds.isEmpty()) {
 			for (String deploymentId : deploymentIds) {
-
-				// don't error trying trying to undeploy something
-				// which is not deployed
-				AppStatus appStatus = appDeployer.status(deploymentId);
-				if (appStatus.getState().equals(DeploymentState.deployed)) {
+				try {
 					appDeployer.undeploy(deploymentId);
 				}
-				else {
-					logger.warn("For Release name {}, did not undeploy existing app {} as its status is not "
-									+ "'deployed'.", release.getName(), deploymentId);
+				catch (Exception e) {
+					this.logger.error(String.format("Exception undeploying the application with the deploymentId %s. "
+							+ "Exception message: %s", deploymentId, e.getMessage()));
 				}
 			}
 			Status deletedStatus = new Status();
