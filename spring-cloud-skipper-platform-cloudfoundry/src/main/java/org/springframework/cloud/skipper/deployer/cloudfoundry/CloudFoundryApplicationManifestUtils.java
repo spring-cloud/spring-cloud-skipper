@@ -15,25 +15,16 @@
  */
 package org.springframework.cloud.skipper.deployer.cloudfoundry;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
-import io.jsonwebtoken.lang.Assert;
 import org.cloudfoundry.operations.applications.ApplicationManifest;
-import org.cloudfoundry.operations.applications.ApplicationManifestUtils;
 import org.cloudfoundry.operations.applications.Docker;
-
 import org.springframework.cloud.deployer.resource.docker.DockerResource;
 import org.springframework.cloud.skipper.SkipperException;
-import org.springframework.cloud.skipper.domain.FileHolder;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
@@ -42,8 +33,9 @@ import org.springframework.util.StringUtils;
  * Utility class for Cloud Foundry Application Manifest related operations.
  *
  * @author Ilayaperumal Gopinathan
+ * @author Janne Valkealahti
  */
-public class CFApplicationManifestUtils {
+public class CloudFoundryApplicationManifestUtils {
 
 	public static ApplicationManifest updateApplicationPath(ApplicationManifest cfApplicationManifest, Resource application) {
 		ApplicationManifest.Builder applicationManifestBuilder = ApplicationManifest.builder()
@@ -65,39 +57,12 @@ public class CFApplicationManifestUtils {
 		return applicationManifestBuilder.build();
 	}
 
-	public static ApplicationManifest updateApplicationName(String cfManifestYamlString, Release release) {
-		if (cfManifestYamlString != null) {
-			try {
-				File manifestYaml = File.createTempFile(release.getName() + new Random().nextLong(), "yml");
-				Path manifestYamlPath = manifestYaml.toPath();
-				Files.write(manifestYamlPath, cfManifestYamlString.getBytes(), StandardOpenOption.APPEND);
-				List<ApplicationManifest> applicationManifestList = ApplicationManifestUtils.read(manifestYamlPath);
-				manifestYaml.delete();
-				Assert.isTrue(applicationManifestList.size() == 1, "Expected one application manifest entry. "
-						+ "Multiple or zero application manifests are not supported yet.");
-				ApplicationManifest applicationManifest = applicationManifestList.get(0);
-				ApplicationManifest.Builder applicationManifestBuilder = ApplicationManifest.builder()
-						.from(applicationManifest).name(getCFApplicationName(release, applicationManifest));
-				return applicationManifestBuilder.build();
-			}
-			catch (IOException e) {
-				throw new SkipperException(e.getMessage());
-			}
-		}
-		return null;
-	}
-
 	public static ApplicationManifest updateApplicationName(Release release) {
-		String cfManifestYamlString = getCFManifestYamlStringFromPackage(release);
-		return updateApplicationName(cfManifestYamlString, release);
-	}
-
-	public static ApplicationManifest updateApplicationManifest(ApplicationManifest cfApplicationManifest,
-			Map<String, Object> manifest) {
-		ApplicationManifest.Builder applicationManifestBuilder = ApplicationManifest.builder()
-				.from(cfApplicationManifest);
-		return org.springframework.cloud.skipper.deployer.cloudfoundry.ApplicationManifestUtils.
-				toApplicationManifest(manifest, applicationManifestBuilder).build();
+		String name = release.getName() + "-v" + release.getVersion();
+		ApplicationManifest cfApplicationManifest = ApplicationManifest.builder()
+				.name(name)
+				.build();
+		return cfApplicationManifest;
 	}
 
 	public static Map<String, String> getCFManifestMap(ApplicationManifest applicationManifest) {
@@ -113,25 +78,5 @@ public class CFApplicationManifestUtils {
 			applicationManifestMap.put(splitString[0], valueString);
 		}
 		return applicationManifestMap;
-	}
-
-	private static String getCFApplicationName(Release release, ApplicationManifest applicationManifest) {
-		if (!applicationManifest.getName().endsWith("-v" + release.getVersion())) {
-			return String.format("%s-v%s", release.getName(), release.getVersion());
-		}
-		else {
-			return applicationManifest.getName();
-		}
-	}
-
-	public static String getCFManifestYamlStringFromPackage(Release release) {
-		List<FileHolder> fileHolders = release.getPkg().getFileHolders();
-		for (FileHolder fileHolder : fileHolders) {
-			String fileName = fileHolder.getName();
-			if (fileName.endsWith("manifest.yaml") || fileName.endsWith("manifest.yml")) {
-				return new String(fileHolder.getBytes());
-			}
-		}
-		return null;
 	}
 }
