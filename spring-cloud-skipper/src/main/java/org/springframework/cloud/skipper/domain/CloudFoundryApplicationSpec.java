@@ -62,8 +62,8 @@ public class CloudFoundryApplicationSpec {
 
 		private String buildpack;
 		private String command;
-		private Integer memory;
-		private Integer diskQuota;
+		private String memory;
+		private String diskQuota;
 		private Integer timeout;
 		private Integer instances;
 		private Boolean noHostname;
@@ -157,19 +157,19 @@ public class CloudFoundryApplicationSpec {
 			this.randomRoute = randomRoute;
 		}
 
-		public Integer getMemory() {
+		public String getMemory() {
 			return memory;
 		}
 
-		public void setMemory(Integer memory) {
+		public void setMemory(String memory) {
 			this.memory = memory;
 		}
 
-		public Integer getDiskQuota() {
+		public String getDiskQuota() {
 			return diskQuota;
 		}
 
-		public void setDiskQuota(Integer diskQuota) {
+		public void setDiskQuota(String diskQuota) {
 			this.diskQuota = diskQuota;
 		}
 

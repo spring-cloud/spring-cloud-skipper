@@ -45,7 +45,7 @@ public class CloudFoundryApplicationManifestReaderTests {
 		assertThat(m.getSpec().getVersion()).isEqualTo("1.0.0");
 		assertThat(m.getSpec().getManifest().getBuildpack()).isEqualTo("buildpack");
 		assertThat(m.getSpec().getManifest().getCommand()).isEqualTo("my command");
-		assertThat(m.getSpec().getManifest().getDiskQuota()).isEqualTo(2048);
+		assertThat(m.getSpec().getManifest().getDiskQuota()).isEqualTo("2048");
 		assertThat(m.getSpec().getManifest().getDomains()).containsExactlyInAnyOrder("domain1", "domain2");
 		assertThat(m.getSpec().getManifest().getEnv()).hasSize(2);
 		assertThat(m.getSpec().getManifest().getEnv()).containsEntry("key1", "value1");
@@ -54,7 +54,7 @@ public class CloudFoundryApplicationManifestReaderTests {
 		assertThat(m.getSpec().getManifest().getHealthCheckHttpEndpoint()).isEqualTo("endpoint");
 		assertThat(m.getSpec().getManifest().getHosts()).containsExactlyInAnyOrder("host1", "host2");
 		assertThat(m.getSpec().getManifest().getInstances()).isEqualTo(1);
-		assertThat(m.getSpec().getManifest().getMemory()).isEqualTo(1024);
+		assertThat(m.getSpec().getManifest().getMemory()).isEqualTo("1024");
 		assertThat(m.getSpec().getManifest().getTimeout()).isEqualTo(180);
 		assertThat(m.getSpec().getManifest().getNoHostname()).isEqualTo(false);
 		assertThat(m.getSpec().getManifest().getNoRoute()).isEqualTo(false);

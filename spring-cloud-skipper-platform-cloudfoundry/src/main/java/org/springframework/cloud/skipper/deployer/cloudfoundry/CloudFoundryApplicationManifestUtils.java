@@ -37,6 +37,8 @@ import org.springframework.util.StringUtils;
  */
 public class CloudFoundryApplicationManifestUtils {
 
+	private static final int GIBI = 1_024;
+
 	public static ApplicationManifest updateApplicationPath(ApplicationManifest cfApplicationManifest, Resource application) {
 		ApplicationManifest.Builder applicationManifestBuilder = ApplicationManifest.builder()
 				.from(cfApplicationManifest);
@@ -78,5 +80,25 @@ public class CloudFoundryApplicationManifestUtils {
 			applicationManifestMap.put(splitString[0], valueString);
 		}
 		return applicationManifestMap;
+	}
+
+	public static Integer memoryInteger(String text) {
+		Integer value = null;
+		try {
+			value = Integer.parseInt(text);
+		} catch (Exception e) {
+		}
+		if (StringUtils.hasText(text)) {
+			if (text.endsWith("G")) {
+				value = Integer.parseInt(text.substring(0, text.length() - 1)) * GIBI;
+			} else if (text.endsWith("GB")) {
+				value = Integer.parseInt(text.substring(0, text.length() - 2)) * GIBI;
+			} else if (text.endsWith("M")) {
+				value = Integer.parseInt(text.substring(0, text.length() - 1));
+			} else if (text.endsWith("MB")) {
+				value = Integer.parseInt(text.substring(0, text.length() - 2));
+			}
+		}
+		return value;
 	}
 }
