@@ -99,7 +99,7 @@ public class CloudFoundryManifestApplicationDeployer {
 					.disk(CloudFoundryApplicationManifestUtils.memoryInteger(manifest.getDiskQuota()))
 					.domains(manifest.getDomains() != null && !manifest.getDomains().isEmpty() ? manifest.getDomains()
 							: null)
-					.environmentVariables(new HashMap<>())
+					.environmentVariables(manifest.getEnv() != null ? manifest.getEnv() : null)
 					.healthCheckHttpEndpoint(manifest.getHealthCheckHttpEndpoint())
 					.healthCheckType(manifest.getHealthCheckType() != null
 							? ApplicationHealthCheck.from(manifest.getHealthCheckType().name())
