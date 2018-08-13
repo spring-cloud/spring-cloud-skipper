@@ -60,7 +60,7 @@ public class DeployerInitializationService {
 					List<Deployer> deployers = platform.getDeployers();
 
 					Deployer existingDeployer = deployers.get(0);
-					if (existingDeployer.getName() != "default") {
+					if (!existingDeployer.getName().equals("default")) {
 						Deployer defaultDeployer = new Deployer("default",
 								existingDeployer.getType(), existingDeployer.getAppDeployer());
 						defaultDeployer.setDescription(existingDeployer.getDescription());
@@ -83,10 +83,6 @@ public class DeployerInitializationService {
 	}
 
 	private boolean singleDeployerExists() {
-		int deployersCount = 0;
-		for (Platform platform: this.platforms) {
-			deployersCount = deployersCount + platform.getDeployers().size();
-		}
-		return (deployersCount > 1) ? false : true;
+		return (this.platforms.stream().filter(platform -> platform.getDeployers().size() > 0).count() > 1) ? false : true;
 	}
 }
