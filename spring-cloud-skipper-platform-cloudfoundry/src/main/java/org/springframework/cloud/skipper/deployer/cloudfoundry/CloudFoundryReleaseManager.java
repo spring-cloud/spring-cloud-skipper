@@ -141,14 +141,14 @@ public class CloudFoundryReleaseManager implements ReleaseManager {
 	}
 
 	@Override
-	public ReleaseAnalysisReport createReport(Release existingRelease, Release replacingRelease, boolean initial) {
+	public ReleaseAnalysisReport createReport(Release existingRelease, Release replacingRelease, boolean initial,
+			boolean isForceUpdate, String[] appNamesToUpgrade) {
 		ReleaseAnalysisReport releaseAnalysisReport = this.cloudFoundryReleaseAnalyzer
-				.analyze(existingRelease, replacingRelease);
+				.analyze(existingRelease, replacingRelease, isForceUpdate);
 		if (initial) {
 			this.releaseRepository.save(replacingRelease);
 		}
-		return new ReleaseAnalysisReport(releaseAnalysisReport.getApplicationNamesToUpgrade(),
-				releaseAnalysisReport.getReleaseDifference(), existingRelease, replacingRelease);
+		return releaseAnalysisReport;
 	}
 
 	public Release status(Release release) {
