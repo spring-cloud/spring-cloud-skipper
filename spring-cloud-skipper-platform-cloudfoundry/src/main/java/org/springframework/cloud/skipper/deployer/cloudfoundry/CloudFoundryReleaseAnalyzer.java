@@ -16,6 +16,7 @@
 package org.springframework.cloud.skipper.deployer.cloudfoundry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -56,9 +57,10 @@ public class CloudFoundryReleaseAnalyzer {
 	 * @param existingRelease the release that is currently deployed
 	 * @param replacingRelease the proposed release to be deployed that will replace the
 	 * existing release.
+	 * @param isForceUpdate flag to indicate if the update is forced
 	 * @return an analysis report describing the changes to make, if any.
 	 */
-	public ReleaseAnalysisReport analyze(Release existingRelease, Release replacingRelease) {
+	public ReleaseAnalysisReport analyze(Release existingRelease, Release replacingRelease, boolean isForceUpdate) {
 		List<ApplicationManifestDifference> applicationManifestDifferences = new ArrayList<>();
 		ApplicationManifest existingApplicationManifest = this.cfManifestApplicationDeployer.getCFApplicationManifest(existingRelease);
 		ApplicationManifest replacingApplicationManifest = this.cfManifestApplicationDeployer.getCFApplicationManifest(replacingRelease);
@@ -71,12 +73,14 @@ public class CloudFoundryReleaseAnalyzer {
 					emptyPropertiesDiff, emptyPropertiesDiff, emptyPropertiesDiff, propertiesDiff, emptyPropertiesDiff);
 			applicationManifestDifferences.add(applicationManifestDifference);
 		}
-		return createReleaseAnalysisReport(existingRelease, replacingRelease, applicationManifestDifferences);
+		return createReleaseAnalysisReport(existingRelease, replacingRelease, applicationManifestDifferences,
+				Arrays.asList(existingApplicationManifest.getName()), isForceUpdate);
 	}
 
 	private ReleaseAnalysisReport createReleaseAnalysisReport(Release existingRelease,
 			Release replacingRelease,
-			List<ApplicationManifestDifference> applicationManifestDifferences) {
+			List<ApplicationManifestDifference> applicationManifestDifferences, List<String> allApplicationNames,
+			boolean isForceUpdate) {
 		List<String> appsToUpgrade = new ArrayList<>();
 		ReleaseDifference releaseDifference = new ReleaseDifference();
 		releaseDifference.setDifferences(applicationManifestDifferences);
@@ -86,6 +90,7 @@ public class CloudFoundryReleaseAnalyzer {
 					StringUtils.collectionToCommaDelimitedString(releaseDifference.getChangedApplicationNames()) + "]");
 			appsToUpgrade.addAll(releaseDifference.getChangedApplicationNames());
 		}
-		return new ReleaseAnalysisReport(appsToUpgrade, releaseDifference, existingRelease, replacingRelease);
+		return new ReleaseAnalysisReport(appsToUpgrade, releaseDifference, existingRelease, replacingRelease,
+				allApplicationNames, isForceUpdate);
 	}
 }

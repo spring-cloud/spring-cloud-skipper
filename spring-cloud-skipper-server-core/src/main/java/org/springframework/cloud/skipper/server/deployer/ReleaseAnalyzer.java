@@ -16,6 +16,7 @@
 package org.springframework.cloud.skipper.server.deployer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,9 +62,12 @@ public class ReleaseAnalyzer {
 	 * @param existingRelease the release that is currently deployed
 	 * @param replacingRelease the proposed release to be deployed that will replace the
 	 * existing release.
+	 * @param isForceUpdate flag to indicate if the update is forced
+	 * @param appNamesToUpdate the application names to force update
 	 * @return an analysis report describing the changes to make, if any.
 	 */
-	public ReleaseAnalysisReport analyze(Release existingRelease, Release replacingRelease) {
+	public ReleaseAnalysisReport analyze(Release existingRelease, Release replacingRelease, boolean isForceUpdate,
+			String[] appNamesToUpdate) {
 		// For now, assume single package with no deps or package with same number of deps
 		List<? extends SpringCloudDeployerApplicationManifest> existingApplicationSpecList = this.applicationManifestReader
 				.read(existingRelease.getManifest().getData());
@@ -75,7 +79,7 @@ public class ReleaseAnalyzer {
 				logger.info("Existing Package and Upgrade Package both have no dependent packages.");
 				return analyzeTopLevelPackagesOnly(existingApplicationSpecList,
 						replacingApplicationSpecList,
-						existingRelease, replacingRelease);
+						existingRelease, replacingRelease, isForceUpdate, appNamesToUpdate);
 			}
 			else {
 				if (existingRelease.getPkg().getTemplates().size() == 0 &&
@@ -83,7 +87,7 @@ public class ReleaseAnalyzer {
 					logger.info("Existing Package and Upgrade package both have no top level templates");
 					return analyzeDependentPackagesOnly(existingApplicationSpecList,
 							replacingApplicationSpecList,
-							existingRelease, replacingRelease);
+							existingRelease, replacingRelease, isForceUpdate, appNamesToUpdate);
 				}
 				else {
 					throw new SkipperException(
@@ -97,10 +101,25 @@ public class ReleaseAnalyzer {
 		}
 	}
 
+	public List<String> getAllApplicationNames(Release release) {
+		List<String> appNames = new ArrayList<>();
+		List<? extends SpringCloudDeployerApplicationManifest> applicationSpecList = this.applicationManifestReader
+				.read(release.getManifest().getData());
+		if (release.getPkg().getDependencies().size() == 0) {
+			appNames.add(applicationSpecList.get(0).getApplicationName());
+		}
+		else {
+			for (SpringCloudDeployerApplicationManifest applicationManifestSpec : applicationSpecList) {
+				appNames.add(applicationManifestSpec.getApplicationName());
+			}
+		}
+		return appNames;
+	}
+
 	private ReleaseAnalysisReport analyzeDependentPackagesOnly(
 			List<? extends SpringCloudDeployerApplicationManifest> existingApplicationSpecList,
 			List<? extends SpringCloudDeployerApplicationManifest> replacingApplicationSpecList,
-			Release existingRelease, Release replacingRelease) {
+			Release existingRelease, Release replacingRelease, boolean isForceUpdate, String[] appNamesToUpdate) {
 
 		List<ApplicationManifestDifference> applicationManifestDifferences = new ArrayList<>();
 
@@ -118,7 +137,8 @@ public class ReleaseAnalyzer {
 			applicationManifestDifferences.add(applicationManifestDifference);
 		}
 
-		return createReleaseAnalysisReport(existingRelease, replacingRelease, applicationManifestDifferences);
+		return createReleaseAnalysisReport(existingRelease, replacingRelease, applicationManifestDifferences,
+				isForceUpdate, appNamesToUpdate);
 
 	}
 
@@ -142,7 +162,8 @@ public class ReleaseAnalyzer {
 	private ReleaseAnalysisReport analyzeTopLevelPackagesOnly(
 			List<? extends SpringCloudDeployerApplicationManifest> existingApplicationSpecList,
 			List<? extends SpringCloudDeployerApplicationManifest> replacingApplicationSpecList,
-			Release existingRelease, Release replacingRelease) {
+			Release existingRelease, Release replacingRelease, boolean isForceUpdate,
+			String[] appNamesToUpdate) {
 
 		List<ApplicationManifestDifference> applicationManifestDifferences = new ArrayList<>();
 
@@ -153,12 +174,13 @@ public class ReleaseAnalyzer {
 						replacingApplicationSpecList.get(0));
 		applicationManifestDifferences.add(applicationManifestDifference);
 
-		return createReleaseAnalysisReport(existingRelease, replacingRelease, applicationManifestDifferences);
+		return createReleaseAnalysisReport(existingRelease, replacingRelease, applicationManifestDifferences,
+				isForceUpdate, appNamesToUpdate);
 	}
 
 	private ReleaseAnalysisReport createReleaseAnalysisReport(Release existingRelease,
-			Release replacingRelease,
-			List<ApplicationManifestDifference> applicationManifestDifferences) {
+			Release replacingRelease, List<ApplicationManifestDifference> applicationManifestDifferences,
+			boolean isForceUpdate, String[] appNamesToUpdate) {
 		List<String> appsToUpgrade = new ArrayList<>();
 		ReleaseDifference releaseDifference = new ReleaseDifference();
 		releaseDifference.setDifferences(applicationManifestDifferences);
@@ -168,7 +190,12 @@ public class ReleaseAnalyzer {
 					StringUtils.collectionToCommaDelimitedString(releaseDifference.getChangedApplicationNames()) + "]");
 			appsToUpgrade.addAll(releaseDifference.getChangedApplicationNames());
 		}
-		return new ReleaseAnalysisReport(appsToUpgrade, releaseDifference, existingRelease, replacingRelease);
+		// Set explicit app names from the client only if the update is enforced.
+		else if (isForceUpdate && appNamesToUpdate != null) {
+			appsToUpgrade.addAll(Arrays.asList(appNamesToUpdate));
+		}
+		return new ReleaseAnalysisReport(appsToUpgrade, releaseDifference, existingRelease,
+				replacingRelease, getAllApplicationNames(existingRelease), isForceUpdate);
 	}
 
 	private SpringCloudDeployerApplicationManifest findMatching(String existingApplicationName,

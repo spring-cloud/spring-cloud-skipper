@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
  * report. The reports dictates what needs to change, and the strategies determine how to
  * make the change.
  * @author Mark Pollack
+ * @author Ilayaperumal Gopinathan
  */
 public class ReleaseAnalysisReport {
 
@@ -40,6 +41,10 @@ public class ReleaseAnalysisReport {
 
 	private final Release replacingRelease;
 
+	private final List<String> allApplicationNames;
+
+	private final boolean isForceUpdate;
+
 	/**
 	 * Create an analysis report.
 	 * @param applicationNamesToUpgrade the list of application names that needs to be updates
@@ -47,21 +52,31 @@ public class ReleaseAnalysisReport {
 	 * the proposed release
 	 * @param existingRelease the currently deployed release
 	 * @param replacingRelease the release to be deployed
+	 * @param allApplicationNames the list of all the application names that are part of the package
+	 * @param isForceUpdate boolean flag to indicate if the update is forced
 	 */
 	public ReleaseAnalysisReport(List<String> applicationNamesToUpgrade, ReleaseDifference releaseDifference,
-			Release existingRelease, Release replacingRelease) {
+			Release existingRelease, Release replacingRelease, List<String> allApplicationNames, boolean isForceUpdate) {
 		Assert.notNull(applicationNamesToUpgrade, "ApplicationNamesToUpgrade can not be null.");
 		Assert.notNull(releaseDifference, "ReleaseDifference can not be null.");
 		Assert.notNull(existingRelease, "ExistingRelease can not be null.");
 		Assert.notNull(replacingRelease, "ReplacingRelease can not be null.");
+		Assert.notNull(allApplicationNames, "AllApplicationNames can not be null.");
 		this.applicationNamesToUpgrade = applicationNamesToUpgrade;
 		this.releaseDifference = releaseDifference;
 		this.existingRelease = existingRelease;
 		this.replacingRelease = replacingRelease;
+		this.allApplicationNames = allApplicationNames;
+		this.isForceUpdate = isForceUpdate;
 	}
 
 	public List<String> getApplicationNamesToUpgrade() {
-		return this.applicationNamesToUpgrade;
+		if (this.isForceUpdate) {
+			return this.applicationNamesToUpgrade.size() > 0 ? this.applicationNamesToUpgrade : this.allApplicationNames;
+		}
+		else{
+			return this.applicationNamesToUpgrade;
+		}
 	}
 
 	public ReleaseDifference getReleaseDifference() {
