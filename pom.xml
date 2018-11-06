@@ -41,16 +41,22 @@
         <spring-cloud-sso.version>1.1.0.RELEASE</spring-cloud-sso.version>
         <spring-cloud-deployer.version>1.3.4.RELEASE</spring-cloud-deployer.version>
         <spring-cloud-deployer-local.version>1.3.9.RELEASE</spring-cloud-deployer-local.version>
-	<!-- note - check version of reactor at deployer-cf/cf-java-client uses -->
-        <spring-cloud-deployer-cloudfoundry.version>1.4.3.RELEASE</spring-cloud-deployer-cloudfoundry.version>
+
+        <!-- note - check version of reactor at deployer-cf/cf-java-client uses -->
+        <spring-cloud-deployer-cloudfoundry.version>1.4.4.RELEASE</spring-cloud-deployer-cloudfoundry.version>
         <reactor.version>3.1.8.RELEASE</reactor.version>
+
         <spring-cloud-deployer-kubernetes.version>1.3.9.RELEASE</spring-cloud-deployer-kubernetes.version>
 
         <dockerfile-maven-plugin.version>1.3.6</dockerfile-maven-plugin.version>
         <zeroturnaround.version>1.13</zeroturnaround.version>
         <spring-restdocs.version>1.2.2.RELEASE</spring-restdocs.version>
         <java-semver.version>0.9.0</java-semver.version>
-        <spring-common-security>1.0.0.RELEASE</spring-common-security>
+
+        <spring-common-security>1.0.3.RELEASE</spring-common-security>
+        <!-- Needs to be explicitly managed - compare with -->
+        <!-- https://github.com/spring-cloud/spring-cloud-common-security-config/blob/v1.0.3.RELEASE/spring-cloud-common-security-config-web/pom.xml -->
+        <spring-security-oauth.version>2.3.4.RELEASE</spring-security-oauth.version>
 
         <hikaricp.version>3.1.0</hikaricp.version>
         <jsonpath.version>2.2.0</jsonpath.version>
@@ -112,6 +118,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.security.oauth</groupId>
+                <artifactId>spring-security-oauth2</artifactId>
+                <version>${spring-security-oauth.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-skipper-autoconfigure</artifactId>
