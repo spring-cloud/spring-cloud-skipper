@@ -100,7 +100,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableConfigurationProperties({ SkipperServerProperties.class, VersionInfoProperties.class,
-		LocalPlatformProperties.class, MavenConfigurationProperties.class,
+		LocalPlatformProperties.class, /* CloudFoundryPlatformProperties.class, */ MavenConfigurationProperties.class,
 		HealthCheckProperties.class })
 @EntityScan({ "org.springframework.cloud.skipper.domain",
 		"org.springframework.cloud.skipper.server.domain" })
@@ -115,11 +115,6 @@ public class SkipperServerConfiguration implements AsyncConfigurer {
 	public static final String SKIPPER_EXECUTOR = "skipperThreadPoolTaskExecutor";
 
 	private final Logger logger = LoggerFactory.getLogger(SkipperServerConfiguration.class);
-
-	@Bean
-	public DataSourceCloudConfig dataSourceCloudConfig() {
-		return new DataSourceCloudConfig();
-	}
 
 	@Bean
 	public ErrorAttributes errorAttributes() {
