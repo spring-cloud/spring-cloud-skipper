@@ -109,17 +109,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableAsync
 @Import({ StateMachinePersistConfiguration.class, StateMachineExecutorConfiguration.class,
-		StateMachineConfiguration.class, SecurityConfiguration.class })
+		StateMachineConfiguration.class, SecurityConfiguration.class, DataSourceCloudConfig.class })
 public class SkipperServerConfiguration implements AsyncConfigurer {
 
 	public static final String SKIPPER_EXECUTOR = "skipperThreadPoolTaskExecutor";
 
 	private final Logger logger = LoggerFactory.getLogger(SkipperServerConfiguration.class);
-
-	@Bean
-	public DataSourceCloudConfig dataSourceCloudConfig() {
-		return new DataSourceCloudConfig();
-	}
 
 	@Bean
 	public ErrorAttributes errorAttributes() {
