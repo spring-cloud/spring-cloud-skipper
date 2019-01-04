@@ -14,9 +14,9 @@
         <!-- NOTE: Make sure to update `spring-cloud-build` version and `spring-cloud-dependencies` version (spring-cloud.version)
          are in sync with the https://github.com/spring-cloud/spring-cloud-release/blob/master/pom.xml updates for the respective
          release versions -->
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-build</artifactId>
-        <version>2.1.0.RC3</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-parent</artifactId>
+        <version>2.1.1.RELEASE</version>
         <relativePath />
     </parent>
 
@@ -25,6 +25,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
         <jline.version>2.12</jline.version>
         <jopt.version>4.6</jopt.version>
@@ -33,6 +35,7 @@
         <spring-shell.version>2.0.1.RELEASE</spring-shell.version>
         <spring-statemachine.version>2.1.0.M1</spring-statemachine.version>
 
+        <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
         <!-- NOTE: Make sure to update `spring-cloud-build` version and `spring-cloud-dependencies` version (spring-cloud.version)
         are in sync with the https://github.com/spring-cloud/spring-cloud-release/blob/master/pom.xml updates for the respective
         release versions -->
@@ -69,7 +72,7 @@
         <checkstyle.config.location>etc/checkstyle/checkstyle.xml</checkstyle.config.location>
 
         <commons-io.version>2.5</commons-io.version>
-        <snakeyaml.version>1.18</snakeyaml.version>
+        <snakeyaml.version>1.23</snakeyaml.version>
 
         <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
         <asciidoctor-maven-plugin.version>1.5.3</asciidoctor-maven-plugin.version>
