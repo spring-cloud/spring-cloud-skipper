@@ -37,6 +37,7 @@ public class CfEnvIsInCfTests {
 
 	@Test
 	public void testIsInCfFalse() {
+		mockNoVcapApplication();
 		CfEnv cfEnv = new CfEnv();
 		assertThat(cfEnv.isInCf()).isFalse();
 	}
@@ -52,7 +53,21 @@ public class CfEnvIsInCfTests {
 				return env.get(name);
 			}
 		};
-
+	}
+	private void mockNoVcapApplication() {
+		Map<String, String> env = System.getenv();
+		new MockUp<System>() {
+			@Mock
+			public String getenv(String name) {
+				if (name.equalsIgnoreCase("VCAP_APPLICATION")) {
+					return null;
+				}
+				if (name.equalsIgnoreCase("VCAP_SERVICES")) {
+					return null;
+				}
+				return env.get(name);
+			}
+		};
 	}
 
 }
