@@ -7,7 +7,7 @@
     <name>Java CF Env Spring Boot</name>
     <description>Java CF Env Boot Support</description>
     <parent>
-        <groupId>org.springframework.cfenv</groupId>
+        <groupId>io.pivotal.cfenv</groupId>
         <artifactId>java-cfenv-parent</artifactId>
         <version>1.0.0.BUILD-SNAPSHOT</version>
     </parent>
