@@ -1,0 +1,65 @@
+{
+  "p-mysql": [
+    {
+      "credentials": {
+        "hostname": "10.0.4.35",
+        "port": 3306,
+        "name": "name",
+        "username": "username",
+        "password": "password",
+        "uri": "mysql://username:password@10.0.4.35:3306/name?reconnect=true",
+        "jdbcUrl": "jdbc:mysql://10.0.4.35:3306/name?user=username&password=password"
+      },
+      "syslog_drain_url": null,
+      "volume_mounts": [],
+      "label": "p-mysql",
+      "provider": null,
+      "plan": "100mb",
+      "name": "mysql",
+      "tags": [
+        "mysql",
+        "relational"
+      ]
+    },
+    {
+      "credentials": {
+        "hostname": "10.0.4.35",
+        "port": 3306,
+        "name": "name",
+        "username": "HhFG7vhy0kKpT61X",
+        "password": "RZFGcxsn86XO09kF",
+        "uri": "mysql://username:password@10.0.4.35:3306/name?reconnect=true",
+        "jdbcUrl": "jdbc:mysql://10.0.4.35:3306/name?user=username&password=password"
+      },
+      "syslog_drain_url": null,
+      "volume_mounts": [],
+      "label": "p-mysql",
+      "provider": null,
+      "plan": "100mb",
+      "name": "mysql2",
+      "tags": [
+        "mysql",
+        "relational"
+      ]
+    }
+  ],
+  "p-redis": [
+    {
+      "credentials": {
+        "host": "10.0.4.30",
+        "password": "180550d7-f5b2-4adb-81c8-f90906249159",
+        "port": 45470
+      },
+      "syslog_drain_url": null,
+      "volume_mounts": [],
+      "label": "p-redis",
+      "provider": null,
+      "plan": "shared-vm",
+      "name": "redis",
+      "tags": [
+        "pivotal",
+        "redis"
+      ]
+    }
+  ]
+}

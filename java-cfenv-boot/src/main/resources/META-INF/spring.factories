@@ -1,0 +1,10 @@
+# Environment Post Processors
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  io.pivotal.cfenv.spring.boot.CfDataSourceEnvironmentPostProcessor,\
+  io.pivotal.cfenv.spring.boot.CfSpringCloudConfigClientEnvironmentPostProcessor,\
+  io.pivotal.cfenv.spring.boot.CfSingleSignOnEnvironmentPostProcessor
+# Also register as a ApplicationListener to log what occured in the post processing step
+org.springframework.context.ApplicationListener=\
+  io.pivotal.cfenv.spring.boot.CfDataSourceEnvironmentPostProcessor,\
+  io.pivotal.cfenv.spring.boot.CfSpringCloudConfigClientEnvironmentPostProcessor,\
+  io.pivotal.cfenv.spring.boot.CfSingleSignOnEnvironmentPostProcessor

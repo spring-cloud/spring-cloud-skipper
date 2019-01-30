@@ -1,0 +1,7 @@
+{
+  "name": "$serviceName",
+  "credentials": {
+    "jdbcUrl": "jdbc:mysql://$hostname:$port/$name?user=$user&password=$password",
+    "uri": "mysql://$user:$password@$hostname:$port/$name"
+  }
+}

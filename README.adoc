@@ -1,1 +1,201 @@
-Hello World!
+Spring CFEnv is a library for easily accessing the environment variables set when deploying an application to Cloud Foundry.
+It is modeled after the design of the node library https://github.com/cloudfoundry-community/node-cfenv/[node-cfenv] and other `-cfenv` libraries in the Cloud Foundry ecosystem.
+
+The class `CfEnv` is the entry point to the API for accessing Cloud Foundry environment variables.
+In a Spring application, you can use the https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions-bean-references[Spring Expression Language] to invoke methods on bean of type `CfEnv` to set properties.
+CFEnv's Boot support sets https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html[common application properties] so that Java objects such as the `DataSource` or the `RabbitConnectionFactory` are created using Spring Boot autoconfiguration.
+
+== Introduction
+The entry point is the class `CfEnv` which parses Cloud Foundry environment variables such as `VCAP_SERVICES`.
+The information in `VCAP_SERVICES` is a JSON string that contains credential information to access bound services, such as a database.
+For example, here is the value of `VCAP_SERVICES` for an application bound to the mysql and redis services.
+
+[source,json]
+----
+{
+  "p-mysql": [
+    {
+      "credentials": {
+        "hostname": "10.0.4.35",
+        "port": 3306,
+        "name": "cf_2e23d10a_8738_8c3c_66cf_13e44422698c",
+        "username": "8McHri7aKbuTEGCR",
+        "password": "J2BNJYkeXAH9idkG",
+        "uri": "mysql://8McHri7aKbuTEGCR:J2BNJYkeXAH9idkG@10.0.4.35:3306/cf_2e23d10a_8738_8c3c_66cf_13e44422698c?reconnect=true",
+        "jdbcUrl": "jdbc:mysql://10.0.4.35:3306/cf_2e23d10a_8738_8c3c_66cf_13e44422698c?user=8McHri7aKbuTEGCR&password=J2BNJYkeXAH9idkG"
+      },
+      "syslog_drain_url": null,
+      "volume_mounts": [],
+      "label": "p-mysql",
+      "provider": null,
+      "plan": "100mb",
+      "name": "mysql",
+      "tags": [
+        "mysql",
+        "relational"
+      ]
+    }
+  ],
+  "p-redis": [
+    {
+      "credentials": {
+        "host": "10.0.4.30",
+        "password": "291452d8-d4a1-3bec-90d9-g50503138248",
+        "port": 45470
+      },
+      "syslog_drain_url": null,
+      "volume_mounts": [],
+      "label": "p-redis",
+      "provider": null,
+      "plan": "shared-vm",
+      "name": "redis",
+      "tags": [
+        "pivotal",
+        "redis"
+      ]
+    }
+  ]
+}
+----
+
+The keys in the JSON are not always identical across services, for example in the above JSON the mysql service has added the key named `hostname` to the credentials while the redis service has contributed the key named `host`.
+Most relational database services do not expose a key named `jdbcUrl` so the URL needs to be created by extracting individual fields and building up the URL string.  Since this is such a common case, the CfEnv library provides support to retrieve the URL string for several databases.
+
+To get access to a specific service's credentials, the keys `tag`, `name`, or `label` and be specified as a criteria for selecting one of the services in the array.
+
+
+== Basic usage
+Using the JSON from the previous section, here are some simple API calls to extract credential information.
+
+[source,java]
+----
+CfEnv cfEnv = new CfEnv();
+String redisHost = cfEnv.findCredentialsByTag('redis').getHost();
+String redisPort = cfEnv.findCredentialsByTag('redis').getPort();
+String redisPassword - cfEnv.findCredentailsByTag('redis').getPassword();
+----
+
+Multiple strings can be passed to match against more than one tag.
+There are additional finder methods to search by `name` and `label` and the finder method support passing a regex string for pattern matching.
+
+The classes `CfService` and `CfCredentials` are returned from the following API calls and have methods for accessing common fields in addition to a generic `get(String)` map API.
+
+[source,java]
+----
+CfEnv cfEnv = new CfEnv();
+List<CfService> cfService = cfEnv.getServices();
+
+CfService redisService = cfEnv.findServiceByTag("redis");
+List<String> redisServiceTags = redisService.getTags();
+String redisPlan = redisService.getPlan();
+redisPlan = redisService.get("plan")
+
+CfCredentials redisCredentials = cfEnv.findCredentialsByTag("redis");
+String redisPort = redisCredentials.getPort();
+Integer redisPort = redisCredentials.getMap().get("port");
+
+cfService = cfEnv.findServiceByName("redis");
+cfService = cfEnv.findServiceByLabel("p-redis");
+cfService = cfEnv.findServiceByLabel(".*-redis");
+----
+
+=== JDBC Support
+
+There is additional support for getting the JDBC URL contained in the module `spring-cfenv-jdbc`.
+ The entry point to the API is the class `CfJdbcEnv` which is a subclass of `CfEnv` and adds a few methods.
+ The method `findJdbcService` will heuristically look at all services for known tags, labels and names of common database services to create the URL.
+[source,java]
+----
+CfEnvJdbc cfEnvJdbc = new CfEnvJdbc()
+CfJdbcService cfJdbcService = cfEnvJdbc.findJdbcService();
+
+String url = cfJdbcService.getUrl();
+String username = cfJdbcService.getUsername();
+String password = cfJdbcService.getPassword();
+String driverClassName = cfJdbcService.getDriverClassName();
+----
+
+If there is more than one database bound to the application, an exception will be thrown and you should use the `findJdbcServiceByName` method to locate a unique database service.
+
+[source,java]
+----
+String jdbcUrl1 = cfEnvJdbc.findJdbcServiceByName('mysqlA').getUrl();
+String jdbcUrl2 = cfEnvJdbc.findJdbcServiceByName('mysqlB').getUrl();
+----
+
+=== Use with Spring
+
+If you register a the `CfEnv` class as a bean, then you can use the Spring Expression Language to set properties.
+
+[source,java]
+----
+@Bean
+public CfJdbcEnv cfJdbcEnv() {
+  return new CfJdbcEnv();
+}
+----
+
+Then in a property file imported by Spring, refer to the CfEnvJdbc bean using the following syntax.
+
+[source]
+----
+myDatasourceUrl=#{ cfJdbcEnv.findJdbcService().getUrl() }
+----
+
+Or say for cassandra, you can use the `CfEnv` class registered as a bean.
+
+[source,java]
+----
+@Bean
+public CfEnv cfEnv() {
+  return new CfEnv();
+}
+
+----
+[source]
+----
+cassandra.contact-points=#{ cfEnv.findCredentialsByTag('cassandra').get('node_ips') }
+cassandra.username=#{ cfEnv.findCredentialsByTag('cassandra').getUserName() }
+cassandra.password=#{ cfEnv.findCredentialsByTag('cassandra').getPassword() }
+cassandra.port=#{ cfEnv.findCredentialsByTag('cassandra').get('cqlsh_port') }
+----
+
+=== Using Spring Boot
+
+The module `spring-cfenv-boot` provides several `EnvironmentPostProcessor` implementations that set well known Boot properties so that Boot's auto-configuration can kick in.
+For example, the `CfDataSourceEnvironmentPostProcessor` sets the Boot property `spring.datasource.url`.
+Just add a dependency on `spring-cfenv-boot`.
+
+=== Pushing you application to Cloud Foundry
+
+You must disable the java buildpack's auto-reconfiguration so that you always delegate to Boot to create beans.
+
+[source]
+----
+cf set-env <APP> JBP_CONFIG_SPRING_AUTO_RECONFIGURATION '{enabled: false}'
+----
+
+Since the auto-reconfiguration also set the cloud profile, you will have to do that explicitly
+
+[source]
+----
+cf set-env <APP> SPRING_PROFILES_ACTIVE cloud
+----
+
+
+=== Building
+
+Clone the repo and type
+
+----
+$ ./mvnw clean install
+----
+
+which will run the tests as well.
+
+To build just the documentation
+
+----
+./mvnw -DskipTests -Pfull package -pl spring-cloud-skipper-docs
+----
+
