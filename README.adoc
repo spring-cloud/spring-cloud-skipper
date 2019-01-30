@@ -1,4 +1,4 @@
-Spring CFEnv is a library for easily accessing the environment variables set when deploying an application to Cloud Foundry.
+Java CFEnv is a library for easily accessing the environment variables set when deploying an application to Cloud Foundry.
 It is modeled after the design of the node library https://github.com/cloudfoundry-community/node-cfenv/[node-cfenv] and other `-cfenv` libraries in the Cloud Foundry ecosystem.
 
 The class `CfEnv` is the entry point to the API for accessing Cloud Foundry environment variables.
@@ -162,9 +162,9 @@ cassandra.port=#{ cfEnv.findCredentialsByTag('cassandra').get('cqlsh_port') }
 
 === Using Spring Boot
 
-The module `spring-cfenv-boot` provides several `EnvironmentPostProcessor` implementations that set well known Boot properties so that Boot's auto-configuration can kick in.
+The module `java-cfenv-boot` provides several `EnvironmentPostProcessor` implementations that set well known Boot properties so that Boot's auto-configuration can kick in.
 For example, the `CfDataSourceEnvironmentPostProcessor` sets the Boot property `spring.datasource.url`.
-Just add a dependency on `spring-cfenv-boot`.
+Just add a dependency on `java-cfenv-boot`.
 
 === Pushing you application to Cloud Foundry
 
@@ -193,9 +193,4 @@ $ ./mvnw clean install
 
 which will run the tests as well.
 
-To build just the documentation
-
-----
-./mvnw -DskipTests -Pfull package -pl spring-cloud-skipper-docs
-----
 
