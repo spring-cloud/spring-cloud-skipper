@@ -61,7 +61,7 @@
         <dependencies>
             <!-- SUB MODULES -->
             <dependency>
-                <groupId>org.springframework.cfenv</groupId>
+                <groupId>io.pivotal.cfenv</groupId>
                 <artifactId>cfenv</artifactId>
                 <version>1.0.0.BUILD-SNAPSHOT</version>
             </dependency>

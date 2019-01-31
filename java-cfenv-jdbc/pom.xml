@@ -14,7 +14,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.cfenv</groupId>
+            <groupId>io.pivotal.cfenv</groupId>
             <artifactId>java-cfenv</artifactId>
             <version>1.0.0.BUILD-SNAPSHOT</version>
         </dependency>
