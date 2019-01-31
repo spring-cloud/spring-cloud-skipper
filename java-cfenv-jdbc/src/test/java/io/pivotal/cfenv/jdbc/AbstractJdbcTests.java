@@ -40,7 +40,7 @@ public class AbstractJdbcTests {
 
 	protected static final String password = "mypass";
 
-	protected static String username = "myuser";
+	protected static final String username = "myuser";
 
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -161,6 +161,19 @@ public class AbstractJdbcTests {
 				scanner.close();
 			}
 		}
+	}
+
+	protected String getUserProvidedServicePayload(String serviceName, String hostname, int port,
+												   String user, String password, String name, String scheme) {
+		String payload = getRelationalPayload("test-ups-info.json", serviceName,
+				hostname, port, user, password, name);
+		return payload.replace("$scheme", scheme);
+	}
+
+	protected String getUserProvidedServicePayloadWithNoUri(String serviceName, String hostname, int port,
+															String user, String password, String name) {
+		return getRelationalPayload("test-ups-info-no-uri.json", serviceName,
+				hostname, port, user, password, name);
 	}
 
 }

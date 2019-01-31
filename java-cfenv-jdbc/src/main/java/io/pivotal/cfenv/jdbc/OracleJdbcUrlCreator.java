@@ -22,22 +22,20 @@ import io.pivotal.cfenv.core.UriInfo;
 /**
  * @author Mark Pollack
  */
-public class MySqlJdbcUrlCreator extends AbstractJdbcUrlCreator {
+public class OracleJdbcUrlCreator extends AbstractJdbcUrlCreator {
 
-	public static final String MYSQL_SCHEME = "mysql";
+	public static final String ORACLE_SCHEME = "oracle";
 
-	public static final String MYSQL_TAG = "mysql";
+	public static final String ORACLE_LABEL = "oracle";
 
-	public static final String MYSQL_LABEL = "mysql";
 
 	@Override
 	public boolean isDatabaseService(CfService cfService) {
 		// Match tags
-		if (jdbcUrlMatchesScheme(cfService, MYSQL_SCHEME)
-				|| cfService.existsByTagIgnoreCase(MYSQL_TAG)
-				|| cfService.existsByLabelStartsWith(MYSQL_LABEL)
-				|| cfService.existsByUriSchemeStartsWith(MYSQL_SCHEME)
-				|| cfService.existsByCredentialsContainsUriField(MYSQL_SCHEME)) {
+		if (jdbcUrlMatchesScheme(cfService, ORACLE_SCHEME)
+				|| cfService.existsByLabelStartsWith(ORACLE_LABEL)
+				|| cfService.existsByUriSchemeStartsWith(ORACLE_SCHEME)
+				|| cfService.existsByCredentialsContainsUriField(ORACLE_SCHEME)) {
 			return true;
 		}
 		return false;
@@ -45,15 +43,16 @@ public class MySqlJdbcUrlCreator extends AbstractJdbcUrlCreator {
 
 	@Override
 	public String getDriverClassName() {
-		return "org.mariadb.jdbc.Driver";
+		return "oracle.jdbc.OracleDriver";
 	}
 
 	@Override
 	public String buildJdbcUrlFromUriField(CfCredentials cfCredentials) {
-		UriInfo uriInfo = cfCredentials.getUriInfo(MYSQL_SCHEME);
-		return String.format("%s%s://%s%s/%s%s%s", JDBC_PREFIX, MYSQL_SCHEME,
-				uriInfo.getHost(), uriInfo.formatPort(), uriInfo.getPath(),
-				uriInfo.formatUserNameAndPassword(), uriInfo.formatQuery());
+		UriInfo uriInfo = cfCredentials.getUriInfo(ORACLE_SCHEME);
+		return String.format("jdbc:%s:thin:%s/%s@%s:%d/%s", ORACLE_SCHEME,
+				uriInfo.getUsername(), uriInfo.getPassword(),
+				uriInfo.getHost(), uriInfo.getPort(), uriInfo.getPath());
 	}
+
 
 }

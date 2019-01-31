@@ -46,12 +46,12 @@ public class CfJdbcEnvTests {
 		assertThatThrownBy(() -> {
 			cfJdbcEnv.findJdbcServiceByName("blah").getUrl();
 		}).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("No service with name [blah] was found.");
+				.hasMessageContaining("No database service with name [blah] was found.");
 
 		assertThatThrownBy(() -> {
 			cfJdbcEnv.findJdbcServiceByName((String[]) null).getUrl();
 		}).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("No service with name [null]");
+				.hasMessageContaining("No database service with name [null]");
 
 		CfJdbcService cfJdbcService = cfJdbcEnv.findJdbcService();
 		assertThat(cfJdbcService.getUrl()).isEqualTo(mysqlJdbcUrl);

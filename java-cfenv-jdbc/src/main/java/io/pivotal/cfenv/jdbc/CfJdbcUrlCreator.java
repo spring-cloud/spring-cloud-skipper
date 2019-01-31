@@ -77,7 +77,7 @@ public class CfJdbcUrlCreator {
 		String specMessage = (spec == null) ? "null" : String.join(", ", spec);
 		throwExceptionIfMultipleMatchesByName(matchingJdbcServices, specMessage, "name");
 		throw new IllegalArgumentException(
-				"No service with name [" + specMessage + "] was found.");
+				"No database service with name [" + specMessage + "] was found.");
 	}
 
 	public CfJdbcService findJdbcService() {

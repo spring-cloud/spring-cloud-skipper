@@ -38,4 +38,18 @@ public abstract class AbstractJdbcUrlCreator implements JdbcUrlCreator {
 		return false;
 	}
 
+	@Override
+	public String createJdbcUrl(CfService cfService) {
+		CfCredentials cfCredentials = cfService.getCredentials();
+		String jdbcUrl = (String) cfCredentials.getMap().get("jdbcUrl");
+		if (jdbcUrl != null) {
+			return jdbcUrl;
+		}
+		else {
+			return buildJdbcUrlFromUriField(cfCredentials);
+		}
+	}
+
+	public abstract String buildJdbcUrlFromUriField(CfCredentials cfCredentials);
+
 }

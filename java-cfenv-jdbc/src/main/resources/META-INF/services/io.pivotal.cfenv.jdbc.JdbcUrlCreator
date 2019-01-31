@@ -1,1 +1,2 @@
 io.pivotal.cfenv.jdbc.MySqlJdbcUrlCreator
+io.pivotal.cfenv.jdbc.OracleJdbcUrlCreator
