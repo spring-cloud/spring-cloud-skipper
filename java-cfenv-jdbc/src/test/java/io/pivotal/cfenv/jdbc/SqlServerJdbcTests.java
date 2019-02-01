@@ -71,6 +71,7 @@ public class SqlServerJdbcTests extends AbstractJdbcTests {
 				passwordWithSpecialChars);
 	}
 
+
 	protected String getExpectedJdbcUrl(String scheme, String name) {
 		return String.format("jdbc:%s://%s:%d;database=%s;user=%s;password=%s",
 				scheme, hostname, port, name, UriInfo.urlEncode(username), UriInfo.urlEncode(password));

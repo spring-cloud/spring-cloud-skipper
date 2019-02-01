@@ -22,37 +22,38 @@ import io.pivotal.cfenv.core.UriInfo;
 /**
  * @author Mark Pollack
  */
-public class MySqlJdbcUrlCreator extends AbstractJdbcUrlCreator {
+public class PostgresqlJdbcUrlCreator extends AbstractJdbcUrlCreator {
 
-	public static final String MYSQL_SCHEME = "mysql";
+	public static final String POSTGRESQL_SCHEME = "postgres";
 
-	public static final String MYSQL_TAG = "mysql";
+	public static final String POSTGRES_JDBC_SCHEME = "postgresql";
 
-	public static final String MYSQL_LABEL = "mysql";
+	public static final String POSTGRESQL_TAG = "postgresql";
+
+	public static final String POSTGRESQL_LABEL = "postgresql";
 
 	@Override
 	public boolean isDatabaseService(CfService cfService) {
-		if (jdbcUrlMatchesScheme(cfService, MYSQL_SCHEME)
-				|| cfService.existsByTagIgnoreCase(MYSQL_TAG)
-				|| cfService.existsByLabelStartsWith(MYSQL_LABEL)
-				|| cfService.existsByUriSchemeStartsWith(MYSQL_SCHEME)
-				|| cfService.existsByCredentialsContainsUriField(MYSQL_SCHEME)) {
+		if (jdbcUrlMatchesScheme(cfService, POSTGRESQL_SCHEME, POSTGRES_JDBC_SCHEME)
+				|| cfService.existsByTagIgnoreCase(POSTGRESQL_TAG)
+				|| cfService.existsByLabelStartsWith(POSTGRESQL_LABEL)
+				|| cfService.existsByUriSchemeStartsWith(POSTGRESQL_SCHEME)
+				|| cfService.existsByCredentialsContainsUriField(POSTGRESQL_SCHEME)) {
 			return true;
 		}
 		return false;
 	}
 
 	@Override
-	public String getDriverClassName() {
-		return "org.mariadb.jdbc.Driver";
-	}
-
-	@Override
 	public String buildJdbcUrlFromUriField(CfCredentials cfCredentials) {
-		UriInfo uriInfo = cfCredentials.getUriInfo(MYSQL_SCHEME);
-		return String.format("%s%s://%s%s/%s%s%s", JDBC_PREFIX, MYSQL_SCHEME,
+		UriInfo uriInfo = cfCredentials.getUriInfo(POSTGRES_JDBC_SCHEME);
+		return String.format("%s%s://%s%s/%s%s%s", JDBC_PREFIX, POSTGRES_JDBC_SCHEME,
 				uriInfo.getHost(), uriInfo.formatPort(), uriInfo.getPath(),
 				uriInfo.formatUserNameAndPassword(), uriInfo.formatQuery());
 	}
 
+	@Override
+	public String getDriverClassName() {
+		return "org.postgresql.Driver";
+	}
 }
