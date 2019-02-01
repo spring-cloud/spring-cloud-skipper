@@ -29,6 +29,8 @@ import mockit.MockUp;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Mark Pollack
  */
@@ -175,5 +177,31 @@ public class AbstractJdbcTests {
 		return getRelationalPayload("test-ups-info-no-uri.json", serviceName,
 				hostname, port, user, password, name);
 	}
+
+	protected void assertUriInfo(UriInfo uriInfo, String scheme, String instanceName) {
+		assertThat(uriInfo.getScheme()).isEqualTo(scheme);
+		assertThat(uriInfo.getPath()).isEqualTo(instanceName);
+		assertCommonUriFields(uriInfo);
+	}
+
+	protected void assertUriInfo(UriInfo uriInfo, String scheme, String instanceName, String uname, String pwd) {
+		assertThat(uriInfo.getScheme()).isEqualTo(scheme);
+		assertThat(uriInfo.getPath()).isEqualTo(instanceName);
+		assertHostPort(uriInfo);
+		assertThat(uriInfo.getUsername()).isEqualTo(uname);
+		assertThat(uriInfo.getPassword()).isEqualTo(pwd);
+	}
+
+	private void assertCommonUriFields(UriInfo uriInfo) {
+		assertHostPort(uriInfo);
+		assertThat(uriInfo.getUsername()).isEqualTo(username);
+		assertThat(uriInfo.getPassword()).isEqualTo(password);
+	}
+
+	private void assertHostPort(UriInfo uriInfo) {
+		assertThat(uriInfo.getHost()).isEqualTo(hostname);
+		assertThat(uriInfo.getPort()).isEqualTo(port);
+	}
+
 
 }

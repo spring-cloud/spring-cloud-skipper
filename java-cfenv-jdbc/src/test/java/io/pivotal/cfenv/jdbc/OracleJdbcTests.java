@@ -47,7 +47,7 @@ public class OracleJdbcTests extends AbstractJdbcTests {
 		String expectedJdbcUrl = getExpectedJdbcUrl(OracleJdbcUrlCreator.ORACLE_SCHEME, INSTANCE_NAME);
 		assertThat(expectedJdbcUrl).isEqualTo(jdbcUrl);
 		UriInfo uriInfo = cfJdbcService.getCredentials().getUriInfo();
-		assertUriInfo(uriInfo);
+		assertUriInfo(uriInfo, OracleJdbcUrlCreator.ORACLE_SCHEME, INSTANCE_NAME);
 	}
 
 	@Test
@@ -82,17 +82,7 @@ public class OracleJdbcTests extends AbstractJdbcTests {
 
 		CfJdbcService cfJdbcService = cfJdbcEnv.findJdbcServiceByName(SERVICE_NAME);
 		UriInfo uriInfo = cfJdbcService.getCredentials().getUriInfo();
-		assertUriInfo(uriInfo);
-	}
-
-
-	private void assertUriInfo(UriInfo uriInfo) {
-		assertThat(uriInfo.getScheme()).isEqualTo(OracleJdbcUrlCreator.ORACLE_SCHEME);
-		assertThat(uriInfo.getHost()).isEqualTo(hostname);
-		assertThat(uriInfo.getPort()).isEqualTo(port);
-		assertThat(uriInfo.getUsername()).isEqualTo(username);
-		assertThat(uriInfo.getPassword()).isEqualTo(password);
-		assertThat(uriInfo.getPath()).isEqualTo(INSTANCE_NAME);
+		assertUriInfo(uriInfo, OracleJdbcUrlCreator.ORACLE_SCHEME, INSTANCE_NAME);
 	}
 
 
