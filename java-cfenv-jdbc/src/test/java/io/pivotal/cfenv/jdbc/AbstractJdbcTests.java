@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Mark Pollack
  */
-public class AbstractJdbcTests {
+public abstract class AbstractJdbcTests {
 
 	protected static final String hostname = "10.20.30.40";
 
@@ -127,6 +127,8 @@ public class AbstractJdbcTests {
 		MockitoAnnotations.initMocks(this);
 	}
 
+	abstract protected String getExpectedJdbcUrl(String databaseType, String name);
+	/*
 	protected String getExpectedJdbcUrl(String databaseType, String name) {
 		String jdbcUrlDatabaseType = databaseType;
 		if (databaseType.equals("postgres")) {
@@ -135,7 +137,7 @@ public class AbstractJdbcTests {
 
 		return "jdbc:" + jdbcUrlDatabaseType + "://" + hostname + ":" + port + "/" + name
 				+ "?user=" + username + "&password=" + password;
-	}
+	}*/
 
 	protected String getRelationalPayload(String templateFile, String serviceName,
 			String hostname, int port, String user, String password, String name) {

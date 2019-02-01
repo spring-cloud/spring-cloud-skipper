@@ -61,7 +61,7 @@ public class SqlServerJdbcTests extends AbstractJdbcTests {
 		CfJdbcEnv cfJdbcEnv = new CfJdbcEnv();
 		CfJdbcService cfJdbcService = cfJdbcEnv.findJdbcServiceByName(SERVICE_NAME);
 
-		String jdbcUrl = cfJdbcEnv.findJdbcServiceByName(SERVICE_NAME).getUrl();
+		String jdbcUrl = cfJdbcService.getUrl();
 		String expectedJdbcUrl = getExpectedJdbcUrl(SqlServerJdbcUrlCreator.SQLSERVER_SCHEME, INSTANCE_NAME,
 				userWithSpecialChars, passwordWithSpecialChars);
 		assertThat(expectedJdbcUrl).isEqualTo(jdbcUrl);

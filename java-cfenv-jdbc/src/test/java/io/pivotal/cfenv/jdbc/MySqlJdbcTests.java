@@ -253,4 +253,10 @@ public class MySqlJdbcTests extends AbstractJdbcTests {
 				hostname, port, user, password, name);
 	}
 
+	@Override
+	protected String getExpectedJdbcUrl(String databaseType, String name) {
+		return "jdbc:" + databaseType + "://" + hostname + ":" + port + "/" + name
+				+ "?user=" + username + "&password=" + password;
+	}
+
 }
