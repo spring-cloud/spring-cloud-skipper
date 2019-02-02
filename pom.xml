@@ -57,16 +57,7 @@
         <!--
       <module>java-cfenv-docs</module>  -->
     </modules>
-    <dependencyManagement>
-        <dependencies>
-            <!-- SUB MODULES -->
-            <dependency>
-                <groupId>io.pivotal.cfenv</groupId>
-                <artifactId>cfenv</artifactId>
-                <version>1.0.0.BUILD-SNAPSHOT</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+
     <build>
         <plugins>
             <plugin>
