@@ -65,6 +65,7 @@
         <equalverifier.version>2.4.1</equalverifier.version>
         <flyway.version>5.0.5</flyway.version>
         <hibernate.jpa.version>1.0.0.Final</hibernate.jpa.version>
+        <mariadb-java-client.version>2.4.0</mariadb-java-client.version>
 
         <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
         <surefire-maven-plugin.version>2.20</surefire-maven-plugin.version>
@@ -190,6 +191,11 @@
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>${hikaricp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mariadb.jdbc</groupId>
+                <artifactId>mariadb-java-client</artifactId>
+                <version>${mariadb-java-client.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
