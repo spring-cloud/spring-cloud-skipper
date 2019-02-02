@@ -1,3 +1,5 @@
+== Spring Cloud Skipper image:https://build.spring.io/plugins/servlet/wittified/build-status/CFENV-BMASTER[Build Status, link=https://build.spring.io/browse/CFENV-BMASTER] ]
+
 Java CFEnv is a library for easily accessing the environment variables set when deploying an application to Cloud Foundry.
 It is modeled after the design of the node library https://github.com/cloudfoundry-community/node-cfenv/[node-cfenv] and other `-cfenv` libraries in the Cloud Foundry ecosystem.
 
