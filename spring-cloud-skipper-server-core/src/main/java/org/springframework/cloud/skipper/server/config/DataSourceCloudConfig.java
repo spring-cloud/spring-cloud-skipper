@@ -20,26 +20,27 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnCloudPlatform;
+import org.springframework.boot.cloud.CloudPlatform;
 import org.springframework.cloud.config.java.AbstractCloudConfig;
 import org.springframework.cloud.service.PooledServiceConnectorConfig;
 import org.springframework.cloud.service.relational.DataSourceConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 /**
  * Add declarative configuration of the max pool side and max wait time when using the connector library.
  *
  * @author Mark Pollack
  */
-@Profile("cloud")
+@ConditionalOnCloudPlatform(CloudPlatform.CLOUD_FOUNDRY)
 @Configuration
 public class DataSourceCloudConfig extends AbstractCloudConfig {
 
 	private final Logger logger = LoggerFactory.getLogger(DataSourceCloudConfig.class);
 
 	@Bean
-	public DataSource dataSource(SkipperServerProperties skipperServerProperties) {
+	public DataSource scdfCloudDataSource(SkipperServerProperties skipperServerProperties) {
 		int maxPoolSize = skipperServerProperties.getCloudFoundry().getMaxPoolSize();
 		int maxWaitTime = skipperServerProperties.getCloudFoundry().getMaxWaitTime();
 		PooledServiceConnectorConfig.PoolConfig poolConfig =
@@ -47,6 +48,11 @@ public class DataSourceCloudConfig extends AbstractCloudConfig {
 		logger.info("Configured connection pool with max size " + maxPoolSize + " and max wait time " + maxWaitTime);
 		DataSourceConfig dbConfig = new DataSourceConfig(poolConfig, null);
 		return connectionFactory().dataSource(dbConfig);
+	}
+
+	@Bean
+	public DataSourceBeanFactoryPostProcessor dataSourceBeanFactoryPostProcessor() {
+		return new DataSourceBeanFactoryPostProcessor();
 	}
 
 }
