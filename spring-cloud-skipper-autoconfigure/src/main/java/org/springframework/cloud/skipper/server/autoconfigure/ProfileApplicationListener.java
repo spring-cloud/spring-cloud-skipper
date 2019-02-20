@@ -15,8 +15,10 @@
  */
 package org.springframework.cloud.skipper.server.autoconfigure;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
@@ -40,12 +42,24 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
 
 	private static final Logger logger = LoggerFactory.getLogger(ProfileApplicationListener.class);
 
+	/**
+	 * System property that when set to {@code true} will not set the active profiles using
+	 * CloudProfileProvider implementations discovered from the ServiceLoader.
+	 */
+	public static final String IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME = "spring.cloud.skipper.server.profileapplicationlistener.ignore";
+
 	private ConfigurableEnvironment environment;
 
 	@Override
 	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
 		this.environment = event.getEnvironment();
 		Iterable<CloudProfileProvider> cloudProfileProviders = ServiceLoader.load(CloudProfileProvider.class);
+
+		if (Boolean.getBoolean(IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME)
+				|| cloudProfilesAlreadySet(cloudProfileProviders)) {
+			return;
+		}
+
 		boolean addedCloudProfile = false;
 		boolean addedKubernetesProfile = false;
 		for (CloudProfileProvider cloudProfileProvider : cloudProfileProviders) {
@@ -63,7 +77,7 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
 		if (!addedKubernetesProfile) {
 			Map<String, Object> properties = new LinkedHashMap<>();
 			properties.put("spring.cloud.kubernetes.enabled", false);
-			logger.debug("Setting property 'spring.cloud.kubernetes.enabled' to false.");
+			logger.info("Setting property 'spring.cloud.kubernetes.enabled' to false.");
 			MutablePropertySources propertySources = environment.getPropertySources();
 			if (propertySources != null) {
 				if (propertySources.contains(
@@ -81,6 +95,22 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
 		if (!addedCloudProfile) {
 			environment.addActiveProfile("local");
 		}
+	}
+
+	private boolean cloudProfilesAlreadySet(Iterable<CloudProfileProvider> cloudProfileProviders) {
+		List<String> cloudProfileNames = new ArrayList<>();
+		for (CloudProfileProvider cloudProfileProvider : cloudProfileProviders) {
+			cloudProfileNames.add(cloudProfileProvider.getCloudProfile());
+		}
+
+		boolean cloudProfilesAlreadySet = false;
+		for (String cloudProfileName : cloudProfileNames) {
+			if (Arrays.asList(environment.getActiveProfiles()).contains(cloudProfileName)) {
+				cloudProfilesAlreadySet = true;
+			}
+		}
+
+		return cloudProfilesAlreadySet;
 	}
 
 	@Override

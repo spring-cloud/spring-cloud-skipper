@@ -22,11 +22,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.PropertySource;
+import org.springframework.mock.env.MockEnvironment;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.cloud.skipper.server.autoconfigure.ProfileApplicationListener.IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME;
 
 /**
  * @author Chris Schaefer
@@ -35,10 +36,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ProfileApplicationListenerTests {
 
-	private static final String[] ACTIVE_PROFILES = new String[0];
-
-	@Mock
-	private ConfigurableEnvironment environment;
+	private MockEnvironment environment;
 
 	@Mock
 	private ApplicationEnvironmentPreparedEvent event;
@@ -47,7 +45,7 @@ public class ProfileApplicationListenerTests {
 
 	@Before
 	public void before() {
-		when(environment.getActiveProfiles()).thenReturn(ACTIVE_PROFILES);
+		environment = new MockEnvironment();
 		when(event.getEnvironment()).thenReturn(environment);
 		profileApplicationListener = new ProfileApplicationListener();
 	}
@@ -55,24 +53,63 @@ public class ProfileApplicationListenerTests {
 	@Test
 	public void shouldEnableLocalProfile() {
 		profileApplicationListener.onApplicationEvent(event);
-		verify(environment).addActiveProfile("local");
+		assertThat(environment.getActiveProfiles()).contains("local");
 	}
 
 	@Test
 	public void shouldNotEnableLocalProfileRunningOnKubernetes() {
-		when(environment.containsProperty("kubernetes_service_host")).thenReturn(true);
+		environment.setProperty("kubernetes_service_host", "true");
 		profileApplicationListener.onApplicationEvent(event);
-		verify(environment, never()).addActiveProfile("local");
+		assertThat(environment.getActiveProfiles()).doesNotContain("local");
 	}
 
 	@Test
 	public void shouldNotEnableLocalProfileRunningOnCloudFoundry() {
-		when(environment.containsProperty("VCAP_APPLICATION")).thenReturn(true);
+		environment.setProperty("VCAP_APPLICATION", "true");
 		profileApplicationListener.onApplicationEvent(event);
-		verify(environment, never()).addActiveProfile("local");
+		assertThat(environment.getActiveProfiles()).doesNotContain("local");
 	}
 
+	@Test
 	public void testAddedSpringCloudKubernetesConfigEnabledIsFalse() {
-		// TODO
+		profileApplicationListener.onApplicationEvent(event);
+		PropertySource<?> propertySource = environment.getPropertySources().get("skipperProfileApplicationListener");
+		assertThat(propertySource.containsProperty("spring.cloud.kubernetes.enabled")).isTrue();
+		assertThat(propertySource.getProperty("spring.cloud.kubernetes.enabled")).isEqualTo(false);
+	}
+
+	@Test
+	public void backOffIfCloudProfileAlreadySet() {
+		// kubernetes profile set by user
+		environment.setActiveProfiles("kubernetes");
+		// environment says we are on cloud foundry, the profile is 'cloud'
+		environment.setProperty("VCAP_APPLICATION", "true");
+		profileApplicationListener.onApplicationEvent(event);
+		assertThat(environment.getActiveProfiles()).contains("kubernetes");
+		// assert that we back off not setting the cloud profile
+		assertThat(environment.getActiveProfiles()).doesNotContain("cloud");
+	}
+
+	@Test
+	public void doNotSetLocalIfKubernetesProfileIsSet() {
+		// kubernetes profile set by user
+		environment.setActiveProfiles("kubernetes");
+		profileApplicationListener.onApplicationEvent(event);
+		assertThat(environment.getActiveProfiles()).contains("kubernetes");
+		// assert that we do not set local profile
+		assertThat(environment.getActiveProfiles()).doesNotContain("local");
+	}
+
+	@Test
+	public void disableProfileApplicationListener() {
+		try {
+			System.setProperty(IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME, "true");
+			environment.setProperty("VCAP_APPLICATION", "true");
+			profileApplicationListener.onApplicationEvent(event);
+			assertThat(environment.getActiveProfiles()).isEmpty();
+		}
+		finally {
+			System.clearProperty(IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME);
+		}
 	}
 }
