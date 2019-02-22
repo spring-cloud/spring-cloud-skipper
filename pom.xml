@@ -54,7 +54,7 @@
         <spring-restdocs.version>1.2.2.RELEASE</spring-restdocs.version>
         <java-semver.version>0.9.0</java-semver.version>
 
-        <spring-common-security>1.0.3.RELEASE</spring-common-security>
+        <spring-common-security>1.0.4.RELEASE</spring-common-security>
         <!-- Needs to be explicitly managed - compare with -->
         <!-- https://github.com/spring-cloud/spring-cloud-common-security-config/blob/v1.0.3.RELEASE/spring-cloud-common-security-config-web/pom.xml -->
         <spring-security-oauth.version>2.3.4.RELEASE</spring-security-oauth.version>
