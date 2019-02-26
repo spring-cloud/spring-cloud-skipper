@@ -15,6 +15,9 @@
  */
 package org.springframework.cloud.skipper.server.autoconfigure;
 
+import java.util.Map;
+
+import mockit.MockUp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +30,7 @@ import org.springframework.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.cloud.skipper.server.autoconfigure.ProfileApplicationListener.IGNORE_PROFILEAPPLICATIONLISTENER_ENVVAR_NAME;
 import static org.springframework.cloud.skipper.server.autoconfigure.ProfileApplicationListener.IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME;
 
 /**
@@ -111,5 +115,26 @@ public class ProfileApplicationListenerTests {
 		finally {
 			System.clearProperty(IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME);
 		}
+	}
+
+	@Test
+	public void disableProfileApplicationListenerViaEnvVar() {
+		mockProfileListenerEnvVar();
+		environment.setProperty("VCAP_APPLICATION", "true");
+		profileApplicationListener.onApplicationEvent(event);
+		assertThat(environment.getActiveProfiles()).isEmpty();
+	}
+
+	private void mockProfileListenerEnvVar() {
+		Map<String, String> env = System.getenv();
+		new MockUp<System>() {
+			@mockit.Mock
+			public String getenv(String name) {
+				if (name.equalsIgnoreCase(IGNORE_PROFILEAPPLICATIONLISTENER_ENVVAR_NAME)) {
+					return "true";
+				}
+				return env.get(name);
+			}
+		};
 	}
 }

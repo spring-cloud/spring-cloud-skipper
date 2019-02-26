@@ -48,6 +48,9 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
 	 */
 	public static final String IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME = "spring.cloud.skipper.server.profileapplicationlistener.ignore";
 
+	public static final String IGNORE_PROFILEAPPLICATIONLISTENER_ENVVAR_NAME = "SPRING_CLOUD_SKIPPER_SERVER_PROFILEAPPLICATIONLISTENER_IGNORE";
+
+
 	private ConfigurableEnvironment environment;
 
 	@Override
@@ -55,7 +58,8 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
 		this.environment = event.getEnvironment();
 		Iterable<CloudProfileProvider> cloudProfileProviders = ServiceLoader.load(CloudProfileProvider.class);
 
-		if (Boolean.getBoolean(IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME)
+		if (ignoreFromSystemProperty()
+				|| ignoreFromEnvironmentVariable()
 				|| cloudProfilesAlreadySet(cloudProfileProviders)) {
 			return;
 		}
@@ -95,6 +99,19 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
 		if (!addedCloudProfile) {
 			environment.addActiveProfile("local");
 		}
+	}
+
+	private boolean ignoreFromSystemProperty() {
+		return Boolean.getBoolean(IGNORE_PROFILEAPPLICATIONLISTENER_PROPERTY_NAME);
+	}
+
+	private boolean ignoreFromEnvironmentVariable() {
+		boolean ignore = false;
+		String ignoreString = System.getenv(IGNORE_PROFILEAPPLICATIONLISTENER_ENVVAR_NAME);
+		if (ignoreString != null && ignoreString.length() > 0) {
+			ignore = Boolean.parseBoolean(ignoreString);
+		}
+		return ignore;
 	}
 
 	private boolean cloudProfilesAlreadySet(Iterable<CloudProfileProvider> cloudProfileProviders) {
