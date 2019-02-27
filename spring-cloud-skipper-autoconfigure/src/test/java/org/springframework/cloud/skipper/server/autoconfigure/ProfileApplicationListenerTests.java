@@ -119,15 +119,20 @@ public class ProfileApplicationListenerTests {
 
 	@Test
 	public void disableProfileApplicationListenerViaEnvVar() {
-		mockProfileListenerEnvVar();
-		environment.setProperty("VCAP_APPLICATION", "true");
-		profileApplicationListener.onApplicationEvent(event);
-		assertThat(environment.getActiveProfiles()).isEmpty();
+		MockUp<?> mockup = mockProfileListenerEnvVar();
+		try {
+			environment.setProperty("VCAP_APPLICATION", "true");
+			profileApplicationListener.onApplicationEvent(event);
+			assertThat(environment.getActiveProfiles()).isEmpty();
+		}
+		finally {
+			mockup.tearDown();
+		}
 	}
 
-	private void mockProfileListenerEnvVar() {
+	private MockUp<?> mockProfileListenerEnvVar() {
 		Map<String, String> env = System.getenv();
-		new MockUp<System>() {
+		return new MockUp<System>() {
 			@mockit.Mock
 			public String getenv(String name) {
 				if (name.equalsIgnoreCase(IGNORE_PROFILEAPPLICATIONLISTENER_ENVVAR_NAME)) {

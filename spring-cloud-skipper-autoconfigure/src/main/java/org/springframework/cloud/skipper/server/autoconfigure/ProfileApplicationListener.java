@@ -106,12 +106,7 @@ public class ProfileApplicationListener implements ApplicationListener<Applicati
 	}
 
 	private boolean ignoreFromEnvironmentVariable() {
-		boolean ignore = false;
-		String ignoreString = System.getenv(IGNORE_PROFILEAPPLICATIONLISTENER_ENVVAR_NAME);
-		if (ignoreString != null && ignoreString.length() > 0) {
-			ignore = Boolean.parseBoolean(ignoreString);
-		}
-		return ignore;
+		return Boolean.parseBoolean(System.getenv(IGNORE_PROFILEAPPLICATIONLISTENER_ENVVAR_NAME));
 	}
 
 	private boolean cloudProfilesAlreadySet(Iterable<CloudProfileProvider> cloudProfileProviders) {
