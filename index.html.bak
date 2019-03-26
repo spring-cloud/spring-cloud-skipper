@@ -19,7 +19,7 @@ badges:
       icon: ci
 
     - name: StackOverflow
-      url:  http://stackoverflow.com/questions/tagged/spring-cloud-skipper
+      url:  https://stackoverflow.com/questions/tagged/spring-cloud-skipper
       icon: stackoverflow
 
 ---
@@ -59,11 +59,11 @@ enables easy rollbacks and upgrades without having to rebuild applications from 
 
 ### Related Projects
 
-* [Spring Cloud Data Flow](http://cloud.spring.io/spring-cloud-dataflow/)
-* [Spring Cloud Stream](http://cloud.spring.io/spring-cloud-stream/)
-* [Spring Cloud Stream Applications](http://cloud.spring.io/spring-cloud-stream-app-starters/)
-* [Spring Cloud Task](http://cloud.spring.io/spring-cloud-task/)
-* [Spring Cloud Task Applications](http://cloud.spring.io/spring-cloud-task-app-starters/)
+* [Spring Cloud Data Flow](https://cloud.spring.io/spring-cloud-dataflow/)
+* [Spring Cloud Stream](https://cloud.spring.io/spring-cloud-stream/)
+* [Spring Cloud Stream Applications](https://cloud.spring.io/spring-cloud-stream-app-starters/)
+* [Spring Cloud Task](https://cloud.spring.io/spring-cloud-task/)
+* [Spring Cloud Task Applications](https://cloud.spring.io/spring-cloud-task-app-starters/)
 
 {% endcapture %}
 
