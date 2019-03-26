@@ -51,7 +51,7 @@ public class UploadDocumentation extends BaseDocumentation {
 
 		final Repository repository = new Repository();
 		repository.setName("database-repo");
-		repository.setUrl("http://example.com/repository/");
+		repository.setUrl("https://example.com/repository/");
 		super.context.getBean(RepositoryRepository.class).save(repository);
 
 		final UploadRequest uploadProperties = new UploadRequest();
