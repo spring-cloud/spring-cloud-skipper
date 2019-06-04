@@ -1,88 +1,11 @@
----
-# The name of your project
-title: Spring Cloud Skipper
-
-badges:
-
-  # Customize your project's badges. Delete any entries that do not apply.
-  custom:
-    - name: Source (GitHub)
-      url:  https://github.com/spring-cloud/spring-cloud-skipper
-      icon: github
-
-    - name: Issues (Waffle)
-      url:  https://waffle.io/spring-cloud/spring-cloud-skipper
-      icon: tracking
-
-    - name: CI (Bamboo)
-      url:  https://build.spring.io/browse/SCSKIP
-      icon: ci
-
-    - name: StackOverflow
-      url:  http://stackoverflow.com/questions/tagged/spring-cloud-skipper
-      icon: stackoverflow
-
----
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en-US">
-
-<!-- Specify the parent of this project (or delete if none) to influence the rendering of the breadcrumb -->
-{% capture parent_link %}
-[Spring Cloud]({{ site.projects_site_url }}/spring-cloud)
-{% endcapture %}
-
-
-{% capture billboard_description %}
-
-Skipper is a tool that allows you to discover applications and manage their lifecycle on multiple Cloud Platforms.
-
-{% endcapture %}
-
-{% capture main_content %}
-
-<span id="overview"></span>
-
-## Overview
-
-Skipper is a tool that allows you to discover Spring Boot applications and manage their lifecycle on multiple Cloud Platforms.
-You can use Skipper standalone or integrate it with Continuous Integration pipelines to help achieve Continuous Deployment of applications.
-
-The system design is influenced by a large number of projects in the Kubernetes ecosystem that perform resource templating and/or orchestration, hence the nautically inspired project name Skipper.
-
-Applications in Skipper are bundled as packages which contain a templated configuration file and a default set of values that are used to fill in the template. You can override these defaults when installing or upgrading a package. Skipper provides a means to orchestrate the upgrade/rollback procedure of applications between different versions, taking the minimal set of actions to bring the system to the desired state.
-
-## Features
-
-The main features in Skipper are:
-
-* Define multiple platform accounts where Spring Boot applications can be deployed.  Supported platforms are Local, Cloud Foundry, and Kubernetes.
-* Substitute variables in Mustache templated files that describe how to deploy applications to a platform.
-* Search Package Repositories for existing applications.
-* Install/Upgrade/Rollback a package based on a simple workflow.
-* Store the history of resolved template files (aka 'application manifests') which represent the final description of what has been deployed to a platform for a specific release.
-* Use via a standalone interactive shell or via the web APIs to supplement CI workflows.
-
-The means to deploy a Spring Boot application to multiple platforms is
-provided by [Spring Cloud Deployer implementations.](https://github.com/spring-cloud/spring-cloud-deployer#implementations)  The supported template file format are YAML based and describe the set of variables needed to create a Spring Cloud Deployer [AppDeploymentRequest](https://github.com/spring-cloud/spring-cloud-deployer/blob/master/spring-cloud-deployer-spi/src/main/java/org/springframework/cloud/deployer/spi/core/AppDeploymentRequest.java)
-
-## Getting Started
-The [reference guide](https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#getting-started-installing-skipper) is the best place to get started.
-
-## History
-
-Skipper evolved out of a need to perform "Stream Edits" in Spring Cloud Data Flow. It was later recognized that to provide that feature a more general purpose project, Skipper, should be created so that it can also be a useful toolkit outside the context of Spring Cloud Data Flow.
-
-{% endcapture %}
-
-{% capture related_resources %}
-
-### Related Projects
-
-* [Spring Cloud Data Flow](http://cloud.spring.io/spring-cloud-dataflow/)
-* [Spring Statemachine](http://cloud.spring.io/spring-statemachine/)
-
-{% endcapture %}
-
-
-{% include project_page.html %}
+  <meta charset="utf-8">
+  <title>Redirecting&hellip;</title>
+  <link rel="canonical" href="https://spring.io/projects/spring-cloud-skipper">
+  <meta http-equiv="refresh" content="0; url=https://spring.io/projects/spring-cloud-skipper">
+  <meta name="robots" content="noindex">
+  <h1>Redirecting&hellip;</h1>
+  <a href="https://spring.io/projects/spring-cloud-skipper">Click here if you are not redirected.</a>
+  <script>location="https://spring.io/projects/spring-cloud-skipper"</script>
 </html>
