@@ -84,9 +84,6 @@ public class Release extends AbstractEntity {
 
 	private String platformName;
 
-	@Transient
-	private String logs;
-
 	public Release() {
 	}
 
@@ -178,14 +175,6 @@ public class Release extends AbstractEntity {
 
 	public void setPlatformName(String platformName) {
 		this.platformName = platformName;
-	}
-
-	public String getLogs() {
-		return logs;
-	}
-
-	public void setLogs(String logs) {
-		this.logs = logs;
 	}
 
 	@PostLoad

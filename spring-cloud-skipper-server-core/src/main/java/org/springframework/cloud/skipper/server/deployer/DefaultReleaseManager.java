@@ -309,14 +309,14 @@ public class DefaultReleaseManager implements ReleaseManager {
 	}
 
 	@Override
-	public Release getLog(Release release) {
+	public String getLog(Release release) {
 		return getLog(release, null);
 	}
 
 	@Override
-	public Release getLog(Release release, String appName) {
+	public String getLog(Release release, String appName) {
 		if (release.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) {
-			return release;
+			return "";
 		}
 		AppDeployerData appDeployerData = this.appDeployerDataRepository
 				.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
@@ -342,13 +342,12 @@ public class DefaultReleaseManager implements ReleaseManager {
 		// Avoids serializing objects such as OutputStreams in LocalDeployer.
 		objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 		try {
-			release.setLogs(objectMapper.writeValueAsString(logMap));
+			return objectMapper.writeValueAsString(logMap);
 		}
 		catch (JsonProcessingException e) {
 			// TODO replace with SkipperException when it moves to domain module.
 			throw new IllegalArgumentException("Could not serialize logs", e);
 		}
-		return release;
 	}
 
 	public Release delete(Release release) {

@@ -103,13 +103,10 @@ public class ReleaseControllerTests extends AbstractControllerTests {
 	public void getReleaseLogs() throws Exception {
 		// Deploy
 		String releaseName = "testLogs";
-		Release release = install("log", "1.0.0", releaseName);
-		assertThat(release.getLogs()).isNull();
-
+		install("log", "1.0.0", releaseName);
 		MvcResult result = mockMvc.perform(get("/api/release/logs/" + releaseName)).andDo(print())
 				.andExpect(status().isOk()).andReturn();
-		Release updatedRelease = convertContentToRelease(result.getResponse().getContentAsString());
-		assertThat(updatedRelease.getLogs()).isNotEmpty();
+		assertThat(result.getResponse().getContentAsString()).isNotEmpty();
 	}
 
 

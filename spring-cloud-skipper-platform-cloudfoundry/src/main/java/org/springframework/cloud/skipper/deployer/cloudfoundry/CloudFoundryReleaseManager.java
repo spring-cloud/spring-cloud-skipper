@@ -170,12 +170,12 @@ public class CloudFoundryReleaseManager implements ReleaseManager {
 	}
 
 	@Override
-	public Release getLog(Release release) {
+	public String getLog(Release release) {
 		return getLog(release, null);
 	}
 
 	@Override
-	public Release getLog(Release release, String appName) {
+	public String getLog(Release release, String appName) {
 		logger.info("Checking application status for the release: " + release.getName());
 		ApplicationManifest applicationManifest = CloudFoundryApplicationManifestUtils.updateApplicationName(release);
 		String applicationName = applicationManifest.getName();
@@ -190,13 +190,12 @@ public class CloudFoundryReleaseManager implements ReleaseManager {
 		// Avoids serializing objects such as OutputStreams in LocalDeployer.
 		objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 		try {
-			release.setLogs(objectMapper.writeValueAsString(logMessage));
+			return objectMapper.writeValueAsString(logMessage);
 		}
 		catch (JsonProcessingException e) {
 			// TODO replace with SkipperException when it moves to domain module.
 			throw new IllegalArgumentException("Could not serialize logs", e);
 		}
-		return release;
 	}
 
 }

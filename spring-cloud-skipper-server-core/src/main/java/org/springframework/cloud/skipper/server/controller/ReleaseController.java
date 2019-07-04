@@ -117,14 +117,14 @@ public class ReleaseController {
 
 	@RequestMapping(path = "/logs/{name}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public Resource<Release> log(@PathVariable("name") String name) {
-		return this.releaseResourceAssembler.toResource(this.releaseService.getLog(name));
+	public String log(@PathVariable("name") String name) {
+		return this.releaseService.getLog(name);
 	}
 
 	@RequestMapping(path = "/logs/{name}/{appName}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public Resource<Release> log(@PathVariable("name") String name, @PathVariable("appName") String appName) {
-		return this.releaseResourceAssembler.toResource(this.releaseService.getLog(name, appName));
+	public String log(@PathVariable("name") String name, @PathVariable("appName") String appName) {
+		return this.releaseService.getLog(name, appName);
 	}
 
 	@RequestMapping(path = "/manifest/{name}", method = RequestMethod.GET)

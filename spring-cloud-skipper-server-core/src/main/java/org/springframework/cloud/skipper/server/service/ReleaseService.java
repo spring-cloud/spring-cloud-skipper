@@ -270,12 +270,12 @@ public class ReleaseService {
 	}
 
 	@Transactional
-	public Release getLog(String releaseName) {
+	public String getLog(String releaseName) {
 		return this.getLog(releaseName, null);
 	}
 
 	@Transactional
-	public Release getLog(String releaseName, String appName) {
+	public String getLog(String releaseName, String appName) {
 		Release release = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
 		String kind = ManifestUtils.resolveKind(release.getManifest().getData());
 		ReleaseManager releaseManager = this.releaseManagerFactory.getReleaseManager(kind);

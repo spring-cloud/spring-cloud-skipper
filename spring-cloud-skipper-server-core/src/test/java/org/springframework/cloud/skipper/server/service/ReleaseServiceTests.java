@@ -181,10 +181,8 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 		installRequest.setPackageIdentifier(packageIdentifier);
 		assertThat(release).isNotNull();
 		assertThat(release.getPkg().getMetadata().getVersion()).isEqualTo("1.0.0");
-		assertThat(release.getLogs()).isNull();
-		Release updatedRelease = this.releaseService.getLog(releaseName);
-		assertThat(updatedRelease).isNotNull();
-		assertThat(updatedRelease.getLogs()).isNotNull();
+		String logContent = this.releaseService.getLog(releaseName);
+		assertThat(logContent).isNotNull();
 	}
 
 	@Test

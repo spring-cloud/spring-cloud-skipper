@@ -103,8 +103,7 @@ public class RollbackDocumentation extends BaseDocumentation {
 								fieldWithPath("configValues.raw")
 										.description("The raw YAML string of configuration values"),
 								fieldWithPath("manifest.data").description("The manifest of the release"),
-								fieldWithPath("platformName").description("Platform name of the release"),
-								fieldWithPath("logs").description("The logs of the release"))))
+								fieldWithPath("platformName").description("Platform name of the release"))))
 				.andReturn();
 	}
 
@@ -175,8 +174,7 @@ public class RollbackDocumentation extends BaseDocumentation {
 								fieldWithPath("configValues.raw")
 										.description("The raw YAML string of configuration values"),
 								fieldWithPath("manifest.data").description("The manifest of the release"),
-								fieldWithPath("platformName").description("Platform name of the release"),
-								fieldWithPath("logs").description("The logs of the release"))))
+								fieldWithPath("platformName").description("Platform name of the release"))))
 				.andReturn();
 	}
 }

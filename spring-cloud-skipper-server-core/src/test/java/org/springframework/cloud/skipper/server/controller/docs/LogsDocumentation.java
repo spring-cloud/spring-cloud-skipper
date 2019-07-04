@@ -37,8 +37,7 @@ public class LogsDocumentation extends BaseDocumentation {
 	@Test
 	public void getLogsofRelease() throws Exception {
 		Release release = createTestRelease();
-		release.setLogs("Logs");
-		when(this.releaseService.getLog(release.getName())).thenReturn(release);
+		when(this.releaseService.getLog(release.getName())).thenReturn("Logs");
 		final MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
 				MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 
@@ -54,8 +53,7 @@ public class LogsDocumentation extends BaseDocumentation {
 	@Test
 	public void getLogsofReleaseByAppName() throws Exception {
 		Release release = createTestRelease();
-		release.setLogs("Logs");
-		when(this.releaseService.getLog(release.getName(), "myapp")).thenReturn(release);
+		when(this.releaseService.getLog(release.getName(), "myapp")).thenReturn("Logs");
 
 		this.mockMvc.perform(
 				get("/api/release/logs/{releaseName}/{appName}",

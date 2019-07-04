@@ -214,9 +214,9 @@ public interface SkipperClient {
 	 * Fetch the logs of the latest release identified by the given name.
 	 *
 	 * @param releaseName the release name
-	 * @return the release
+	 * @return the log content
 	 */
-	Release getLog(String releaseName);
+	String getLog(String releaseName);
 
 
 	/**
@@ -225,7 +225,7 @@ public interface SkipperClient {
 	 *
 	 * @param releaseName the release name
 	 * @param appName the application name
-	 * @return the release
+	 * @return the log content
 	 */
-	Release getLog(String releaseName, String appName);
+	String getLog(String releaseName, String appName);
 }

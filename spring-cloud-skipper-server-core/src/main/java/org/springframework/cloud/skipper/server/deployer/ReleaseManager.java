@@ -79,17 +79,17 @@ public interface ReleaseManager {
 	 * Get the logs of the applications inside the release.
 	 *
 	 * @param release the release
-	 * @return release with the logs updated.
+	 * @return the log content
 	 */
-	Release getLog(Release release);
+	String getLog(Release release);
 
 	/**
 	 * Get the logs of a specific application inside the release.
 	 *
 	 * @param release the release
 	 * @param appName the application name
-	 * @return release with the logs updated.
+	 * @return the log content
 	 */
-	Release getLog(Release release, String appName);
+	String getLog(Release release, String appName);
 
 }

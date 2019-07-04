@@ -99,7 +99,6 @@ public class HistoryDocumentation extends BaseDocumentation {
 								fieldWithPath("_embedded.releases[].configValues.raw")
 										.description("The raw YAML string of configuration values"),
 								fieldWithPath("_embedded.releases[].manifest.data").description("The manifest of the release"),
-								fieldWithPath("_embedded.releases[].platformName").description("Platform name of the release"),
-								fieldWithPath("_embedded.releases[].logs").description("The logs of the release"))));
+								fieldWithPath("_embedded.releases[].platformName").description("Platform name of the release"))));
 	}
 }
