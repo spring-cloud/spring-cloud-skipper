@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,6 +113,18 @@ public class ReleaseController {
 	@ResponseStatus(HttpStatus.OK)
 	public Resource<Info> status(@PathVariable("name") String name, @PathVariable("version") Integer version) {
 		return this.infoResourceAssembler.toResource(this.releaseService.status(name, version));
+	}
+
+	@RequestMapping(path = "/logs/{name}", method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	public Resource<Release> log(@PathVariable("name") String name) {
+		return this.releaseResourceAssembler.toResource(this.releaseService.getLog(name));
+	}
+
+	@RequestMapping(path = "/logs/{name}/{appName}", method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	public Resource<Release> log(@PathVariable("name") String name, @PathVariable("appName") String appName) {
+		return this.releaseResourceAssembler.toResource(this.releaseService.getLog(name, appName));
 	}
 
 	@RequestMapping(path = "/manifest/{name}", method = RequestMethod.GET)

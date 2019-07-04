@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,8 @@ public class ListDocumentation extends BaseDocumentation {
 								fieldWithPath("_embedded.releases[].configValues.raw")
 										.description("The raw YAML string of configuration values"),
 								fieldWithPath("_embedded.releases[].manifest.data").description("The manifest of the release"),
-								fieldWithPath("_embedded.releases[].platformName").description("Platform name of the release"))
+								fieldWithPath("_embedded.releases[].platformName").description("Platform name of the release"),
+								fieldWithPath("_embedded.releases[].logs").description("The logs of the release"))
 
 				));
 	}
@@ -171,6 +172,7 @@ public class ListDocumentation extends BaseDocumentation {
 								fieldWithPath("_embedded.releases[].configValues.raw")
 										.description("The raw YAML string of configuration values"),
 								fieldWithPath("_embedded.releases[].manifest.data").description("The manifest of the release"),
-								fieldWithPath("_embedded.releases[].platformName").description("Platform name of the release"))));
+								fieldWithPath("_embedded.releases[].platformName").description("Platform name of the release"),
+								fieldWithPath("_embedded.releases[].logs").description("The logs of the release"))));
 	}
 }

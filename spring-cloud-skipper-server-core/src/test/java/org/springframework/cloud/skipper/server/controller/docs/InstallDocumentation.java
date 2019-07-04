@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,7 +115,8 @@ public class InstallDocumentation extends BaseDocumentation {
 								fieldWithPath("configValues.raw")
 										.description("The raw YAML string of configuration values"),
 								fieldWithPath("manifest.data").description("The manifest of the release"),
-								fieldWithPath("platformName").description("Platform name of the release"))))
+								fieldWithPath("platformName").description("Platform name of the release"),
+								fieldWithPath("logs").description("The logs of the release"))))
 				.andReturn();
 	}
 
@@ -197,7 +198,8 @@ public class InstallDocumentation extends BaseDocumentation {
 								fieldWithPath("configValues.raw")
 										.description("The raw YAML string of configuration values"),
 								fieldWithPath("manifest.data").description("The manifest of the release"),
-								fieldWithPath("platformName").description("Platform name of the release"))))
+								fieldWithPath("platformName").description("Platform name of the release"),
+								fieldWithPath("logs").description("The logs of the release"))))
 				.andReturn();
 	}
 }
