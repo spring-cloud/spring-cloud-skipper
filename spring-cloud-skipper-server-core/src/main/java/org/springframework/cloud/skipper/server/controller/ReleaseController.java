@@ -39,6 +39,7 @@ import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -117,14 +118,14 @@ public class ReleaseController {
 
 	@RequestMapping(path = "/logs/{name}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public String log(@PathVariable("name") String name) {
-		return this.releaseService.getLog(name);
+	public ResponseEntity<String> log(@PathVariable("name") String name) {
+		return new ResponseEntity<>(this.releaseService.getLog(name), HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/logs/{name}/{appName}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public String log(@PathVariable("name") String name, @PathVariable("appName") String appName) {
-		return this.releaseService.getLog(name, appName);
+	public ResponseEntity<String> log(@PathVariable("name") String name, @PathVariable("appName") String appName) {
+		return new ResponseEntity<>(this.releaseService.getLog(name, appName), HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/manifest/{name}", method = RequestMethod.GET)
