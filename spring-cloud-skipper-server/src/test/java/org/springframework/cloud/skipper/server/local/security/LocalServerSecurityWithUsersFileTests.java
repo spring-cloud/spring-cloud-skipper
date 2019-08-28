@@ -109,13 +109,6 @@ public class LocalServerSecurityWithUsersFileTests {
 				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/about", createOnlyUser, null },
 				{ HttpMethod.GET, HttpStatus.UNAUTHORIZED, "/api/about", null, null },
 
-//				/* AppDeployerDatas */
-//
-//				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/appDeployerDatas", manageOnlyUser, null },
-//				{ HttpMethod.GET, HttpStatus.OK,           "/api/appDeployerDatas", viewOnlyUser, null },
-//				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/appDeployerDatas", createOnlyUser, null },
-//				{ HttpMethod.GET, HttpStatus.UNAUTHORIZED, "/api/appDeployerDatas", null, null },
-
 				/* Deployers */
 
 				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/deployers", manageOnlyUser, null },
@@ -207,19 +200,12 @@ public class LocalServerSecurityWithUsersFileTests {
 				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/release/list/does_not_exist", createOnlyUser, null },
 				{ HttpMethod.GET, HttpStatus.UNAUTHORIZED, "/api/release/list/does_not_exist", null, null },
 
-				/* Packages */
-
-//				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/packages", manageOnlyUser, null },
-//				{ HttpMethod.GET, HttpStatus.OK,           "/api/packages", viewOnlyUser, null },
-//				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/packages", createOnlyUser, null },
-//				{ HttpMethod.GET, HttpStatus.UNAUTHORIZED, "/api/packages", null, null },
-
 				/* Package */
 
-//				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/package", manageOnlyUser, null },
-//				{ HttpMethod.GET, HttpStatus.OK,           "/api/package", viewOnlyUser, null },
-//				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/package", createOnlyUser, null },
-//				{ HttpMethod.GET, HttpStatus.UNAUTHORIZED, "/api/package", null, null },
+				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/package", manageOnlyUser, null },
+				{ HttpMethod.GET, HttpStatus.OK,           "/api/package", viewOnlyUser, null },
+				{ HttpMethod.GET, HttpStatus.FORBIDDEN,    "/api/package", createOnlyUser, null },
+				{ HttpMethod.GET, HttpStatus.UNAUTHORIZED, "/api/package", null, null },
 
 				/* Upload */
 
