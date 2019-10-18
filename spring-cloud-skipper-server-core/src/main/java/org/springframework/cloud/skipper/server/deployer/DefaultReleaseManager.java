@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.app.AppInstanceStatus;
+import org.springframework.cloud.deployer.spi.app.AppScaleRequest;
 import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.app.DeploymentState;
 import org.springframework.cloud.deployer.spi.app.MultiStateAppDeployer;
@@ -37,6 +38,7 @@ import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.domain.LogInfo;
 import org.springframework.cloud.skipper.domain.Manifest;
 import org.springframework.cloud.skipper.domain.Release;
+import org.springframework.cloud.skipper.domain.ScaleRequest;
 import org.springframework.cloud.skipper.domain.SkipperManifestKind;
 import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifest;
 import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifestReader;
@@ -338,6 +340,31 @@ public class DefaultReleaseManager implements ReleaseManager {
 			logMap.put(deploymentIdEntry.getValue(), appDeployer.getLog(deploymentIdEntry.getValue()));
 		}
 		return new LogInfo(logMap);
+	}
+
+	public Release scale(Release release, ScaleRequest scaleRequest) {
+		if (release.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) {
+			return release;
+		}
+		AppDeployerData appDeployerData = this.appDeployerDataRepository
+				.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
+		AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
+				.getAppDeployer();
+		Map<String, String> appNameDeploymentIdMap = appDeployerData.getDeploymentDataAsMap();
+
+		Map<String, Integer> apps = new HashMap<>();
+
+		for (Map.Entry<String, String> nameDeploymentId : appNameDeploymentIdMap.entrySet()) {
+			Integer desiredCount = scaleRequest.getCounts().getOrDefault(nameDeploymentId.getKey(), -1);
+			if (desiredCount > -1) {
+				apps.put(nameDeploymentId.getValue(), desiredCount);
+			}
+		}
+		for (Map.Entry<String, Integer> deploymentIdEntry: apps.entrySet()) {
+			AppScaleRequest request = new AppScaleRequest(deploymentIdEntry.getKey(), deploymentIdEntry.getValue());
+			appDeployer.scale(request);
+		}
+		return release;
 	}
 
 	public Release delete(Release release) {
