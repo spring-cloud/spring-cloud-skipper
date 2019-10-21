@@ -194,6 +194,7 @@ public class DefaultSkipperClient implements SkipperClient {
 		return resourceResponseEntity.getBody();
 	}
 
+	@Override
 	public Release scale(String releaseName, ScaleRequest scaleRequest) {
 		ParameterizedTypeReference<EntityModel<Release>> typeReference =
 				new ParameterizedTypeReference<EntityModel<Release>>() { };
@@ -210,6 +211,7 @@ public class DefaultSkipperClient implements SkipperClient {
 		return resourceResponseEntity.getBody().getContent();
 	}
 
+	@Override
 	public Release scale(String releaseName, String appName, int count) {
 		ParameterizedTypeReference<EntityModel<Release>> typeReference =
 				new ParameterizedTypeReference<EntityModel<Release>>() { };
