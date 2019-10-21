@@ -152,13 +152,13 @@ public class ReleaseController {
 		return this.releaseResourceAssembler.toModel(release);
 	}
 
-	@RequestMapping(path = "/scale/{name}/{appName}", method = RequestMethod.POST)
+	@RequestMapping(path = "/scale/{name}/{appName}/{count}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public EntityModel<Release> scale(@PathVariable("name") String name, @PathVariable("appName") String appName,
-			int desiredCount) {
+			@PathVariable("count") int count) {
 		ScaleRequest scaleRequest = new ScaleRequest();
 		Map<String, Integer> counts = new HashMap<>();
-		counts.put(appName, desiredCount);
+		counts.put(appName, count);
 		scaleRequest.setCounts(counts);
 		Release release = this.skipperStateMachineService.scaleRelease(name, scaleRequest);
 		return this.releaseResourceAssembler.toModel(release);

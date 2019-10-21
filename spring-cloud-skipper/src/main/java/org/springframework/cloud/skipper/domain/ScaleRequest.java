@@ -25,8 +25,8 @@ public class ScaleRequest {
 
 	private Map<String, Integer> counts = new HashMap<>();
 
-	public void setCounts(Map<String, Integer> desiredCounts) {
-		this.counts = desiredCounts;
+	public void setCounts(Map<String, Integer> counts) {
+		this.counts = counts;
 	}
 
 	public Map<String, Integer> getCounts() {
