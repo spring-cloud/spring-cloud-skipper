@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -39,6 +40,7 @@ import org.springframework.cloud.skipper.domain.LogInfo;
 import org.springframework.cloud.skipper.domain.Manifest;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.ScaleRequest;
+import org.springframework.cloud.skipper.domain.ScaleRequest.ScaleRequestItem;
 import org.springframework.cloud.skipper.domain.SkipperManifestKind;
 import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifest;
 import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifestReader;
@@ -53,6 +55,7 @@ import org.springframework.cloud.skipper.server.util.ArgumentSanitizer;
 import org.springframework.cloud.skipper.server.util.ConfigValueUtils;
 import org.springframework.cloud.skipper.server.util.ManifestUtils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -352,18 +355,24 @@ public class DefaultReleaseManager implements ReleaseManager {
 				.getAppDeployer();
 		Map<String, String> appNameDeploymentIdMap = appDeployerData.getDeploymentDataAsMap();
 
-		Map<String, Integer> apps = new HashMap<>();
+		Map<String, ScaleRequestItem> apps = new HashMap<>();
 
 		for (Map.Entry<String, String> nameDeploymentId : appNameDeploymentIdMap.entrySet()) {
-			Integer desiredCount = scaleRequest.getCounts().getOrDefault(nameDeploymentId.getKey(), -1);
-			if (desiredCount > -1) {
-				apps.put(nameDeploymentId.getValue(), desiredCount);
+			Optional<ScaleRequestItem> requestItem = scaleRequest.getScale().stream()
+				.filter(item -> ObjectUtils.nullSafeEquals(nameDeploymentId.getKey(), item.getName()))
+				.findFirst();
+			if (requestItem.isPresent()) {
+				apps.put(nameDeploymentId.getValue(), requestItem.get());
 			}
 		}
-		for (Map.Entry<String, Integer> deploymentIdEntry: apps.entrySet()) {
-			AppScaleRequest request = new AppScaleRequest(deploymentIdEntry.getKey(), deploymentIdEntry.getValue());
+
+		for (Map.Entry<String, ScaleRequestItem> deploymentIdEntry: apps.entrySet()) {
+			ScaleRequestItem item = deploymentIdEntry.getValue();
+			AppScaleRequest request = new AppScaleRequest(deploymentIdEntry.getKey(), item.getCount(),
+					item.getProperties());
 			appDeployer.scale(request);
 		}
+
 		return release;
 	}
 

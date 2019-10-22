@@ -16,8 +16,6 @@
 package org.springframework.cloud.skipper.client;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -183,22 +181,6 @@ public class DefaultSkipperClientTests {
 	}
 
 	@Test
-	public void testScaleByReleaseAndAppNameAndCount() {
-		RestTemplate restTemplate = new RestTemplate();
-		SkipperClient skipperClient = new DefaultSkipperClient("", restTemplate);
-
-		MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
-		mockServer
-			.expect(requestTo("/release/scale/mylog/app/2"))
-			.andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
-
-		Release release = skipperClient.scale("mylog", "app", 2);
-		mockServer.verify();
-
-		assertThat(release).isNotNull();
-	}
-
-	@Test
 	public void testScaleByReleaseAndScaleRequest() {
 		RestTemplate restTemplate = new RestTemplate();
 		SkipperClient skipperClient = new DefaultSkipperClient("", restTemplate);
@@ -206,13 +188,10 @@ public class DefaultSkipperClientTests {
 		MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
 		mockServer
 			.expect(requestTo("/release/scale/mylog"))
-			.andExpect(content().json("{counts:{app:2}}"))
+			.andExpect(content().json("{\"scale\":[{\"name\":\"app\",\"count\":2,\"properties\":{}}]}"))
 			.andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
 
-		ScaleRequest scaleRequest = new ScaleRequest();
-		Map<String, Integer> counts = new HashMap<>();
-		counts.put("app", 2);
-		scaleRequest.setCounts(counts);
+		ScaleRequest scaleRequest = ScaleRequest.of("app", 2);
 		Release release = skipperClient.scale("mylog", scaleRequest);
 		mockServer.verify();
 

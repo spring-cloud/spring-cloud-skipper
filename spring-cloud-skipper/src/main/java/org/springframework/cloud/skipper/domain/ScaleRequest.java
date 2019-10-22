@@ -15,21 +15,108 @@
  */
 package org.springframework.cloud.skipper.domain;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
+ * Payload in a scaling request.
+ *
  * @author Janne Valkealahti
  */
 public class ScaleRequest {
 
-	private Map<String, Integer> counts = new HashMap<>();
+	private List<ScaleRequestItem> scale = new ArrayList<>();
 
-	public void setCounts(Map<String, Integer> counts) {
-		this.counts = counts;
+	public ScaleRequest() {
 	}
 
-	public Map<String, Integer> getCounts() {
-		return counts;
+	public ScaleRequest(List<ScaleRequestItem> scale) {
+		if (scale != null) {
+			this.scale = scale;
+		}
+	}
+
+	public List<ScaleRequestItem> getScale() {
+		return scale;
+	}
+
+	public void setScale(List<ScaleRequestItem> scale) {
+		this.scale = scale;
+	}
+
+	/**
+	 * Create a {@code ScaleRequest} having one app with its count.
+	 *
+	 * @param name the app name
+	 * @param count the app count
+	 * @return the scale request
+	 */
+	public static ScaleRequest of(String name, Integer count) {
+		return new ScaleRequest(Arrays.asList(new ScaleRequestItem(name, count, null)));
+	}
+
+	/**
+	 * Create a {@code ScaleRequest} having one app with its count and properties.
+	 *
+	 * @param name the app name
+	 * @param count the app count
+	 * @param properties the app properties
+	 * @return the scale request
+	 */
+	public static ScaleRequest of(String name, Integer count, Map<String, String> properties) {
+		return new ScaleRequest(Arrays.asList(new ScaleRequestItem(name, count, properties)));
+	}
+
+	/**
+	 * As {@link ScaleRequest} can contain multiple requests for multiple app, this
+	 * class represents one of those.
+	 */
+	public static class ScaleRequestItem {
+
+		private String name;
+		private Integer count;
+		private Map<String, String> properties = new HashMap<>();
+
+		public ScaleRequestItem() {
+		}
+
+		public ScaleRequestItem(String name, Integer count) {
+			this(name, count, null);
+		}
+
+		public ScaleRequestItem(String name, Integer count, Map<String, String> properties) {
+			this.name = name;
+			this.count = count;
+			if (properties != null) {
+				this.properties = properties;
+			}
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public Integer getCount() {
+			return count;
+		}
+
+		public void setCount(Integer count) {
+			this.count = count;
+		}
+
+		public Map<String, String> getProperties() {
+			return properties;
+		}
+
+		public void setProperties(Map<String, String> properties) {
+			this.properties = properties;
+		}
 	}
 }

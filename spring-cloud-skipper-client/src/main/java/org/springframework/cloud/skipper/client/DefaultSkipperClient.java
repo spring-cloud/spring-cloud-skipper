@@ -212,21 +212,8 @@ public class DefaultSkipperClient implements SkipperClient {
 	}
 
 	@Override
-	public Release scale(String releaseName, String appName, int count) {
-		ParameterizedTypeReference<EntityModel<Release>> typeReference =
-				new ParameterizedTypeReference<EntityModel<Release>>() { };
-		Map<String, String> uriVariables = new HashMap<String, String>();
-		uriVariables.put("releaseName", releaseName);
-		uriVariables.put("appName", appName);
-		uriVariables.put("count", Integer.toString(count));
-
-		ResponseEntity<EntityModel<Release>> resourceResponseEntity =
-				restTemplate.exchange(baseUri + "/release/scale/{releaseName}/{appName}/{count}",
-						HttpMethod.POST,
-						null,
-						typeReference,
-						uriVariables);
-		return resourceResponseEntity.getBody().getContent();
+	public Release scale(String releaseName, String appName, int count, Map<String, String> properties) {
+		return scale(releaseName, ScaleRequest.of(appName, count, properties));
 	}
 
 	@Override

@@ -15,9 +15,7 @@
  */
 package org.springframework.cloud.skipper.server.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.skipper.PackageDeleteException;
@@ -148,18 +146,6 @@ public class ReleaseController {
 	@RequestMapping(path = "/scale/{name}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public EntityModel<Release> scale(@PathVariable("name") String name, @RequestBody ScaleRequest scaleRequest) {
-		Release release = this.skipperStateMachineService.scaleRelease(name, scaleRequest);
-		return this.releaseResourceAssembler.toModel(release);
-	}
-
-	@RequestMapping(path = "/scale/{name}/{appName}/{count}", method = RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	public EntityModel<Release> scale(@PathVariable("name") String name, @PathVariable("appName") String appName,
-			@PathVariable("count") int count) {
-		ScaleRequest scaleRequest = new ScaleRequest();
-		Map<String, Integer> counts = new HashMap<>();
-		counts.put(appName, count);
-		scaleRequest.setCounts(counts);
 		Release release = this.skipperStateMachineService.scaleRelease(name, scaleRequest);
 		return this.releaseResourceAssembler.toModel(release);
 	}

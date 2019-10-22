@@ -16,6 +16,7 @@
 package org.springframework.cloud.skipper.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.cloud.skipper.domain.AboutResource;
 import org.springframework.cloud.skipper.domain.CancelRequest;
@@ -236,10 +237,11 @@ public interface SkipperClient {
 	 *
 	 * @param releaseName the release name
 	 * @param appName the application name
-	 * @param count the new desired count
+	 * @param count the count
+	 * @param properties the properties
 	 * @return the status info of a release
 	 */
-	Release scale(String releaseName, String appName, int count);
+	Release scale(String releaseName, String appName, int count, Map<String, String> properties);
 
 	/**
 	 * Scale a release with a given scale request.
