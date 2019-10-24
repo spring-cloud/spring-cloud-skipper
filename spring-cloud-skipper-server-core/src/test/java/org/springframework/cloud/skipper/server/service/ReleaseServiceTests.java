@@ -187,6 +187,18 @@ public class ReleaseServiceTests extends AbstractIntegrationTest {
 	}
 
 	@Test
+	public void testLogsByNonExistingRelease() {
+		try {
+			this.releaseService.getLog("invalid");
+			fail();
+		}
+		catch (ReleaseNotFoundException e) {
+			assertThat(e.getMessage()).isEqualTo("Release with the name [invalid] doesn't exist");
+		}
+	}
+
+
+	@Test
 	public void testInstallByLatestPackage() throws InterruptedException {
 		InstallRequest installRequest = new InstallRequest();
 		installRequest.setInstallProperties(createInstallProperties("latestPackage"));
