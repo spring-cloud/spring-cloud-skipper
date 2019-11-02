@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package org.springframework.cloud.skipper.server.config.security;
-
-import javax.servlet.Filter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.common.security.AuthorizationProperties;
@@ -57,12 +55,10 @@ public class SkipperOAuthSecurityConfiguration extends OAuthSecurityConfiguratio
 		final BasicAuthenticationEntryPoint basicAuthenticationEntryPoint = new BasicAuthenticationEntryPoint();
 		basicAuthenticationEntryPoint.setRealmName(SecurityConfigUtils.BASIC_AUTH_REALM_NAME);
 		basicAuthenticationEntryPoint.afterPropertiesSet();
-		final Filter oauthFilter = oauthFilter();
 		final BasicAuthenticationFilter basicAuthenticationFilter = new BasicAuthenticationFilter(
 				providerManager(), basicAuthenticationEntryPoint);
-		http.addFilterAfter(oauthFilter, basicAuthenticationFilter.getClass());
-		http.addFilterBefore(basicAuthenticationFilter, oauthFilter.getClass());
-		http.addFilterBefore(oAuth2AuthenticationProcessingFilter(), basicAuthenticationFilter.getClass());
+
+		http.addFilter(basicAuthenticationFilter);
 		this.authorizationProperties.getAuthenticatedPaths().add(dashboard("/**"));
 		this.authorizationProperties.getAuthenticatedPaths().add(dashboard(""));
 
@@ -86,6 +82,13 @@ public class SkipperOAuthSecurityConfiguration extends OAuthSecurityConfiguratio
 				.defaultAuthenticationEntryPointFor(
 						new LoginUrlAuthenticationEntryPoint(this.authorizationProperties.getLoginProcessingUrl()),
 						AnyRequestMatcher.INSTANCE);
+
+		http.oauth2Login().userInfoEndpoint()
+			.userService(this.plainOauth2UserService())
+			.oidcUserService(this.oidcUserService());
+		http.oauth2ResourceServer()
+		.opaqueToken().introspector(opaqueTokenIntrospector());
+
 		this.securityStateBean.setAuthenticationEnabled(true);
 	}
 }
