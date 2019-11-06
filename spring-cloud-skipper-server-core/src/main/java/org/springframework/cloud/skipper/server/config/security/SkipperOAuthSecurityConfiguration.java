@@ -26,11 +26,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
  * Setup Spring Security OAuth for the Rest Endpoints of Spring Cloud Data Flow.
@@ -78,16 +76,10 @@ public class SkipperOAuthSecurityConfiguration extends OAuthSecurityConfiguratio
 				.and().csrf().disable()
 				.exceptionHandling()
 				.defaultAuthenticationEntryPointFor(basicAuthenticationEntryPoint, new AntPathRequestMatcher("/api/**"))
-				.defaultAuthenticationEntryPointFor(basicAuthenticationEntryPoint, new AntPathRequestMatcher("/actuator/**"))
-				.defaultAuthenticationEntryPointFor(
-						new LoginUrlAuthenticationEntryPoint(this.authorizationProperties.getLoginProcessingUrl()),
-						AnyRequestMatcher.INSTANCE);
+				.defaultAuthenticationEntryPointFor(basicAuthenticationEntryPoint, new AntPathRequestMatcher("/actuator/**"));
 
-		http.oauth2Login().userInfoEndpoint()
-			.userService(this.plainOauth2UserService())
-			.oidcUserService(this.oidcUserService());
 		http.oauth2ResourceServer()
-		.opaqueToken().introspector(opaqueTokenIntrospector());
+			.opaqueToken().introspector(opaqueTokenIntrospector());
 
 		this.securityStateBean.setAuthenticationEnabled(true);
 	}
