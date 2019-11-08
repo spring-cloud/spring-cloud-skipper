@@ -42,18 +42,18 @@
 		<spring-cloud-deployer.version>2.0.4.RELEASE</spring-cloud-deployer.version>
 		<spring-cloud-deployer-local.version>2.0.5.RELEASE</spring-cloud-deployer-local.version>
 		<!-- note - check version of reactor at deployer-cf/cf-java-client uses -->
-		<spring-cloud-deployer-cloudfoundry.version>2.0.7.RELEASE</spring-cloud-deployer-cloudfoundry.version>
+		<spring-cloud-deployer-cloudfoundry.version>2.0.8.BUILD-SNAPSHOT</spring-cloud-deployer-cloudfoundry.version>
 		<reactor.version>3.2.0.RELEASE</reactor.version>
 
 		<kubernetes-client.version>4.1.0</kubernetes-client.version>
-		<spring-cloud-deployer-kubernetes.version>2.0.5.RELEASE</spring-cloud-deployer-kubernetes.version>
+		<spring-cloud-deployer-kubernetes.version>2.0.6.BUILD-SNAPSHOT</spring-cloud-deployer-kubernetes.version>
 		<spring-cloud-kubernetes.version>1.0.2.RELEASE</spring-cloud-kubernetes.version>
 
 		<dockerfile-maven-plugin.version>1.4.9</dockerfile-maven-plugin.version>
 		<zeroturnaround.version>1.13</zeroturnaround.version>
 		<spring-restdocs.version>1.2.2.RELEASE</spring-restdocs.version>
 		<java-semver.version>0.9.0</java-semver.version>
-		<spring-cloud-common-security-config.version>1.1.3.RELEASE</spring-cloud-common-security-config.version>
+		<spring-cloud-common-security-config.version>1.1.4.BUILD-SNAPSHOT</spring-cloud-common-security-config.version>
 
 		<jsonpath.version>2.4.0</jsonpath.version>
 		<equalverifier.version>2.4.1</equalverifier.version>
