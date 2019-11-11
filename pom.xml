@@ -16,7 +16,7 @@
 		 release versions -->
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>2.1.6.RELEASE</version>
+		<version>2.1.7.RELEASE</version>
 		<relativePath />
 	</parent>
 
@@ -41,9 +41,7 @@
 		<java-cfenv-boot.version>1.1.2.RELEASE</java-cfenv-boot.version>
 		<spring-cloud-deployer.version>2.0.4.RELEASE</spring-cloud-deployer.version>
 		<spring-cloud-deployer-local.version>2.0.5.RELEASE</spring-cloud-deployer-local.version>
-		<!-- note - check version of reactor at deployer-cf/cf-java-client uses -->
 		<spring-cloud-deployer-cloudfoundry.version>2.0.8.RELEASE</spring-cloud-deployer-cloudfoundry.version>
-		<reactor.version>3.2.12.RELEASE</reactor.version>
 
 		<kubernetes-client.version>4.1.0</kubernetes-client.version>
 		<spring-cloud-deployer-kubernetes.version>2.0.5.RELEASE</spring-cloud-deployer-kubernetes.version>
@@ -229,11 +227,6 @@
 				<groupId>org.zeroturnaround</groupId>
 				<artifactId>zt-zip</artifactId>
 				<version>${zeroturnaround.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.projectreactor</groupId>
-				<artifactId>reactor-core</artifactId>
-				<version>${reactor.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
