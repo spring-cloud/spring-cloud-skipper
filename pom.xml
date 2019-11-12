@@ -60,6 +60,9 @@
 		<hibernate.jpa.version>1.0.0.Final</hibernate.jpa.version>
 		<mariadb.version>2.4.1</mariadb.version>
 
+		<!-- https://hibernate.atlassian.net/projects/HHH/issues/HHH-13711-->
+		<h2.version>1.4.199</h2.version>
+
 		<jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
 		<surefire-maven-plugin.version>2.20</surefire-maven-plugin.version>
 		<sonar-maven-plugin.version>3.0.2</sonar-maven-plugin.version>
@@ -194,6 +197,11 @@
 				<groupId>io.pivotal.cfenv</groupId>
 				<artifactId>java-cfenv-boot-pivotal-sso</artifactId>
 				<version>${java-cfenv-boot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>${h2.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mariadb.jdbc</groupId>
