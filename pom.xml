@@ -41,7 +41,7 @@
 		<java-cfenv-boot.version>1.1.1.RELEASE</java-cfenv-boot.version>
 		<spring-cloud-deployer.version>2.0.5.RELEASE</spring-cloud-deployer.version>
 		<spring-cloud-deployer-local.version>2.0.6.RELEASE</spring-cloud-deployer-local.version>
-		<spring-cloud-deployer-cloudfoundry.version>2.0.9.RELEASE</spring-cloud-deployer-cloudfoundry.version>
+		<spring-cloud-deployer-cloudfoundry.version>2.0.10.RELEASE</spring-cloud-deployer-cloudfoundry.version>
 
 		<kubernetes-client.version>4.1.0</kubernetes-client.version>
 		<spring-cloud-deployer-kubernetes.version>2.0.6.RELEASE</spring-cloud-deployer-kubernetes.version>
