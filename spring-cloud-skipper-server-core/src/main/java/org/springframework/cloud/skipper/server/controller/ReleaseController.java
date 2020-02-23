@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 package org.springframework.cloud.skipper.server.controller;
 
 import java.util.List;
+import java.util.Map;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.skipper.PackageDeleteException;
@@ -47,6 +50,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -105,6 +109,12 @@ public class ReleaseController {
 	}
 
 	// Release commands
+
+	@RequestMapping(path = "/statuses", method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	public Mono<Map<String, Info>> statuses(@RequestParam("names") String[] names) {
+		return this.releaseService.statusReactive(names);
+	}
 
 	@RequestMapping(path = "/status/{name}", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)

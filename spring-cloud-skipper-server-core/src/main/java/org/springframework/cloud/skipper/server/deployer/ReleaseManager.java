@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,12 @@ package org.springframework.cloud.skipper.server.deployer;
 import java.util.Collection;
 import java.util.List;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.cloud.skipper.domain.LogInfo;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.ScaleRequest;
+
 
 /**
  * Manages the lifecycle of a releases.
@@ -76,6 +79,16 @@ public interface ReleaseManager {
 	 * @return the updated release
 	 */
 	Release status(Release release);
+
+	/**
+	 * Get the status of the release, by querying the database. The
+	 * {@link org.springframework.cloud.skipper.server.service.ReleaseStateUpdateService} is
+	 * scheduled ot update the state in the database periodically.
+	 *
+	 * @param release the release to update state for
+	 * @return the updated release
+	 */
+	Mono<Release> statusReactive(Release release);
 
 	/**
 	 * Get the logs of the applications inside the release.
