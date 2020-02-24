@@ -17,9 +17,11 @@ package org.springframework.cloud.skipper.server.deployer;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.cloud.deployer.spi.app.DeploymentState;
 import org.springframework.cloud.skipper.domain.LogInfo;
 import org.springframework.cloud.skipper.domain.Release;
 import org.springframework.cloud.skipper.domain.ScaleRequest;
@@ -89,6 +91,8 @@ public interface ReleaseManager {
 	 * @return the updated release
 	 */
 	Mono<Release> statusReactive(Release release);
+
+	Map<String, Map<String, DeploymentState>> deploymentState(List<Release> releases);
 
 	/**
 	 * Get the logs of the applications inside the release.

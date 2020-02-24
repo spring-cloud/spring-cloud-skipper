@@ -21,6 +21,7 @@ import java.util.Map;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.deployer.spi.app.DeploymentState;
 import org.springframework.cloud.skipper.PackageDeleteException;
 import org.springframework.cloud.skipper.ReleaseNotFoundException;
 import org.springframework.cloud.skipper.SkipperException;
@@ -114,6 +115,12 @@ public class ReleaseController {
 	@ResponseStatus(HttpStatus.OK)
 	public Mono<Map<String, Info>> statuses(@RequestParam("names") String[] names) {
 		return this.releaseService.statusReactive(names);
+	}
+
+	@RequestMapping(path = "/states", method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	public Map<String, Map<String, DeploymentState>> states(@RequestParam("names") String[] names) {
+		return this.releaseService.states(names);
 	}
 
 	@RequestMapping(path = "/status/{name}", method = RequestMethod.GET)

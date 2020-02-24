@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.cloud.deployer.spi.app.DeploymentState;
 import org.springframework.cloud.skipper.domain.AboutResource;
 import org.springframework.cloud.skipper.domain.CancelRequest;
 import org.springframework.cloud.skipper.domain.CancelResponse;
@@ -147,6 +148,22 @@ public class DefaultSkipperClient implements SkipperClient {
 		builder.queryParam("names", StringUtils.arrayToCommaDelimitedString(releaseNames));
 
 		ResponseEntity<Map<String, Info>> responseEntity =
+				restTemplate.exchange(builder.toUriString(),
+						HttpMethod.GET,
+						null,
+						typeReference);
+		return responseEntity.getBody();
+	}
+
+	@Override
+	public Map<String, Map<String, DeploymentState>> states(String... releaseNames) {
+		ParameterizedTypeReference<Map<String, Map<String, DeploymentState>>> typeReference =
+				new ParameterizedTypeReference<Map<String, Map<String, DeploymentState>>>() { };
+
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUri + "/release/states");
+		builder.queryParam("names", StringUtils.arrayToCommaDelimitedString(releaseNames));
+
+		ResponseEntity<Map<String, Map<String, DeploymentState>>> responseEntity =
 				restTemplate.exchange(builder.toUriString(),
 						HttpMethod.GET,
 						null,

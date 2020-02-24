@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.cloud.deployer.spi.app.DeploymentState;
 import org.springframework.cloud.skipper.domain.AboutResource;
 import org.springframework.cloud.skipper.domain.CancelRequest;
 import org.springframework.cloud.skipper.domain.CancelResponse;
@@ -175,6 +176,15 @@ public interface SkipperClient {
 	 * @return the status info of a releases
 	 */
 	Map<String, Info> statuses(String... releaseNames);
+
+
+	/**
+	 * Return the deployment state of a last known releases mapped back to release names.
+	 *
+	 * @param releaseNames the release names
+	 * @return the deployment state of a releases
+	 */
+	Map<String, Map<String, DeploymentState>> states(String... releaseNames);
 
 	/**
 	 * Return a status info of a release version.
