@@ -161,7 +161,7 @@ public class CloudFoundryReleaseManager implements ReleaseManager {
 		return release;
 	}
 
-	public Map<String, Map<String, DeploymentState>> deploymentState(List<Release> releases) {
+	public Mono<Map<String, Map<String, DeploymentState>>> deploymentState(List<Release> releases) {
 		//todo:
 		return null;
 	}

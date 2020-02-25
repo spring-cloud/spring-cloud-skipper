@@ -92,7 +92,7 @@ public interface ReleaseManager {
 	 */
 	Mono<Release> statusReactive(Release release);
 
-	Map<String, Map<String, DeploymentState>> deploymentState(List<Release> releases);
+	Mono<Map<String, Map<String, DeploymentState>>> deploymentState(List<Release> releases);
 
 	/**
 	 * Get the logs of the applications inside the release.

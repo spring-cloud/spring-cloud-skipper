@@ -17,7 +17,6 @@ package org.springframework.cloud.skipper.server.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -275,29 +274,27 @@ public class ReleaseService {
 	 * @return The latest state of the release as stored in the database
 	 */
 	@Transactional
-	public Map<String, Map<String, DeploymentState>> states(String[] releaseNames) {
-		Map<ReleaseManager, List<Release>> releaseManagersMap = new HashMap<>();
-		for (String releaseName: releaseNames) {
-			Release release = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
-			if (release != null) {
-				String kind = ManifestUtils.resolveKind(release.getManifest().getData());
-				ReleaseManager releaseManager = this.releaseManagerFactory.getReleaseManager(kind);
-				if (releaseManagersMap.containsKey(releaseManager)) {
-					releaseManagersMap.get(releaseManager).add(release);
-				}
-				else {
-					List<Release> releases = new ArrayList<>();
-					releases.add(release);
-					releaseManagersMap.put(releaseManager, releases);
-				}
-			}
-		}
-		Map<String, Map<String, DeploymentState>> deploymentStates = new HashMap<>();
-		for (Map.Entry<ReleaseManager, List<Release>> releaseManagerEntry: releaseManagersMap.entrySet()) {
-			ReleaseManager releaseManager = releaseManagerEntry.getKey();
-			deploymentStates.putAll(releaseManager.deploymentState(releaseManagerEntry.getValue()));
-		}
-		return deploymentStates;
+	public Mono<Map<String, Map<String, DeploymentState>>> states(String[] releaseNames) {
+		return Flux.fromArray(releaseNames)
+				.flatMap(releaseName -> {
+					Release release = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
+					return Mono.justOrEmpty(release);
+				})
+				.collectMultimap(release -> {
+					String kind = ManifestUtils.resolveKind(release.getManifest().getData());
+					ReleaseManager releaseManager = this.releaseManagerFactory.getReleaseManager(kind);
+					return releaseManager;
+				}, release -> release)
+				.flatMap(m -> {
+					return Flux.fromIterable(m.entrySet())
+							.flatMap(e -> {
+								return e.getKey().deploymentState(new ArrayList<>(e.getValue()));
+							})
+							.reduce((a,t) -> {
+								a.putAll(t);
+								return a;
+							});
+				});
 	}
 
 

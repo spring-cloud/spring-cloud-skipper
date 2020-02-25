@@ -119,7 +119,7 @@ public class ReleaseController {
 
 	@RequestMapping(path = "/states", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public Map<String, Map<String, DeploymentState>> states(@RequestParam("names") String[] names) {
+	public Mono<Map<String, Map<String, DeploymentState>>> states(@RequestParam("names") String[] names) {
 		return this.releaseService.states(names);
 	}
 

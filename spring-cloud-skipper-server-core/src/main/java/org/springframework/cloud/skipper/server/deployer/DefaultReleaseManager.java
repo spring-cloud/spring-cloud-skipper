@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.app.AppInstanceStatus;
@@ -257,53 +258,73 @@ public class DefaultReleaseManager implements ReleaseManager {
 		deploymentPropertiesMap.put(SPRING_CLOUD_DEPLOYER_COUNT, appsCount);
 	}
 
-	public Map<String, Map<String, DeploymentState>> deploymentState(List<Release> releases) {
-		Map<String, DeploymentState> deploymentIdsMap = new HashMap<>();
-		Map<AppDeployer, List<String>> appDeployerDeploymentIds = new HashMap<>();
-		Map<String, List<String>> releaseDeploymentIds = new HashMap<>();
-		for (Release release: releases) {
-			List<String> deploymentIds = null;
-			if (!release.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) {
-				AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
-						.getAppDeployer();
-				AppDeployerData appDeployerData = this.appDeployerDataRepository
-						.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
-				if (appDeployerData == null) {
-					logger.warn(String.format("Could not get status for release %s-v%s.  No app deployer data found.",
-							release.getName(), release.getVersion()));
-				}
-				deploymentIds = appDeployerData.getDeploymentIds();
-				if (appDeployerDeploymentIds.containsKey(appDeployer)) {
-					appDeployerDeploymentIds.get(appDeployer).addAll(deploymentIds);
-				}
-				else {
-					appDeployerDeploymentIds.put(appDeployer, new ArrayList(deploymentIds));
-				}
-				releaseDeploymentIds.put(release.getName(), new ArrayList(deploymentIds));
-			}
-		}
-		for (Map.Entry<AppDeployer, List<String>> entry : appDeployerDeploymentIds.entrySet()) {
-			AppDeployer appDeployerToUse = entry.getKey();
-			if (appDeployerToUse instanceof MultiStateAppDeployer) {
-				//todo: make use of the cache
-				deploymentIdsMap.putAll(((MultiStateAppDeployer) appDeployerToUse)
-						.states(entry.getValue().toArray(new String[0])));
-			}
-			else {
-				for (String deploymentId : entry.getValue()) {
-					deploymentIdsMap.put(deploymentId, appDeployerToUse.status(deploymentId).getState());
+	public Mono<Map<String, Map<String, DeploymentState>>> deploymentState(List<Release> releases) {
+
+		Mono<Tuple2<Map<AppDeployer, List<String>>, Map<String, List<String>>>> deploymentIdTuple = Mono.defer(() -> {
+			Map<AppDeployer, List<String>> appDeployerDeploymentIds = new HashMap<>();
+			Map<String, List<String>> releaseDeploymentIds = new HashMap<>();
+			for (Release release: releases) {
+				List<String> deploymentIds = null;
+				if (!release.getInfo().getStatus().getStatusCode().equals(StatusCode.DELETED)) {
+					AppDeployer appDeployer = this.deployerRepository.findByNameRequired(release.getPlatformName())
+							.getAppDeployer();
+					AppDeployerData appDeployerData = this.appDeployerDataRepository
+							.findByReleaseNameAndReleaseVersion(release.getName(), release.getVersion());
+					if (appDeployerData == null) {
+						logger.warn(String.format("Could not get status for release %s-v%s.  No app deployer data found.",
+								release.getName(), release.getVersion()));
+					}
+					deploymentIds = appDeployerData.getDeploymentIds();
+					if (appDeployerDeploymentIds.containsKey(appDeployer)) {
+						appDeployerDeploymentIds.get(appDeployer).addAll(deploymentIds);
+					}
+					else {
+						appDeployerDeploymentIds.put(appDeployer, new ArrayList<>(deploymentIds));
+					}
+					releaseDeploymentIds.put(release.getName(), new ArrayList<>(deploymentIds));
 				}
 			}
-		}
-		Map<String, Map<String, DeploymentState>> releasesDeploymentStates = new HashMap<>();
-		for (Release release: releases) {
-			Map<String, DeploymentState> deploymentStates = new HashMap<>();
-			for (String deploymentId: releaseDeploymentIds.get(release.getName())) {
-				deploymentStates.put(deploymentId, deploymentIdsMap.get(deploymentId));
+			return Mono.zip(Mono.just(appDeployerDeploymentIds), Mono.just(releaseDeploymentIds));
+		});
+
+
+		Mono<Tuple2<Map<String, DeploymentState>, Map<String, List<String>>>> deploymentStateTuple = deploymentIdTuple.flatMap(t -> {
+
+			Mono<Map<String, DeploymentState>> deploymentStates = Flux.fromIterable(t.getT1().entrySet())
+					.flatMap(e -> {
+						Mono<Map<String, DeploymentState>> mono2 = Flux.fromIterable(e.getValue())
+								.flatMap(ee -> {
+									return e.getKey().statusReactive(ee);
+								})
+								.collectMap(eee -> eee.getDeploymentId(), eee -> eee.getState())
+								;
+						Mono<Map<String, DeploymentState>> cachedEntry = cache.get(CacheKey.of(e.getValue(), e.getKey()));
+						return cachedEntry.switchIfEmpty(mono2);
+					})
+					.reduce(new HashMap<String, DeploymentState>(), (a, tt) -> {
+						a.putAll(tt);
+						return a;
+					});
+			return Mono.zip(deploymentStates, Mono.just(t.getT2()));
+
+		});
+
+		Mono<Map<String, Map<String, DeploymentState>>> releasesDeploymentStatesMap = deploymentStateTuple.map(m -> {
+			Map<String, DeploymentState> deploymentIdsMap = m.getT1();
+			Map<String, List<String>> releaseDeploymentIds = m.getT2();
+			Map<String, Map<String, DeploymentState>> releasesDeploymentStates = new HashMap<>();
+			for (Release release: releases) {
+				Map<String, DeploymentState> deploymentStates = new HashMap<>();
+				if (releaseDeploymentIds.get(release.getName()) != null) {
+					for (String deploymentId: releaseDeploymentIds.get(release.getName())) {
+						deploymentStates.put(deploymentId, deploymentIdsMap.get(deploymentId));
+					}
+				}
+				releasesDeploymentStates.put(release.getName(), deploymentStates);
 			}
-			releasesDeploymentStates.put(release.getName(), deploymentStates);
-		}
-		return releasesDeploymentStates;
+			return releasesDeploymentStates;
+		});
+		return releasesDeploymentStatesMap;
 	}
 
 	public Mono<Release> statusReactive(Release release) {
