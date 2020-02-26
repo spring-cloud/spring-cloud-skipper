@@ -276,27 +276,20 @@ public class ReleaseService {
 	@Transactional
 	public Mono<Map<String, Map<String, DeploymentState>>> states(String[] releaseNames) {
 		return Flux.fromArray(releaseNames)
-				.flatMap(releaseName -> {
-					Release release = this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName);
-					return Mono.justOrEmpty(release);
-				})
-				.collectMultimap(release -> {
-					String kind = ManifestUtils.resolveKind(release.getManifest().getData());
-					ReleaseManager releaseManager = this.releaseManagerFactory.getReleaseManager(kind);
-					return releaseManager;
-				}, release -> release)
-				.flatMap(m -> {
-					return Flux.fromIterable(m.entrySet())
-							.flatMap(e -> {
-								return e.getKey().deploymentState(new ArrayList<>(e.getValue()));
-							})
-							.reduce((a,t) -> {
-								a.putAll(t);
-								return a;
-							});
-				});
+			.flatMap(releaseName -> Mono.justOrEmpty(this.releaseRepository.findTopByNameOrderByVersionDesc(releaseName)))
+			.collectMultimap(release -> {
+				String kind = ManifestUtils.resolveKind(release.getManifest().getData());
+				return this.releaseManagerFactory.getReleaseManager(kind);
+			}, release -> release)
+			.flatMap(m -> {
+				return Flux.fromIterable(m.entrySet())
+					.flatMap(e -> e.getKey().deploymentState(new ArrayList<>(e.getValue())))
+					.reduce((to, from) -> {
+						to.putAll(from);
+						return to;
+					});
+			});
 	}
-
 
 	/**
 	 * Return the current status of the release
