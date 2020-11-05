@@ -71,6 +71,8 @@
 		<ant-nodeps.version>1.8.1</ant-nodeps.version>
 		<antelopetasks.version>3.2.10</antelopetasks.version>
 		<build-helper-maven-plugin>1.9.1</build-helper-maven-plugin>
+		<nimbus-jose.version>8.19</nimbus-jose.version>
+		<nimbus-oidc.version>7.1.1</nimbus-oidc.version>
 	</properties>
 
 	<modules>
@@ -263,6 +265,16 @@
 				<groupId>org.springframework.security.oauth</groupId>
 				<artifactId>spring-security-oauth2</artifactId>
 				<version>${spring-security-oauth2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nimbusds</groupId>
+				<artifactId>nimbus-jose-jwt</artifactId>
+				<version>${nimbus-jose.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.nimbusds</groupId>
+				<artifactId>oauth2-oidc-sdk</artifactId>
+				<version>${nimbus-oidc.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
