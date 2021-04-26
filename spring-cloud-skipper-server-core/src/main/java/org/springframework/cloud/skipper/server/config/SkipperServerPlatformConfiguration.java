@@ -16,19 +16,25 @@
 package org.springframework.cloud.skipper.server.config;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cloud.deployer.spi.local.LocalAppDeployer;
 import org.springframework.cloud.deployer.spi.local.LocalDeployerProperties;
 import org.springframework.cloud.skipper.domain.Deployer;
 import org.springframework.cloud.skipper.domain.Platform;
 import org.springframework.cloud.skipper.server.deployer.metadata.DeployerConfigurationMetadataResolver;
 import org.springframework.cloud.skipper.server.repository.map.DeployerRepository;
+import org.springframework.cloud.skipper.server.service.DeployerConfigurer;
 import org.springframework.cloud.skipper.server.service.DeployerInitializationService;
+import org.springframework.cloud.skipper.server.service.TraceSkipperAppDeployerConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 @Configuration
@@ -42,8 +48,13 @@ public class SkipperServerPlatformConfiguration {
 
 	@Bean
 	public DeployerInitializationService deployerInitializationService(DeployerRepository deployerRepository,
-			List<Platform> platforms, DeployerConfigurationMetadataResolver resolver) {
-		return new DeployerInitializationService(deployerRepository, platforms, resolver);
+			List<Platform> platforms, DeployerConfigurationMetadataResolver resolver, ObjectProvider<List<DeployerConfigurer>> configurer) {
+		return new DeployerInitializationService(deployerRepository, platforms, resolver, configurer.getIfAvailable(Collections::emptyList));
+	}
+
+	@Bean
+	public TraceSkipperAppDeployerConfigurer traceSkipperAppDeployerConfigurer(BeanFactory beanFactory, Environment environment) {
+		return new TraceSkipperAppDeployerConfigurer(beanFactory, environment);
 	}
 
 	@Bean

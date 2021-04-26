@@ -48,12 +48,14 @@ public class DeployerInitializationService {
 	private final DeployerRepository deployerRepository;
 	private final List<Platform> platforms;
 	private final DeployerConfigurationMetadataResolver resolver;
+	private final List<DeployerConfigurer> deployerConfigurers;
 
 	public DeployerInitializationService(DeployerRepository deployerRepository, List<Platform> platforms,
-			DeployerConfigurationMetadataResolver resolver) {
+			DeployerConfigurationMetadataResolver resolver, List<DeployerConfigurer> configurers) {
 		this.deployerRepository = deployerRepository;
 		this.platforms = platforms;
 		this.resolver = resolver;
+		this.deployerConfigurers = configurers;
 	}
 
 	@EventListener
@@ -65,6 +67,9 @@ public class DeployerInitializationService {
 				List<ConfigurationMetadataPropertyEntity> options = createMetadataPropertyEntities(metadataProperties,
 						deployer.getType());
 				deployer.setOptions(options);
+				for (DeployerConfigurer configurer : this.deployerConfigurers) {
+					deployer = configurer.configure(deployer);
+				}
 				this.deployerRepository.save(deployer);
 				logger.info(String.format(
 						"Added '%s' platform account '%s' into deployer repository.",

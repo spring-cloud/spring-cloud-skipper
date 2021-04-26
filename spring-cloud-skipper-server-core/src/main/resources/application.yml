@@ -184,6 +184,8 @@ spring:
       request-timeout: 120000
   mustache:
     check-template-location: false
+  application:
+    name: skipper-server
 
 maven:
   remoteRepositories:
