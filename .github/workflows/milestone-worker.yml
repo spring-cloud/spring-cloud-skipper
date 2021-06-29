@@ -42,7 +42,7 @@ jobs:
           --server-id-deploy=repo.spring.io \
           --repo-deploy-releases=libs-staging-local \
           --repo-deploy-snapshots=libs-staging-local
-        echo JFROG_CLI_BUILD_NAME=spring-cloud-skipper-main-milestone >> $GITHUB_ENV
+        echo JFROG_CLI_BUILD_NAME=spring-cloud-skipper-27x-milestone >> $GITHUB_ENV
         echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
 
     # zoo extract and ensure
@@ -126,7 +126,7 @@ jobs:
           -P-spring,stagingmilestone,restdocs,asciidoctordocs \
           -DskipTests -U -B
         jfrog rt build-publish
-        echo BUILD_ZOO_HANDLER_spring_cloud_skipper_buildname=spring-cloud-skipper-main-milestone >> $GITHUB_ENV
+        echo BUILD_ZOO_HANDLER_spring_cloud_skipper_buildname=spring-cloud-skipper-27x-milestone >> $GITHUB_ENV
         echo BUILD_ZOO_HANDLER_spring_cloud_skipper_buildnumber=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
 
     # zoo tag
