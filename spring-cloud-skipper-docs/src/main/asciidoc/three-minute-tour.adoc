@@ -519,7 +519,7 @@ Hello World v1.0.0.RELEASE
 ----
 
 [[tour-kubernetes]]
-== Kuberenetes
+== Kubernetes
 
 In this example, we run the Skipper server on the local machine and deploy to minikube, which also runs on the local machine.
 
