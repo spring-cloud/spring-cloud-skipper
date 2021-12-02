@@ -20,6 +20,13 @@
   color: F9D0C4
   description: Belongs to tests
 
+- name: automation/rlnotes-header
+  color: EDEDED
+  description: Belongs to release notes automation
+- name: automation/rlnotes-footer
+  color: EDEDED
+  description: Belongs to release notes automation
+
 - name: for/backport
   color: E99695
   description: For backporting
@@ -135,5 +142,8 @@
   color: BFDADC
   description: Issue for a branch
 - name: branch/2.7.x
+  color: BFDADC
+  description: Issue for a branch
+- name: branch/2.8.x
   color: BFDADC
   description: Issue for a branch
