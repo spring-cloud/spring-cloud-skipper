@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import org.springframework.cloud.skipper.domain.Platform;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.statemachine.boot.autoconfigure.StateMachineJpaRepositoriesAutoConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -47,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Donovan Muller
  * @author Ilayaperumal Gopinathan
+ * @author David Turanski
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -111,7 +111,6 @@ public class SkipperServerPlatformConfigurationTests {
 	static class TestPlatformAutoConfiguration {
 
 		@Bean
-		@Primary
 		public Platform testPlatform() {
 			return new Platform("Test", Collections.singletonList(
 					new Deployer("test", "test", new AppDeployer() {

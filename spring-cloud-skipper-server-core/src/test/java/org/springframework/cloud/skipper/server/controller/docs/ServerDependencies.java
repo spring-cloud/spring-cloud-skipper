@@ -42,6 +42,7 @@ import org.springframework.cloud.deployer.resource.docker.DockerResourceLoader;
 import org.springframework.cloud.deployer.resource.maven.MavenProperties;
 import org.springframework.cloud.deployer.resource.maven.MavenResourceLoader;
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
+import org.springframework.cloud.deployer.spi.app.ActuatorOperations;
 import org.springframework.cloud.skipper.domain.SpringCloudDeployerApplicationManifestReader;
 import org.springframework.cloud.skipper.io.DefaultPackageReader;
 import org.springframework.cloud.skipper.io.DefaultPackageWriter;
@@ -80,6 +81,7 @@ import org.springframework.cloud.skipper.server.repository.jpa.PackageMetadataRe
 import org.springframework.cloud.skipper.server.repository.jpa.ReleaseRepository;
 import org.springframework.cloud.skipper.server.repository.jpa.RepositoryRepository;
 import org.springframework.cloud.skipper.server.repository.map.DeployerRepository;
+import org.springframework.cloud.skipper.server.service.ActuatorService;
 import org.springframework.cloud.skipper.server.service.PackageMetadataService;
 import org.springframework.cloud.skipper.server.service.PackageService;
 import org.springframework.cloud.skipper.server.service.ReleaseReportService;
@@ -91,6 +93,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -146,14 +149,19 @@ public class ServerDependencies implements AsyncConfigurer {
 
 	@Bean
 	public ReleaseController releaseController(ReleaseService releaseService,
-			SkipperStateMachineService skipperStateMachineService) {
-		return new ReleaseController(releaseService, skipperStateMachineService);
+			SkipperStateMachineService skipperStateMachineService, ActuatorService actuatorService) {
+		return new ReleaseController(releaseService, skipperStateMachineService, actuatorService);
 	}
 
 	@Bean
 	public PackageController packageController(PackageService packageService,
 			PackageMetadataService packageMetadataService, SkipperStateMachineService skipperStateMachineService) {
 		return new PackageController(packageService, packageMetadataService, skipperStateMachineService);
+	}
+
+	@Bean
+	ActuatorService actuatorService(ReleaseService releaseService, @Nullable ActuatorOperations actuatorOperations) {
+		return new ActuatorService(releaseService, actuatorOperations);
 	}
 
 	@Bean
