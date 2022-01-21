@@ -56,6 +56,9 @@ public class SkipperServerPlatformConfiguration {
 	@Configuration
 	static class LocalPlatformConfiguration {
 		@Bean
+		/*
+		 * Force this platform instance for the "local" profile, so it may be injected into ActuatorOperations below.
+		 */
 		@Primary
 		public Platform localDeployers(LocalPlatformProperties localPlatformProperties) {
 			List<Deployer> deployers = new ArrayList<>();

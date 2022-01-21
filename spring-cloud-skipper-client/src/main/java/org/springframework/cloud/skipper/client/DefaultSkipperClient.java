@@ -267,11 +267,11 @@ public class DefaultSkipperClient implements SkipperClient {
 		uriVariables.put("appId", appId);
 
 		HttpEntity<ActuatorPostRequest> httpEntity = new HttpEntity<>(request);
-		ResponseEntity<String> resourceResponseEntity =
+		ResponseEntity<?> resourceResponseEntity =
 				restTemplate.exchange(baseUri + "/release/actuator/{releaseName}/{appName}/{appId}",
 						HttpMethod.POST,
 						httpEntity,
-						String.class,
+						Object.class,
 						uriVariables);
 
 		return resourceResponseEntity.getBody();

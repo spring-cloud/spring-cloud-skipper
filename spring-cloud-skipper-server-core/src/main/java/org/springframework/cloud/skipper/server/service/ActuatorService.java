@@ -37,11 +37,11 @@ public class ActuatorService {
 
 	/**
 	 *
-	 * @param releaseName the release name.
+	 * @param releaseName the release name
 	 * @param appName the deployment ID for the app
-	 * @param appId
-	 * @param endpoint
-	 * @return
+	 * @param appId the deployer assigned guid of the app instance
+	 * @param endpoint the relative actuator resource path, e.g., {@code /info}, preceding / is optional
+	 * @return JSON content as UTF-8 encoded string
 	 */
 	public String getFromActuator(String releaseName, String appName, String appId, String endpoint) {
 		return actuatorOperations.getFromActuator(deploymentId(releaseName, appName), appId, endpoint, String.class);
@@ -49,11 +49,11 @@ public class ActuatorService {
 
 	/**
 	 *
-	 * @param releaseName
-	 * @param appName
-	 * @param appId
-	 * @param postRequest
-	 * @return
+	 * @param releaseName the release name
+	 * @param appName the deployment ID for the app
+	 * @param appId the deployer assigned guid of the app instance
+	 * @param postRequest the request parameters {@link ActuatorPostRequest}
+	 * @return the response object, if any
 	 */
 	public Object postToActuator(String releaseName, String appName, String appId, ActuatorPostRequest postRequest) {
 		return actuatorOperations.postToActuator(deploymentId(releaseName, appName), appId, postRequest.getEndpoint(),

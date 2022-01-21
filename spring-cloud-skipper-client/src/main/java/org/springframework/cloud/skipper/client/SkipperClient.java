@@ -242,19 +242,21 @@ public interface SkipperClient {
 	Release scale(String releaseName, ScaleRequest scaleRequest);
 
 	/**
+	 * Access an actuator resource for a deployed app instance.
 	 *
 	 * @param releaseName the release name
 	 * @param appName the application name
 	 * @param appId the deployer assigned guid of the app instance
 	 * @param endpoint the relative actuator path, e.g., {@code /info}
-	 * @return the contents as JSON text.
+	 * @return the contents as JSON text
 	 */
 	String getFromActuator(String releaseName, String appName, String appId, String endpoint);
 
 	/**
+	 * Post to an actuator resource for a deployed app instance.
 	 *
 	 * @param releaseName the release name
-	 * @param appName the application name
+	 * @param appName the application name (deployment ID)
 	 * @param appId the deployer assigned guid of the app instance
 	 * @param request an {@link ActuatorPostRequest}
 	 */

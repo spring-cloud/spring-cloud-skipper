@@ -244,7 +244,8 @@ public class DefaultSkipperClientTests {
 						"{\"endpoint\":\"/bindings/input\",\"body\":{\"state\":\"STOPPED\"}}"))
 				.andRespond(withSuccess());
 
-		Object response = skipperClient.postToActuator(
+		//Don't care about the response here.
+		skipperClient.postToActuator(
 				"tiktok","log", "tiktok-log-0", actuatorPostRequest);
 	}
 }
