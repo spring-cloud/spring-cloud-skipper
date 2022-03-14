@@ -88,7 +88,8 @@ public class PackageWriterTests {
 				TestResourceUtils.qualifiedResource(getClass(), resourceSuffix)
 						.getInputStream(),
 				Charset.defaultCharset());
-		assertThat(zipEntryAsString).isEqualTo(expectedYaml);
+		assertThat(zipEntryAsString.replace("\r", "")).isEqualTo(expectedYaml.replace("\r",""));
+
 	}
 
 	private Package createSimplePackage() throws IOException {
