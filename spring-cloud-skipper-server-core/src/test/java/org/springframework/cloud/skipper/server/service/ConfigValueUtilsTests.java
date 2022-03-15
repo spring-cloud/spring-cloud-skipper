@@ -85,7 +85,7 @@ public class ConfigValueUtilsTests {
 		String expectedYaml = StreamUtils.copyToString(
 				TestResourceUtils.qualifiedResource(getClass(), "merged.yaml").getInputStream(),
 				Charset.defaultCharset());
-		assertThat(mergedYaml).isEqualTo(expectedYaml);
+		assertThat(mergedYaml.replace("\r", "")).isEqualTo(expectedYaml.replace("\r",""));
 	}
 
 	@Configuration
