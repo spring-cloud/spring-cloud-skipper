@@ -35,12 +35,11 @@ import org.springframework.web.context.WebApplicationContext;
 /**
  * @author Gunnar Hillert
  * @author Ilayaperumal Gopinathan
+ * @author Corneil du Plessis
  */
 public class LocalSkipperResource extends ExternalResource {
 
 	private final Logger LOGGER = LoggerFactory.getLogger(LocalSkipperResource.class);
-
-	private SpringApplication app;
 
 	private MockMvc mockMvc;
 
@@ -68,21 +67,21 @@ public class LocalSkipperResource extends ExternalResource {
 
 		final SpringApplicationBuilder builder = new SpringApplicationBuilder(LocalTestSkipperServer.class);
 
-		builder.properties("spring.main.allow-bean-definition-overriding:true");
+		builder.properties("spring.main.allow-bean-definition-overriding=true");
 
 		if (this.configLocations  != null && this.configLocations.length > 0) {
 			builder.properties(
-				String.format("spring.config.additional-location:%s", StringUtils.arrayToCommaDelimitedString(this.configLocations))
+				String.format("spring.config.additional-location=%s", StringUtils.arrayToCommaDelimitedString(this.configLocations))
 			);
 		}
 
 		if (this.configNames  != null && this.configNames.length > 0) {
 			builder.properties(
-				String.format("spring.config.name:%s", StringUtils.arrayToCommaDelimitedString(this.configNames))
+				String.format("spring.config.name=%s", StringUtils.arrayToCommaDelimitedString(this.configNames))
 			);
 		}
 
-		this.app = builder.build();
+		SpringApplication app = builder.build();
 
 		configurableApplicationContext = app.run(this.args);
 

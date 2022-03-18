@@ -58,12 +58,12 @@ public class LocalServerSecurityWithUsersFileTests {
 
 	private final static LocalSkipperResource localSkipperResource = new LocalSkipperResource(
 			new String[]{
-				"classpath:/",
-				"classpath:/org/springframework/cloud/skipper/server/local/security/"
+					"optional:classpath:/",
+					"optional:classpath:/org/springframework/cloud/skipper/server/local/security/"
 			},
 			new String[]{
-				"application",
-				"oauthConfig"
+					"application",
+					"oauthConfig"
 			}
 		);
 

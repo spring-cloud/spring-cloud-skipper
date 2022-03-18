@@ -43,101 +43,102 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 
 
 /**
- *
  * @author Gunnar Hillert
- *
+ * @author Corneil du Plessis
  */
 @Configuration
 @EnableAuthorizationServer
 public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
-	@Autowired
-	private BaseClientDetails details;
+    @Autowired
+    private BaseClientDetails details;
 
-	private AuthenticationManager authenticationManagerBean;
+    private AuthenticationManager authenticationManagerBean;
 
-	@Autowired
-	public void setAuthenticationManagerBean(AuthenticationManager authenticationManagerBean) {
-		this.authenticationManagerBean = authenticationManagerBean;
-	}
+    @Autowired
+    public void setAuthenticationManagerBean(AuthenticationManager authenticationManagerBean) {
+        this.authenticationManagerBean = authenticationManagerBean;
+    }
 
-	@Override
-	public void configure(final AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-		oauthServer
-			.tokenKeyAccess("permitAll()")
-			.checkTokenAccess("isAuthenticated()");
-	}
+    @Override
+    public void configure(final AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+        oauthServer
+                .tokenKeyAccess("permitAll()")
+                .checkTokenAccess("isAuthenticated()");
+    }
 
-	@Override
-	public void configure(final ClientDetailsServiceConfigurer clients) throws Exception {
-		ClientDetailsServiceBuilder<InMemoryClientDetailsServiceBuilder>.ClientBuilder builder = clients
-				.inMemory().withClient(this.details.getClientId());
-		builder.secret(this.details.getClientSecret())
-				.resourceIds(this.details.getResourceIds().toArray(new String[0]))
-				.authorizedGrantTypes(
-						this.details.getAuthorizedGrantTypes().toArray(new String[0]))
-				.authorities(AuthorityUtils
-						.authorityListToSet(this.details.getAuthorities())
-						.toArray(new String[0]))
-				.scopes(this.details.getScope().toArray(new String[0]));
+    @Override
+    public void configure(final ClientDetailsServiceConfigurer clients) throws Exception {
+        ClientDetailsServiceBuilder<InMemoryClientDetailsServiceBuilder>.ClientBuilder builder = clients
+                .inMemory().withClient(this.details.getClientId());
+        builder.secret(this.details.getClientSecret())
+                .resourceIds(this.details.getResourceIds().toArray(new String[0]))
+                .authorizedGrantTypes(
+                        this.details.getAuthorizedGrantTypes().toArray(new String[0]))
+                .authorities(AuthorityUtils
+                        .authorityListToSet(this.details.getAuthorities())
+                        .toArray(new String[0]))
+                .scopes(this.details.getScope().toArray(new String[0]));
 
-		if (this.details.getAutoApproveScopes() != null) {
-			builder.autoApprove(
-					this.details.getAutoApproveScopes().toArray(new String[0]));
-		}
-		if (this.details.getAccessTokenValiditySeconds() != null) {
-			builder.accessTokenValiditySeconds(
-					this.details.getAccessTokenValiditySeconds());
-		}
-		if (this.details.getRefreshTokenValiditySeconds() != null) {
-			builder.refreshTokenValiditySeconds(
-					this.details.getRefreshTokenValiditySeconds());
-		}
-		if (this.details.getRegisteredRedirectUri() != null) {
-			builder.redirectUris(
-					this.details.getRegisteredRedirectUri().toArray(new String[0]));
-		}
-	}
+        if (this.details.getAutoApproveScopes() != null) {
+            builder.autoApprove(
+                    this.details.getAutoApproveScopes().toArray(new String[0]));
+        }
+        if (this.details.getAccessTokenValiditySeconds() != null) {
+            builder.accessTokenValiditySeconds(
+                    this.details.getAccessTokenValiditySeconds());
+        }
+        if (this.details.getRefreshTokenValiditySeconds() != null) {
+            builder.refreshTokenValiditySeconds(
+                    this.details.getRefreshTokenValiditySeconds());
+        }
+        if (this.details.getRegisteredRedirectUri() != null) {
+            builder.redirectUris(
+                    this.details.getRegisteredRedirectUri().toArray(new String[0]));
+        }
+    }
 
-	@Override
-	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-		super.configure(endpoints);
-		endpoints.authenticationManager(authenticationManagerBean);
-		endpoints.tokenStore(tokenStore());
-		endpoints.tokenEnhancer(new TokenEnhancer() {
+    @Override
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+        super.configure(endpoints);
+        endpoints.authenticationManager(authenticationManagerBean);
+        endpoints.tokenStore(tokenStore());
+        endpoints.tokenEnhancer(new TokenEnhancer() {
 
-			@Override
-			public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
-				if (authentication.getPrincipal() instanceof User) {
-					final User user = (User) authentication.getPrincipal();
+            @Override
+            public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
+                if (authentication.getPrincipal() instanceof User) {
+                    final User user = (User) authentication.getPrincipal();
 
-					final Set<String> scopes = new HashSet<String>();
-					for (GrantedAuthority authority : user.getAuthorities()) {
-						final String role = authority.getAuthority();
+                    final Set<String> scopes = new HashSet<String>();
+                    for (GrantedAuthority authority : user.getAuthorities()) {
+                        final String role = authority.getAuthority();
 
-						if (role.startsWith("ROLE_")) {
-							scopes.add(role.substring(5).toLowerCase());
-						}
-						else {
-							scopes.add(role.toLowerCase());
-						}
-					}
-					((DefaultOAuth2AccessToken) accessToken).setScope(scopes);
+                        if (role.startsWith("ROLE_")) {
+                            scopes.add(role.substring(5).toLowerCase());
+                        } else {
+                            scopes.add(role.toLowerCase());
+                        }
+                    }
+                    ((DefaultOAuth2AccessToken) accessToken).setScope(scopes);
 
-				}
-				return accessToken;
-			}
-		});
-	}
+                }
+                return accessToken;
+            }
+        });
+    }
+    @Bean
+    public TokenStore tokenStore() {
+        return new InMemoryTokenStore();
+    }
 
-	@Bean
-	public TokenStore tokenStore() {
-		return new InMemoryTokenStore();
-	}
+    @Configuration
+    public static class BaseClientConfig {
 
-	@Bean
-	@ConfigurationProperties(prefix = "security.oauth2.client")
-	public BaseClientDetails oauth2ClientDetails() {
-		return new BaseClientDetails();
-	}
+        @Bean
+        @ConfigurationProperties(prefix = "security.oauth2.client")
+        public BaseClientDetails oauth2ClientDetails() {
+            return new BaseClientDetails();
+        }
+    }
 }

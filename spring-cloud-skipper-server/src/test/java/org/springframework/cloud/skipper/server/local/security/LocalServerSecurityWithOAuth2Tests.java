@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * @author Gunnar Hillert
+ * @author Corneil du Plessis
  */
 public class LocalServerSecurityWithOAuth2Tests {
 
@@ -41,8 +42,8 @@ public class LocalServerSecurityWithOAuth2Tests {
 
 	private final static LocalSkipperResource localSkipperResource = new LocalSkipperResource(
 			new String[]{
-				"classpath:/",
-				"classpath:/org/springframework/cloud/skipper/server/local/security/"
+				"optional:classpath:/",
+				"optional:classpath:/org/springframework/cloud/skipper/server/local/security/"
 			},
 			new String[]{
 				"application",
