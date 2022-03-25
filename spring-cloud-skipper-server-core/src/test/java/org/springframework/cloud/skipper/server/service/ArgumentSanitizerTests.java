@@ -52,6 +52,7 @@ public class ArgumentSanitizerTests {
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
 		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(redactedYaml));
+		assertThat(result.replace("\r\n", "\n")).isEqualTo(redactedYaml.replace("\r\n", "\n"));
 	}
 
 	@Test
