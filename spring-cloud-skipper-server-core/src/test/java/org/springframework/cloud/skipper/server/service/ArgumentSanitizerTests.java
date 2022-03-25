@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.cloud.skipper.server.service;
 
 import java.nio.charset.Charset;
@@ -22,14 +21,12 @@ import org.junit.Test;
 
 import org.springframework.cloud.skipper.server.TestResourceUtils;
 import org.springframework.cloud.skipper.server.util.ArgumentSanitizer;
-import org.springframework.cloud.skipper.server.util.LineUtil;
 import org.springframework.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Glenn Renfro
- * @author Corneil du Plessis
  */
 public class ArgumentSanitizerTests {
 
@@ -39,7 +36,7 @@ public class ArgumentSanitizerTests {
 				TestResourceUtils.qualifiedResource(getClass(), "nopassword.yaml").getInputStream(),
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
-		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(initialYaml));
+		assertThat(result.replace("\r\n", "\n")).isEqualTo(initialYaml.replace("\r\n", "\n"));
 	}
 
 	@Test
@@ -51,7 +48,7 @@ public class ArgumentSanitizerTests {
 				TestResourceUtils.qualifiedResource(getClass(), "passwordredacted.yaml").getInputStream(),
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
-		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(redactedYaml));
+		assertThat(result.replace("\r\n", "\n")).isEqualTo(redactedYaml.replace("\r\n", "\n"));
 	}
 
 	@Test
@@ -63,6 +60,6 @@ public class ArgumentSanitizerTests {
 				TestResourceUtils.qualifiedResource(getClass(), "configpasswordredacted.yaml").getInputStream(),
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
-		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(redactedYaml));
+		assertThat(result.replace("\r\n", "\n")).isEqualTo(redactedYaml.replace("\r\n", "\n"));
 	}
 }
