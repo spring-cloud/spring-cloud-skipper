@@ -88,7 +88,7 @@ public class PackageWriterTests {
 				TestResourceUtils.qualifiedResource(getClass(), resourceSuffix)
 						.getInputStream(),
 				Charset.defaultCharset());
-		assertThat(zipEntryAsString.replace("\r\n", "\n")).isEqualTo(expectedYaml.replace("\r\n", "\n"));
+		assertThat(removeCr(zipEntryAsString)).isEqualTo(removeCr(expectedYaml));
 	}
 
 	private Package createSimplePackage() throws IOException {
@@ -124,5 +124,8 @@ public class PackageWriterTests {
 		pkg.setTemplates(templateList);
 
 		return pkg;
+	}
+	private static String removeCr(final String input) {
+		return input != null ? input.replace("\r\n", "\n") : null;
 	}
 }

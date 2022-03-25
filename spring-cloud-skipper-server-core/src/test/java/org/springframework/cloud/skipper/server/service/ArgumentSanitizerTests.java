@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import org.springframework.cloud.skipper.server.TestResourceUtils;
 import org.springframework.cloud.skipper.server.util.ArgumentSanitizer;
+import org.springframework.cloud.skipper.server.util.LineUtil;
 import org.springframework.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,7 @@ public class ArgumentSanitizerTests {
 				TestResourceUtils.qualifiedResource(getClass(), "nopassword.yaml").getInputStream(),
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
-		assertThat(result.replace("\r\n", "\n")).isEqualTo(initialYaml.replace("\r\n", "\n"));
+		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(initialYaml));
 	}
 
 	@Test
@@ -48,7 +49,7 @@ public class ArgumentSanitizerTests {
 				TestResourceUtils.qualifiedResource(getClass(), "passwordredacted.yaml").getInputStream(),
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
-		assertThat(result.replace("\r\n", "\n")).isEqualTo(redactedYaml.replace("\r\n", "\n"));
+		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(redactedYaml));
 	}
 
 	@Test
@@ -60,6 +61,6 @@ public class ArgumentSanitizerTests {
 				TestResourceUtils.qualifiedResource(getClass(), "configpasswordredacted.yaml").getInputStream(),
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
-		assertThat(result.replace("\r\n", "\n")).isEqualTo(redactedYaml.replace("\r\n", "\n"));
+		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(redactedYaml));
 	}
 }
