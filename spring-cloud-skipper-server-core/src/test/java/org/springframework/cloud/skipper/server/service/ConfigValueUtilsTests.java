@@ -39,7 +39,6 @@ import org.springframework.cloud.skipper.io.PackageReader;
 import org.springframework.cloud.skipper.server.TestResourceUtils;
 import org.springframework.cloud.skipper.server.config.SkipperServerConfiguration;
 import org.springframework.cloud.skipper.server.util.ConfigValueUtils;
-import org.springframework.cloud.skipper.server.util.LineUtil;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
@@ -49,7 +48,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StreamUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.cloud.skipper.server.util.LineUtil.assertEqualRemoveCr;
 
 /**
  * @author Mark Pollack
@@ -88,7 +87,7 @@ public class ConfigValueUtilsTests {
 		String expectedYaml = StreamUtils.copyToString(
 				TestResourceUtils.qualifiedResource(getClass(), "merged.yaml").getInputStream(),
 				Charset.defaultCharset());
-		assertThat(LineUtil.removeCr(mergedYaml)).isEqualTo(LineUtil.removeCr(expectedYaml));
+		assertEqualRemoveCr(mergedYaml, expectedYaml);
 	}
 
 	@Configuration

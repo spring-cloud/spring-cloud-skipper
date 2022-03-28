@@ -16,12 +16,29 @@
 
 package org.springframework.cloud.skipper.server.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * This utility remove the CR (\r) from linefeed on Windows when comparing content that comes from a file.
  *
  * @author Corneil du Plessis
  */
 public class LineUtil {
+	/**
+	 * Compares 2 strings while replacing CRLR with LF.
+	 *
+	 * @param value Value to compare
+	 * @param expected Expected value
+	 */
+	public static void assertEqualRemoveCr(final String value, final String expected) {
+		assertThat(removeCr(value)).isEqualTo(removeCr(expected));
+	}
+
+	/**
+	 * Replace CRLF with LR.
+	 * @param input a string that requires modification
+	 * @return modified string
+	 */
 	public static String removeCr(final String input) {
 		return input != null ? input.replace("\r\n", "\n") : null;
 	}

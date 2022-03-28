@@ -22,10 +22,9 @@ import org.junit.Test;
 
 import org.springframework.cloud.skipper.server.TestResourceUtils;
 import org.springframework.cloud.skipper.server.util.ArgumentSanitizer;
-import org.springframework.cloud.skipper.server.util.LineUtil;
 import org.springframework.util.StreamUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.cloud.skipper.server.util.LineUtil.assertEqualRemoveCr;
 
 /**
  * @author Glenn Renfro
@@ -39,7 +38,7 @@ public class ArgumentSanitizerTests {
 				TestResourceUtils.qualifiedResource(getClass(), "nopassword.yaml").getInputStream(),
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
-		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(initialYaml));
+		assertEqualRemoveCr(result, initialYaml);
 	}
 
 	@Test
@@ -51,7 +50,7 @@ public class ArgumentSanitizerTests {
 				TestResourceUtils.qualifiedResource(getClass(), "passwordredacted.yaml").getInputStream(),
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
-		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(redactedYaml));
+		assertEqualRemoveCr(result, redactedYaml);
 	}
 
 	@Test
@@ -63,6 +62,6 @@ public class ArgumentSanitizerTests {
 				TestResourceUtils.qualifiedResource(getClass(), "configpasswordredacted.yaml").getInputStream(),
 				Charset.defaultCharset());
 		String result = ArgumentSanitizer.sanitizeYml(initialYaml);
-		assertThat(LineUtil.removeCr(result)).isEqualTo(LineUtil.removeCr(redactedYaml));
+		assertEqualRemoveCr(result, redactedYaml);
 	}
 }
