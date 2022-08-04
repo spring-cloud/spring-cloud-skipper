@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.domain.ConfigValues;
@@ -136,7 +137,7 @@ public class ReleaseReportService {
 	}
 
 	private Map<String, Object> getConfigValuesAsMap(ConfigValues configValues) {
-		Yaml yaml = new Yaml();
+		Yaml yaml = new Yaml(new SafeConstructor());
 		if (StringUtils.hasText(configValues.getRaw())) {
 			Object data = yaml.load(configValues.getRaw());
 			if (data instanceof Map) {

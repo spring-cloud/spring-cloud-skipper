@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import org.springframework.cloud.skipper.SkipperException;
 import org.springframework.cloud.skipper.support.DeploymentPropertiesUtils;
@@ -39,7 +40,7 @@ public abstract class YmlUtils {
 	public static String getYamlConfigValues(File yamlFile, String properties) {
 		String configValuesYML = null;
 		if (yamlFile != null) {
-			Yaml yaml = new Yaml();
+			Yaml yaml = new Yaml(new SafeConstructor());
 			// Validate it is yaml formatted.
 			try {
 				configValuesYML = yaml.dump(yaml.load(new FileInputStream(yamlFile)));

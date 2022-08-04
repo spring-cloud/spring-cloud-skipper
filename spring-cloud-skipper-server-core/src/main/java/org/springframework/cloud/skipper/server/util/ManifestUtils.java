@@ -26,6 +26,7 @@ import java.util.stream.StreamSupport;
 import com.samskivert.mustache.Mustache;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
@@ -60,7 +61,7 @@ public class ManifestUtils {
 		if (!StringUtils.hasText(manifest)) {
 			return null;
 		}
-		Yaml yaml = new Yaml();
+		Yaml yaml = new Yaml(new SafeConstructor());
 		Iterable<Object> object = yaml.loadAll(manifest);
 		for (Object o : object) {
 			if (o != null && o instanceof Map) {

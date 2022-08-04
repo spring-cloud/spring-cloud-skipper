@@ -30,6 +30,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import org.springframework.cloud.skipper.SkipperException;
 
@@ -79,7 +80,7 @@ public class SpringCloudDeployerApplicationManifestReader implements SkipperMani
 	}
 
 	public boolean canSupport(String manifest) {
-		Yaml yaml = new Yaml();
+		Yaml yaml = new Yaml(new SafeConstructor());
 		Iterable<Object> object = yaml.loadAll(manifest);
 		for (Object o : object) {
 			boolean supportKind = assertSupportedKind(o);

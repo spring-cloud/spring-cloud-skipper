@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -65,7 +66,7 @@ public class PackageTemplateTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMustasche() throws IOException {
-		Yaml yaml = new Yaml();
+		Yaml yaml = new Yaml(new SafeConstructor());
 		Map model = (Map) yaml.load(valuesResource.getInputStream());
 		String templateAsString = StreamUtils.copyToString(nestedMapResource.getInputStream(),
 				Charset.defaultCharset());
