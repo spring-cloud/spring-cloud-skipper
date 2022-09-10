@@ -1,6 +1,6 @@
 
 [[configuration-database-overview]]
-A relational database is used to store stream and task definitions as well as the state of executed tasks.
+A relational database is used to store stream definitions and deployment info.
 Spring Cloud Skipper provides schemas for *MariaDB*, *MySQL*, *Oracle*, *PostgreSQL*, *Db2*, *SQL Server*, and *H2*. The schema is automatically created when the server starts.
 
 NOTE: The JDBC drivers for *MariaDB*, *MySQL* (via the _MariaDB_ driver), *PostgreSQL*, *SQL Server* are available without additional configuration. To use any other database you need to put the corresponding JDBC driver jar on the classpath of the server as described <<#add-custom-driver,here>>.
