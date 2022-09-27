@@ -15,7 +15,11 @@ else
 fi
 # export ARCH=arm64v8 for ARM64 image
 if [ "$ARCH" == "" ]; then
-    ARCH=amd64
+    if [ "$HOSTTYPE" == "x86_64" ]; then
+        ARCH=amd64
+    else
+        ARCH=arm64v8
+    fi
 fi
 CRED=
 if [ "$DOCKER_USERNAME" != "" ]; then
