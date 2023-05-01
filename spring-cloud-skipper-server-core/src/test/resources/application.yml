@@ -28,10 +28,12 @@ spring:
               name: Spring Cloud Skipper Shell
               version: fake-shell-version
 
-
 maven:
   remoteRepositories:
-    springRepo: https://repo.spring.io/libs-snapshot
+    mavenCentral:
+      url: https://repo.maven.apache.org/maven2
+    springRepo:
+      url: https://repo.spring.io/snapshot
 
 logging:
   level:
