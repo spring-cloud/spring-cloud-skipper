@@ -201,8 +201,10 @@ spring:
 
 maven:
   remoteRepositories:
+    mavenCentral:
+      url: https://repo.maven.apache.org/maven2
     springRepo:
-      url: https://repo.spring.io/libs-snapshot
+      url: https://repo.spring.io/snapshot
 
 logging:
   level:
